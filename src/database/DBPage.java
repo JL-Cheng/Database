@@ -78,7 +78,7 @@ public class DBPage
     {
         this.id = id;
         this.schema = Database.getTableManager().getSchema(id.getTableId());
-        this.num_tuples = DBPageBuffer.getPageSize()/(schema.getSize());
+        this.num_tuples = (8*DBPageBuffer.getPageSize())/(8*schema.getSize()+1);
         DataInputStream instream = new DataInputStream(new ByteArrayInputStream(data));
 
         header = new byte[(num_tuples+7)/8];
@@ -269,6 +269,7 @@ public class DBPage
     			tuple.setTupleId(new TupleId(id, i));
     			tuples[i] = tuple;
     			setTupleUsed(i, true);
+    			return;
     		}
     	}
     }

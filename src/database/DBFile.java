@@ -1,6 +1,7 @@
 package database;
 
 import java.io.*;
+import java.util.Iterator;
 
 import database.DBPage.DBPageId;
 
@@ -83,7 +84,7 @@ public class DBFile
 			try
 			{
 				RandomAccessFile access_file = new RandomAccessFile(file, "rw");
-				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);
+				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);				
 				access_file.write(page.getPageData(), 0, DBPageBuffer.getPageSize());
 				access_file.close();
 			}
@@ -137,6 +138,77 @@ public class DBFile
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.deleteTuple(tuple);
         return page;
+    }
+
+    /**
+     * 遍历表中所有元组的迭代器，用于记录查询
+     * @return Tuple迭代器
+     * */
+    public ITupleIterator iterator()
+    {
+    	return new ITupleIterator()
+    	{
+
+        	private DBPageBuffer pool = Database.getPageBuffer();
+        	private int table_id = getId();
+        	private int page_id = -1;     	
+        	private Iterator<Tuple> tuples;
+        	
+			public void start() 
+			{
+				page_id = 0;
+				tuples = null;
+			}
+
+			public boolean hasNext()
+			{
+				if (tuples != null && tuples.hasNext())
+				{
+					return true;
+				}
+				else if (page_id < 0 || page_id >= numPages())
+				{
+					return false;
+				}
+				else
+				{
+					tuples = ((DBPage)pool.getPage(new DBPageId(table_id,page_id++))).iterator();
+					return hasNext();
+				}
+			}
+
+			public Tuple next()
+			{
+				if (!hasNext())
+				{
+					return null;
+				}
+				else
+				{
+					return tuples.next();
+				}
+			}
+
+			public void reset()
+			{
+				page_id = 0;
+				tuples = null;
+			}
+
+			public void stop()
+			{
+				page_id = -1;
+				tuples = null;
+			}
+
+			/**
+			 * 请不要使用这一接口
+			 */
+			public Schema getSchema()
+			{
+				return null;
+			}
+        };
     }
 
 }

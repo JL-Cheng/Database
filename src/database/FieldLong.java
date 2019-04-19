@@ -10,7 +10,8 @@ import database.FieldCompare.Re;
  * 功能：Long数据类型
  * 
  */
-public class FieldLong implements IField {
+public class FieldLong implements IField
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -20,23 +21,28 @@ public class FieldLong implements IField {
      * 构造函数
      * @param value 数值
      */
-    public FieldLong(long value) {
+    public FieldLong(long value)
+    {
         this.value = value;
     }
     
-    public long getValue() {
+    public long getValue()
+    {
         return value;
     }
     
-    public String toString() {
+    public String toString()
+    {
         return Long.toString(value);
     }
 
-	public void serialize(DataOutputStream outstream) throws IOException {
+	public void serialize(DataOutputStream outstream) throws IOException
+	{
 		outstream.writeLong(value);
 	}
 
-	public boolean compare(Re re, IField operand) {
+	public boolean compare(Re re, IField operand)
+	{
 		
 		FieldLong m_operand = (FieldLong) operand;
 
@@ -59,7 +65,8 @@ public class FieldLong implements IField {
         }
 	}
 	
-	public FieldType getType() {
+	public FieldType getType()
+	{
 		return FieldType.LONG_TYPE;
 	}
 

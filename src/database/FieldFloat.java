@@ -10,7 +10,8 @@ import database.FieldCompare.Re;
  * 功能：Float数据类型
  * 
  */
-public class FieldFloat implements IField {
+public class FieldFloat implements IField
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -20,23 +21,28 @@ public class FieldFloat implements IField {
      * 构造函数
      * @param value 数值
      */
-    public FieldFloat(float value) {
+    public FieldFloat(float value)
+    {
         this.value = value;
     }
     
-    public float getValue() {
+    public float getValue()
+    {
         return value;
     }
     
-    public String toString() {
+    public String toString()
+    {
         return Float.toString(value);
     }
 
-	public void serialize(DataOutputStream outstream) throws IOException {
+	public void serialize(DataOutputStream outstream) throws IOException
+	{
 		outstream.writeFloat(value);
 	}
 
-	public boolean compare(Re re, IField operand) {
+	public boolean compare(Re re, IField operand)
+	{
 		
 		FieldFloat m_operand = (FieldFloat) operand;
 
@@ -59,7 +65,8 @@ public class FieldFloat implements IField {
         }
 	}
 	
-	public FieldType getType() {
+	public FieldType getType()
+	{
 		return FieldType.FLOAT_TYPE;
 	}
 }

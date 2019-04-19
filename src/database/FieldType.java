@@ -8,14 +8,18 @@ import java.io.*;
  * 功能：枚举所有的数据类型，统一管理
  * 
  */
-public enum FieldType implements Serializable {
+public enum FieldType implements Serializable
+{
 	//Int类型
-    INT_TYPE() {
-        public int getLen() {
+    INT_TYPE()
+    {
+        public int getLen()
+        {
             return 4;
         }
 
-        public IField parse(DataInputStream instream) {
+        public IField parse(DataInputStream instream)
+        {
             try
             {
             	return new FieldInt(instream.readInt());
@@ -28,12 +32,15 @@ public enum FieldType implements Serializable {
         }
     },
 	//Long类型
-    LONG_TYPE() {
-        public int getLen() {
+    LONG_TYPE()
+    {
+        public int getLen()
+        {
             return 8;
         }
 
-        public IField parse(DataInputStream instream) {
+        public IField parse(DataInputStream instream)
+        {
             try
             {
             	return new FieldLong(instream.readLong());
@@ -46,12 +53,15 @@ public enum FieldType implements Serializable {
         }
     },
 	//Float类型
-    FLOAT_TYPE() {
-        public int getLen() {
+    FLOAT_TYPE()
+    {
+        public int getLen()
+        {
             return 4;
         }
 
-        public IField parse(DataInputStream instream) {
+        public IField parse(DataInputStream instream)
+        {
             try
             {
             	return new FieldFloat(instream.readFloat());
@@ -64,12 +74,15 @@ public enum FieldType implements Serializable {
         }
     },
 	//Double类型
-    DOUBLE_TYPE() {
-        public int getLen() {
+    DOUBLE_TYPE()
+    {
+        public int getLen()
+        {
             return 8;
         }
 
-        public IField parse(DataInputStream instream) {
+        public IField parse(DataInputStream instream)
+        {
             try
             {
             	return new FieldDouble(instream.readDouble());
@@ -82,12 +95,15 @@ public enum FieldType implements Serializable {
         }
     },
     //String类型
-    STRING_TYPE() {
-	    public int getLen() {
+    STRING_TYPE()
+    {
+	    public int getLen()
+	    {
 	        return STRING_LEN + 4;
 	    }
 	
-	    public IField parse(DataInputStream instream) {
+	    public IField parse(DataInputStream instream)
+	    {
 	        try
 	        {
 	            int str_len = instream.readInt();

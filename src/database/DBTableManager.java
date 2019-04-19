@@ -132,7 +132,7 @@ public class DBTableManager
     public void loadSchema(String schema_file)
     {
         String line = "";
-        String baseFolder=new File(new File(schema_file).getAbsolutePath()).getParent();
+        String base_folder=new File(new File(schema_file).getAbsolutePath()).getParent();
         try
         {
 			BufferedReader reader = new BufferedReader(new FileReader(new File(schema_file)));
@@ -177,7 +177,7 @@ public class DBTableManager
                 FieldType[] types_array = types.toArray(new FieldType[0]);
                 String[] names_array = names.toArray(new String[0]);
                 Schema n_schema = new Schema(types_array, names_array);
-                DBFile n_dbfile = new DBFile(new File(baseFolder+"/"+ name + ".dat"), n_schema);
+                DBFile n_dbfile = new DBFile(new File(base_folder+"/"+ name + ".dat"), n_schema);
                 addTable(n_dbfile,name,primary_key);
                 System.out.println("Added table : " + name + " ( " + n_schema + " ) ");
             }

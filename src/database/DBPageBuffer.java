@@ -69,7 +69,7 @@ public class DBPageBuffer
     	}
     }
     /**
-     * 向数据表中插入元组     *
+     * 向数据表中插入元组 
      * @param table_id 操作的表
      * @param tuple 插入的元组
      */
@@ -96,7 +96,7 @@ public class DBPageBuffer
     {
     	for (int i=0; i<buffer.length; i++)
     	{
-    		if (buffer[i]!=null)
+    		if (buffer[i]!=null && buffer[i].isOperated()==true)
     		{
     			writePage(buffer[i].getId());
     		}

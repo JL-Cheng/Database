@@ -11,7 +11,8 @@ import database.DBPage.DBPageId;
  * 功能：表的元组（即每一行数据记录）
  * 
  */
-public class Tuple implements Serializable {
+public class Tuple implements Serializable
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -22,7 +23,8 @@ public class Tuple implements Serializable {
 	 * 功能：管理元组id，每个id对应于一个特定表的一个特定页的一个元组
 	 * 
 	 */
-	public static class TupleId {
+	public static class TupleId
+	{
 	
 	    private DBPageId page_id;
 	    private int tuple_no;
@@ -32,7 +34,8 @@ public class Tuple implements Serializable {
 	     * @param page_id 页的id
 	     * @param tuple_no 对应的元组索引
 	     */
-	    public TupleId(DBPageId page_id, int tuple_no) {
+	    public TupleId(DBPageId page_id, int tuple_no)
+	    {
 	    	this.page_id = page_id;
 	    	this.tuple_no = tuple_no;
 	    }
@@ -46,7 +49,8 @@ public class Tuple implements Serializable {
 	     * @param obj 与之比较的元组的id对象
 	     * @return 相同则返回true
 	     */
-	    public boolean equals(Object obj) {
+	    public boolean equals(Object obj)
+	    {
 	    	if (!(obj instanceof TupleId))
 	    	{
 	    		return false;
@@ -68,7 +72,8 @@ public class Tuple implements Serializable {
      * 构造函数
      * @param schema 元组对应的元数据
      */
-    public Tuple(Schema schema) {
+    public Tuple(Schema schema)
+    {
     	this.schema = schema;
     	this.fields = new IField[schema.numFields()];
     }
@@ -77,18 +82,25 @@ public class Tuple implements Serializable {
      * 遍历元组元素的迭代器
      * @return IField迭代器
      * */
-    public Iterator<IField> iterator() {
-    	return new Iterator<IField>() {
+    public Iterator<IField> iterator()
+    {
+    	return new Iterator<IField>()
+    	{
     		private int id = -1;
     		
-			public boolean hasNext() {
+			public boolean hasNext()
+			{
 				return id+1<fields.length;
 			}
 
-			public IField next() {
-				if (++id == fields.length) {
+			public IField next()
+			{
+				if (++id == fields.length)
+				{
 					return null;
-				} else {
+				}
+				else
+				{
 					return fields[id];
 				}
 			}
@@ -99,40 +111,33 @@ public class Tuple implements Serializable {
      * 设置元组对应的元数据
      * @param schema 元数据
      */
-    public void setSchema(Schema schema) {
-    	this.schema = schema;
-    }
+    public void setSchema(Schema schema) { this.schema = schema; }
 
     /**
      * 获取元组对应的元数据
      * @return 元数据
      */
-    public Schema getSchema() {
-        return schema;
-    }
+    public Schema getSchema() { return schema; }
 
     /**
      * 设置元组对应的id
      * @param id 元组id
      */
-    public void setTupleId(TupleId id) {
-    	this.id = id;
-    }
+    public void setTupleId(TupleId id) { this.id = id; }
     
     /**
      * 获取元组对应的id
      * @return 元组id
      */
-    public TupleId getTupleId() {
-        return id;
-    }
+    public TupleId getTupleId() { return id; }
 
     /**
      * 设置元组第i个元素的值
      * @param i 元素索引
      * @param value 新的值
      */
-    public void setField(int i, IField value) {
+    public void setField(int i, IField value)
+    {
         try
         {
         	fields[i] = value;
@@ -149,7 +154,8 @@ public class Tuple implements Serializable {
      * @param i 元素索引
      * @return 第i个元素的值
      */
-    public IField getField(int i) {
+    public IField getField(int i)
+    {
         try
         {
         	return fields[i];
@@ -165,14 +171,15 @@ public class Tuple implements Serializable {
      * 将该元组以字符串形式表达
      * @return 表达的字符串
      */
-    public String toString() {
+    public String toString()
+    {
     	String result = "";
     	
     	result += fields[0].toString();
-    	for (int i=1; i<fields.length; i++) {
+    	for (int i=1; i<fields.length; i++)
+    	{
     		result += "\t" + fields[i].toString();
     	}
         return result;
-    }
-    
+    }    
 }

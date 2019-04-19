@@ -3,6 +3,7 @@ conf/
 lib/
 supp/
 dist/
+db/
 *~
 *.class
 *.in

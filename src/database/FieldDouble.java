@@ -10,7 +10,8 @@ import database.FieldCompare.Re;
  * 功能：Double数据类型
  * 
  */
-public class FieldDouble implements IField {
+public class FieldDouble implements IField
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -20,23 +21,28 @@ public class FieldDouble implements IField {
      * 构造函数
      * @param value 数值
      */
-    public FieldDouble(double value) {
+    public FieldDouble(double value)
+    {
         this.value = value;
     }
     
-    public double getValue() {
+    public double getValue()
+    {
         return value;
     }
     
-    public String toString() {
+    public String toString()
+    {
         return Double.toString(value);
     }
 
-	public void serialize(DataOutputStream outstream) throws IOException {
+	public void serialize(DataOutputStream outstream) throws IOException
+	{
 		outstream.writeDouble(value);
 	}
 
-	public boolean compare(Re re, IField operand) {
+	public boolean compare(Re re, IField operand)
+	{
 		
 		FieldDouble m_operand = (FieldDouble) operand;
 
@@ -59,7 +65,8 @@ public class FieldDouble implements IField {
         }
 	}
 	
-	public FieldType getType() {
+	public FieldType getType()
+	{
 		return FieldType.DOUBLE_TYPE;
 	}
 }

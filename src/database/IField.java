@@ -10,7 +10,8 @@ import database.FieldCompare.Re;
  * 功能：数据库中的所有数据类型应当实现的属性
  * 
  */
-public interface IField extends Serializable {
+public interface IField extends Serializable
+{
 
 	/**
 	 * 将该数据序列化至输出流中

@@ -10,7 +10,8 @@ import database.FieldCompare.Re;
  * 功能：Int数据类型
  * 
  */
-public class FieldInt implements IField {
+public class FieldInt implements IField
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -20,23 +21,28 @@ public class FieldInt implements IField {
      * 构造函数
      * @param value 数值
      */
-    public FieldInt(int value) {
+    public FieldInt(int value)
+    {
         this.value = value;
     }
     
-    public int getValue() {
+    public int getValue()
+    {
         return value;
     }
     
-    public String toString() {
+    public String toString()
+    {
         return Integer.toString(value);
     }
 
-	public void serialize(DataOutputStream outstream) throws IOException {
+	public void serialize(DataOutputStream outstream) throws IOException
+	{
 		outstream.writeInt(value);
 	}
 
-	public boolean compare(Re re, IField operand) {
+	public boolean compare(Re re, IField operand)
+	{
 		
 		FieldInt m_operand = (FieldInt) operand;
 
@@ -59,7 +65,8 @@ public class FieldInt implements IField {
         }
 	}
 	
-	public FieldType getType() {
+	public FieldType getType()
+	{
 		return FieldType.INT_TYPE;
 	}
 

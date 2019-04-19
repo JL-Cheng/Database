@@ -8,7 +8,8 @@ import java.io.Serializable;
  * 功能：对于各种数据类型，比较数据的大小
  * 
  */
-public class FieldCompare implements Serializable {
+public class FieldCompare implements Serializable
+{
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
@@ -20,14 +21,16 @@ public class FieldCompare implements Serializable {
      * 表示比较关系的枚举类型 
      *  Eq：相等    Gt：大于    Lt：小于    Ge：大于等于    Le：小于等于    Ne：不等于
      */
-    public enum Re implements Serializable {
+    public enum Re implements Serializable
+    {
         Eq, Gt, Lt, Ge, Le, Ne;
 
         /**
          * 根据索引获得关系
          * @param i 索引
          */
-        public static Re getRe(int i) {
+        public static Re getRe(int i)
+        {
             return values()[i];
         }
 
@@ -35,7 +38,8 @@ public class FieldCompare implements Serializable {
          * 将关系转为字符串表示
          * @return 关系对应的字符串（如：Eq->"="）
          */
-        public String toString() {
+        public String toString()
+        {
         	switch (this)
         	{
         	case Eq:
@@ -62,7 +66,8 @@ public class FieldCompare implements Serializable {
      * @param re 比较关系
      * @param operand 比较数
      */
-    public FieldCompare(int field_id, Re re, IField operand) {
+    public FieldCompare(int field_id, Re re, IField operand)
+    {
     	this.field_id = field_id;
     	this.re = re;
     	this.operand = operand;
@@ -71,21 +76,24 @@ public class FieldCompare implements Serializable {
     /**
      * @return 数据类型对应编号
      */
-    public int getField() {
+    public int getField()
+    {
         return field_id;
     }
 
     /**
      * @return 比较关系
      */
-    public Re getRe() {
+    public Re getRe()
+    {
         return re;
     }
     
     /**
      * @return 比较数
      */
-    public IField getOperand() {
+    public IField getOperand()
+    {
         return operand;
     }
     
@@ -93,7 +101,8 @@ public class FieldCompare implements Serializable {
      * 返回比较关系的字符串表示
      * @return 字符串表示
      */
-    public String toString() {
+    public String toString()
+    {
         return "field_id = "+field_id+" re = "+re+" operand = "+operand;
     }
     
