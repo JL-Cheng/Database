@@ -9,7 +9,6 @@ import database.FieldCompare.Re;
  * 
  * 功能：String数据类型
  * 
- * 作者：程嘉梁
  */
 public class FieldString implements IField {
 

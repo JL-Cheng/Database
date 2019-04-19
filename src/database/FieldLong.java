@@ -9,7 +9,6 @@ import database.FieldCompare.Re;
  * 
  * 功能：Long数据类型
  * 
- * 作者：程嘉梁
  */
 public class FieldLong implements IField {
 	

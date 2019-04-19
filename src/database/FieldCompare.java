@@ -7,7 +7,6 @@ import java.io.Serializable;
  * 
  * 功能：对于各种数据类型，比较数据的大小
  * 
- * 作者：程嘉梁
  */
 public class FieldCompare implements Serializable {
 	

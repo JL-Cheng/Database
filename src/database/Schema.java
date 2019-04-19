@@ -8,7 +8,6 @@ import java.util.*;
  * 
  * 功能：表的元数据/模式
  * 
- * 作者：程嘉梁
  */
 public class Schema implements Serializable {
 	
@@ -42,7 +41,6 @@ public class Schema implements Serializable {
 	 * 
 	 * 功能：用于表示元数据中每一个元素的名字与数据类型
 	 * 
-	 * 作者：程嘉梁
 	 */
     public static class SchemaItem implements Serializable {
 

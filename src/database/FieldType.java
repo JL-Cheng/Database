@@ -7,7 +7,6 @@ import java.io.*;
  * 
  * 功能：枚举所有的数据类型，统一管理
  * 
- * 作者：程嘉梁
  */
 public enum FieldType implements Serializable {
 	//Int类型

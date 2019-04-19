@@ -9,7 +9,6 @@ import database.FieldCompare.Re;
  * 
  * 功能：数据库中的所有数据类型应当实现的属性
  * 
- * 作者：程嘉梁
  */
 public interface IField extends Serializable {
 

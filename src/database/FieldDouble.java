@@ -9,7 +9,6 @@ import database.FieldCompare.Re;
  * 
  * 功能：Double数据类型
  * 
- * 作者：程嘉梁
  */
 public class FieldDouble implements IField {
 	
