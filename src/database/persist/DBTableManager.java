@@ -1,9 +1,12 @@
-package database;
+package database.persist;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.*;
+
+import database.field.FieldType;
+import database.structure.Schema;
 
 /**
  * 类型：类

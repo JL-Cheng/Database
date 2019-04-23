@@ -1,7 +1,9 @@
-package database;
+package database.structure;
 
 import java.io.*;
 import java.util.*;
+
+import database.field.FieldType;
 
 /**
  * 类型：类
