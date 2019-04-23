@@ -1,4 +1,7 @@
-package database;
+package database.server;
+
+import database.persist.DBPageBuffer;
+import database.persist.DBTableManager;
 
 /**
  * 类型：类

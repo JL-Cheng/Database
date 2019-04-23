@@ -1,9 +1,10 @@
-package database;
+package database.structure;
 
 import java.io.Serializable;
 import java.util.Iterator;
 
-import database.DBPage.DBPageId;
+import database.field.IField;
+import database.persist.DBPage.DBPageId;
 
 /**
  * 类型：类

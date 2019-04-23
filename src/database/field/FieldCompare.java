@@ -1,4 +1,4 @@
-package database;
+package database.field;
 
 import java.io.Serializable;
 
