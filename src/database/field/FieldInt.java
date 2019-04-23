@@ -1,50 +1,50 @@
-package database;
+package database.field;
 
 import java.io.*;
 
-import database.FieldCompare.Re;
+import database.field.FieldCompare.Re;
 
 /**
  * 类型：类
  * 
- * 功能：Long数据类型
+ * 功能：Int数据类型
  * 
  */
-public class FieldLong implements IField
+public class FieldInt implements IField
 {
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
-	private long value;//数值
+	private int value;//数值
 	
     /**
      * 构造函数
      * @param value 数值
      */
-    public FieldLong(long value)
+    public FieldInt(int value)
     {
         this.value = value;
     }
     
-    public long getValue()
+    public int getValue()
     {
         return value;
     }
     
     public String toString()
     {
-        return Long.toString(value);
+        return Integer.toString(value);
     }
 
 	public void serialize(DataOutputStream outstream) throws IOException
 	{
-		outstream.writeLong(value);
+		outstream.writeInt(value);
 	}
 
 	public boolean compare(Re re, IField operand)
 	{
 		
-		FieldLong m_operand = (FieldLong) operand;
+		FieldInt m_operand = (FieldInt) operand;
 
         switch (re)
         {
@@ -67,7 +67,7 @@ public class FieldLong implements IField
 	
 	public FieldType getType()
 	{
-		return FieldType.LONG_TYPE;
+		return FieldType.INT_TYPE;
 	}
 
 }

@@ -1,9 +1,13 @@
-package database;
+package database.persist;
 
 import java.io.*;
 import java.util.Iterator;
 
-import database.DBPage.DBPageId;
+import database.persist.DBPage.DBPageId;
+import database.server.Database;
+import database.structure.ITupleIterator;
+import database.structure.Schema;
+import database.structure.Tuple;
 
 /**
  * 类型：类

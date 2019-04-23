@@ -1,6 +1,8 @@
-package database;
+package database.persist;
 
-import database.DBPage.DBPageId;
+import database.persist.DBPage.DBPageId;
+import database.server.Database;
+import database.structure.Tuple;
 
 /**
  * 类型：类
