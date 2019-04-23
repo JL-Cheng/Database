@@ -1,8 +1,14 @@
-package database;
+package database.server;
 
 import java.io.*;
 
-import database.DBPage.DBPageId;
+import database.field.FieldInt;
+import database.field.FieldType;
+import database.persist.DBFile;
+import database.persist.DBPage;
+import database.persist.DBPage.DBPageId;
+import database.structure.Schema;
+import database.structure.Tuple;
 
 /**
  * 类型：类
@@ -128,7 +134,7 @@ public class Main
     
     public static void main (String args[])
     {
-    	test1_createTable();
+    	test2_recoverTables();
     }
     
 }

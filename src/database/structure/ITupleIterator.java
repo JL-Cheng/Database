@@ -1,4 +1,4 @@
-package database;
+package database.structure;
 
 /**
  * 类型：接口

@@ -1,9 +1,13 @@
-package database;
+package database.persist;
 
 import java.util.*;
 import java.io.*;
 
-import database.Tuple.TupleId;
+import database.field.IField;
+import database.server.Database;
+import database.structure.Schema;
+import database.structure.Tuple;
+import database.structure.Tuple.TupleId;
 
 /**
  * 类型：类
