@@ -1,7 +1,7 @@
 package database.persist;
 
 import database.persist.DBPage.DBPageId;
-import database.server.Database;
+import database.server.DatabaseManager;
 import database.structure.Tuple;
 
 /**
@@ -17,16 +17,32 @@ public class DBPageBuffer
     public static int DEFAULT_PAGES = 50;//每一个缓冲区中的默认页数
     private DBPage[] buffer;//缓冲区
     private int old_page_id = 0;//旧的页的id（用于从缓冲区中移去操作）
+    private DatabaseManager manager;
     
     /**
      * 构造函数，创建一个缓冲区来容纳一定数量的页
      * @param num_pages 缓冲区中最大页数
      */
-    public DBPageBuffer(int num_pages)
+    public DBPageBuffer(DatabaseManager m, int num_pages)
     {
+    	this.manager = m;
+    	createBuffer(num_pages);
+    }
+    /** 
+     * 清空
+     */
+    public void clearAll() {
+    	writeOperatedPages();
+    	buffer = null;
+    	old_page_id = 0;
+    }
+   /**
+    * 创建一个缓冲区来容纳一定数量的页
+    * @param num_pages
+    */
+    public void createBuffer(int num_pages) {
     	buffer = new DBPage[num_pages];
     }
-   
     /**
      * 获取缓冲区中页的尺寸
      * @return 缓冲区中页的尺寸
@@ -66,7 +82,7 @@ public class DBPageBuffer
     	}
     	else
     	{
-    		buffer[id] = Database.getTableManager().getDatabaseFile(page_id.getTableId()).readPage(page_id);
+    		buffer[id] = manager.database.getTableManager().getDatabaseFile(page_id.getTableId()).readPage(page_id);
     		return buffer[id];
     	}
     }
@@ -77,7 +93,7 @@ public class DBPageBuffer
      */
     public void insertTuple(int table_id, Tuple tuple)
     {
-    	DBPage page = Database.getTableManager().getDatabaseFile(table_id).insertTuple(tuple);
+    	DBPage page = manager.database.getTableManager().getDatabaseFile(table_id).insertTuple(tuple);
     	page.setOperated(true);
     }
 
@@ -87,7 +103,7 @@ public class DBPageBuffer
      */
     public void deleteTuple(Tuple tuple)
     {
-    	DBPage page = Database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId()).deleteTuple(tuple);
+    	DBPage page = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId()).deleteTuple(tuple);
     	page.setOperated(true);
     }
 
@@ -115,7 +131,7 @@ public class DBPageBuffer
     	{
     		if (buffer[i] != null && buffer[i].getId().equals(page_id))
     		{
-    			Database.getTableManager().getDatabaseFile(page_id.getTableId()).writePage(buffer[i]);
+    			manager.database.getTableManager().getDatabaseFile(page_id.getTableId()).writePage(buffer[i]);
     			buffer[i].setOperated(false);
     			break;
     		}  		

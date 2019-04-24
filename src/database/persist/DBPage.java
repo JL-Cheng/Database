@@ -4,7 +4,7 @@ import java.util.*;
 import java.io.*;
 
 import database.field.IField;
-import database.server.Database;
+import database.server.DatabaseManager;
 import database.structure.Schema;
 import database.structure.Tuple;
 import database.structure.Tuple.TupleId;
@@ -72,16 +72,18 @@ public class DBPage
     Tuple tuples[];//页中的元组
     int num_tuples;//页中的元组个数
     boolean operated = false;//该页是否修改过
+    DatabaseManager manager;
     
     /**
      * 构造函数，从磁盘数据构造数据页
      * @param id 页的id
      * @param data 页的写入数据
      */
-    public DBPage(DBPageId id, byte[] data)
+    public DBPage(DatabaseManager m, DBPageId id, byte[] data)
     {
+    	this.manager = m;
         this.id = id;
-        this.schema = Database.getTableManager().getSchema(id.getTableId());
+        this.schema = manager.database.getTableManager().getSchema(id.getTableId());
         this.num_tuples = (8*DBPageBuffer.getPageSize())/(8*schema.getSize()+1);
         DataInputStream instream = new DataInputStream(new ByteArrayInputStream(data));
 
