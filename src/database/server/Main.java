@@ -127,7 +127,7 @@ public class Main
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test5_deleteTable(manager);
+    	test4_switchDB_recover(manager);
     	manager.database.close();
     }
     

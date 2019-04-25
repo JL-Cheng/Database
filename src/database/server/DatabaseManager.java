@@ -3,7 +3,6 @@ package database.server;
 import java.io.*;
 
 public class DatabaseManager {
-	public String dbname;
 	public String prefix; //文件地址的前缀
 	public Database database;
 	public DatabaseManager() {
@@ -17,7 +16,7 @@ public class DatabaseManager {
 	 * @param name
 	 */
 	private void setDBname(String name) {
-		dbname = name;
+		database.dbname = name;
 		prefix = getPrefix(name);
 	}
 	/**
@@ -39,7 +38,7 @@ public class DatabaseManager {
 	 * 返回true说明成功创建 返回false说明本来就已经存在该目录下的schema.txt
 	 */
 	private boolean createBasic() {
-		if (schemaExists(dbname)) {
+		if (schemaExists(database.dbname)) {
 			return false;
 		}
 		File dbpath = new File(prefix);
@@ -95,7 +94,7 @@ public class DatabaseManager {
 	 * @throws Exception
 	 */
 	public void removeDatabase(String name) throws Exception {
-		if (name == dbname) {
+		if (name == database.dbname) {
 			throw new Exception("Can't delete current DB.");
 		}
 		if (!schemaExists(name)) {

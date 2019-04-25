@@ -13,12 +13,13 @@ import database.persist.DBTableManager;
  */
 public class Database
 {
+	public String dbname;
     private DBTableManager table_manager;//数据表管理器
     private DBPageBuffer page_buffer;//缓冲区管理器
 
     /**
      * 构造函数
-     * @param name 数据库名字
+     * 
      */
     public Database(DatabaseManager m)
     {
