@@ -73,7 +73,6 @@ public class Main
         	System.err.println(e.getMessage());
             System.exit(0);
         }
-    	manager.database.close();
     }
     
     /**
@@ -89,7 +88,6 @@ public class Main
     	System.out.println("Tuple : " + tuple_2);
     	
     	manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);
-    	manager.database.close();
     }
     
     public static void test3_switchDB(DatabaseManager manager)
@@ -120,6 +118,7 @@ public class Main
     {
     	DatabaseManager manager = new DatabaseManager();
     	test4_switchDB(manager);
+    	manager.database.close();
     }
     
 }

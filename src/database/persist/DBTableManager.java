@@ -243,6 +243,9 @@ public class DBTableManager
             System.exit(0);
         }
     }
+    /**
+     * 持久化schema
+     */
     public void writeSchema() {
     	String schema_file = manager.prefix + "schema.txt";
     	try {
