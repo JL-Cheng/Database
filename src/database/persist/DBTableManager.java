@@ -66,7 +66,7 @@ public class DBTableManager
     	dbnames.put(table_id, dbname);
     	dbfiles.put(table_id, dbfile);
     }
-
+    
     /**
      * 获得一张表的id
      * @param dbname 数据表名字
@@ -171,6 +171,35 @@ public class DBTableManager
         return dbfile;
     }
     
+    /**
+     * 删除一个表 不会遍历缓冲区删除page 等待page自己被慢慢删除
+     * @param name
+     * @param n_schema
+     * @return 
+     */
+    public void removeTable(String name) throws Exception
+    {
+    	String path = manager.prefix + name + ".dat";
+        File f = new File(path);
+        if (!f.exists()) {
+        	throw new Exception("The Table does not exists.");
+        }
+        f.delete();
+        Integer id = -1;
+    	for (Map.Entry<Integer, String> entry: dbnames.entrySet())
+    	{
+    		if (entry.getValue() == name)
+    		{
+    			id = entry.getKey();
+    			break;
+    		}
+    	}
+    	if (id == -1) {
+    		throw new Exception("Can't find table record.");
+    	}
+    	dbnames.remove(id);
+    	dbfiles.remove(id);
+    }
     
     /**
      * 加载所有表的元数据来构建所有表

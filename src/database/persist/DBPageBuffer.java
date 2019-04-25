@@ -82,7 +82,12 @@ public class DBPageBuffer
     	}
     	else
     	{
-    		buffer[id] = manager.database.getTableManager().getDatabaseFile(page_id.getTableId()).readPage(page_id);
+    		DBFile file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
+    		if (file == null) {
+    			System.out.println("Invalid Table.");
+    			System.exit(0);
+    		}
+    		buffer[id] = file.readPage(page_id);
     		return buffer[id];
     	}
     }
@@ -93,8 +98,11 @@ public class DBPageBuffer
      */
     public void insertTuple(int table_id, Tuple tuple)
     {
-    	DBPage page = manager.database.getTableManager().getDatabaseFile(table_id).insertTuple(tuple);
-    	page.setOperated(true);
+    	DBFile file = manager.database.getTableManager().getDatabaseFile(table_id);
+    	if (file != null) {
+    		DBPage page = file.insertTuple(tuple);    		
+    		page.setOperated(true);
+    	}
     }
 
     /**
@@ -103,7 +111,11 @@ public class DBPageBuffer
      */
     public void deleteTuple(Tuple tuple)
     {
-    	DBPage page = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId()).deleteTuple(tuple);
+    	DBFile file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
+    	if (file == null) {
+    		return;
+    	}
+    	DBPage page = file.deleteTuple(tuple);
     	page.setOperated(true);
     }
 
@@ -131,8 +143,11 @@ public class DBPageBuffer
     	{
     		if (buffer[i] != null && buffer[i].getId().equals(page_id))
     		{
-    			manager.database.getTableManager().getDatabaseFile(page_id.getTableId()).writePage(buffer[i]);
-    			buffer[i].setOperated(false);
+    			DBFile file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
+    			if (file != null) {
+    				file.writePage(buffer[i]);
+    				buffer[i].setOperated(false);    				
+    			}
     			break;
     		}  		
     	}

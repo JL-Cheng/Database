@@ -90,7 +90,7 @@ public class Main
     	manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);
     }
     
-    public static void test3_switchDB(DatabaseManager manager)
+    public static void test3_switchDB_createTable(DatabaseManager manager)
     {
     	try {
     		manager.addDatabase("public");
@@ -102,7 +102,7 @@ public class Main
             System.exit(0);
         }
     }
-    public static void test4_switchDB(DatabaseManager manager)
+    public static void test4_switchDB_recover(DatabaseManager manager)
     {
     	try {
     		manager.switchDatabase("public");
@@ -114,10 +114,20 @@ public class Main
             System.exit(0);
         }
     }
+    public static void test5_deleteTable(DatabaseManager manager) {
+    	test1_createTable(manager);
+    	try {    		
+    		manager.database.getTableManager().removeTable("table1");
+    	} catch (Exception e)
+        {
+        	System.err.println(e.getMessage());
+            System.exit(0);
+        }
+    }
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test4_switchDB(manager);
+    	test5_deleteTable(manager);
     	manager.database.close();
     }
     
