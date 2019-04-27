@@ -18,15 +18,23 @@ public class Schema implements Serializable
 	
     private FieldType[] field_types;//所有列的数据类型
     private String[] field_names;//所有列的名称
+    private int[] index;// 主键的下标
 	
     /**
+     * 
      * 构造函数
      * @param types 数据类型数组
      * @param names 名称数组
+     * @param index 主键数组
      */
-    public Schema(FieldType[] types, String[] names)
+    public Schema(FieldType[] types, String[] names, int[] index)
     {
-
+    	if (types.length == 0 || types.length != names.length) {
+    		System.out.println("Invalid Schema Constructor Para.");
+            System.exit(0);
+    	}
+    	this.index = index;
+    	Arrays.sort(this.index);
     	field_types = new FieldType[types.length];
     	field_names = new String[types.length];
     	for (int i=0; i<types.length; i++)
@@ -39,7 +47,13 @@ public class Schema implements Serializable
     		field_names[i] = names[i];
     	}
     }
-
+    public String[] getIndex() {
+    	String[] primary_key = new String[index.length];
+    	for (int i = 0; i < index.length; i++) {
+    		primary_key[i] = field_names[i];
+    	}
+    	return primary_key;
+	}
 	/**
 	 * 类型：类（辅助）
 	 * 
@@ -158,15 +172,26 @@ public class Schema implements Serializable
     public String toString()
     {
 
-    	String result = "";
+    	String result = "(";
     	int n = this.field_types.length;
     	
-    	result += this.field_types[0] + "("+this.field_names[0]+")";
+    	result += this.field_names[0] + " "+ this.field_types[0];
+    	int i_count = 0;
+    	int index_length = index.length;
+    	if (i_count < index_length && index[i_count] == 0) {
+    		i_count++;
+    		result += " primary";
+    	}
     	for (int i=1; i<n; i++)
     	{
-    		result += "," + this.field_types[i];
-    		result += "("+this.field_names[i]+")";
+    		result += "," + this.field_names[i];
+    		result += " "+this.field_types[i];
+    		if (i_count < index_length && index[i_count] == i) {
+    			i_count++;
+        		result += " primary";
+        	}
     	}
+    	result += ')';
         return result;
     }
 }
