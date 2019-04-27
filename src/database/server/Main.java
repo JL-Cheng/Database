@@ -33,7 +33,7 @@ public class Main
         {
         	names[i] = name + i;
         }           
-        return new Schema(types, names);
+        return new Schema(types, names, new int[]{0, 1});
     }
     
     /**
@@ -48,42 +48,13 @@ public class Main
         }           
         return tuple;
     }
-    
 
-    /**
-     * 创建一个新的空的数据表文件，向其中加入一个空的页。
-     */
-    public static DBFile createEmptyDBFile(String path,Schema schema)
-    {
-        File f = new File(path);
-        try
-        {
-        	FileOutputStream outstream = new FileOutputStream(f);
-            outstream.write(new byte[0]);
-            outstream.close();
-        }
-        catch(Exception e)
-        {
-        	System.err.println(e.getMessage());
-        }
-        
-
-        DBFile dbfile = new DBFile(f, schema);
-        Database.getTableManager().addTable(dbfile,"TestTable","name0");
-        
-        DBPageId page_id = new DBPageId(dbfile.getId(), 0);
-        DBPage page = null;
-        page = new DBPage(page_id, DBPage.createEmptyPageData());
-
-        dbfile.writePage(page);
-        return dbfile;
-    }
  
     /**
-     * 创建一个名为table1的数据表，将其存于'./db/table1.dat’文件中，向其中插入一个(1,2,3)的数据。
+     * 创建一个名为table1的数据表，向其中插入一个(1,2,3)的数据。
      * 将该表的结构存于schema.txt文件中。
      */
-    public static void test1_createTable()
+    public static void test1_createTable(DatabaseManager manager)
     {
     	int num_col = 3;
     	String name = "name";
@@ -94,47 +65,78 @@ public class Main
     	
     	Tuple tuple_1 = createTuple(data1,n_schema);
     	System.out.println("Tuple : " + tuple_1);
-    	
-    	DBFile dbfile = createEmptyDBFile("./db/table1.dat",n_schema);
-    	Database.getPageBuffer().insertTuple(dbfile.getId(), tuple_1);
-    	Database.getPageBuffer().writeOperatedPages();
-    	
-        File schema_file = new File("./db/schema.txt");
-        try
-        {
-        	FileOutputStream outstream = new FileOutputStream(schema_file);
-        	PrintStream ps = new PrintStream(outstream);
-        	ps.println("table1(name1 int primary,name2 int,name3 int)");
-        	ps.close();
-        }
-        catch(Exception e)
+    	try {    		
+    		DBFile dbfile = manager.database.getTableManager().createNewTable("table1",n_schema);
+    		manager.database.getPageBuffer().insertTuple(dbfile.getId(), tuple_1);
+    	} catch (Exception e)
         {
         	System.err.println(e.getMessage());
+            System.exit(0);
         }
     }
     
     /**
      *从schema.txt文件中恢复table1，并向其中再插入一个元组。
      */
-    public static void test2_recoverTables()
+    public static void test2_recoverTables(DatabaseManager manager)
     {
     	int[] data2 = {4,5,6};
-    	
-    	Database.getTableManager().loadSchema("./db/schema.txt");
-    	Schema n_schema = Database.getTableManager().getDatabaseFile(Database.getTableManager().getTableId("table1")).getSchema();
+    	Schema n_schema = manager.database.getTableManager().getDatabaseFile(manager.database.getTableManager().getTableId("table1")).getSchema();
     	System.out.println("Schema : " + n_schema);
     	
     	Tuple tuple_2 = createTuple(data2,n_schema);
     	System.out.println("Tuple : " + tuple_2);
     	
-    	Database.getPageBuffer().insertTuple(Database.getTableManager().getTableId("table1"), tuple_2);
-    	Database.getPageBuffer().writeOperatedPages();
-    	
+    	manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);
     }
     
+    public static void test3_switchDB_createTable(DatabaseManager manager)
+    {
+    	try {
+    		manager.addDatabase("public");
+    		manager.switchDatabase("public");
+    		test1_createTable(manager);
+    		
+    	} catch (Exception e)
+        {
+        	System.err.println(e.getMessage());
+            System.exit(0);
+        }
+    }
+    public static void test4_switchDB_recover(DatabaseManager manager)
+    {
+    	try {
+    		manager.switchDatabase("public");
+    		test2_recoverTables(manager);
+    		
+    	} catch (Exception e)
+        {
+        	System.err.println(e.getMessage());
+            System.exit(0);
+        }
+    }
+    public static void test5_deleteTable(DatabaseManager manager) {
+    	test1_createTable(manager);
+    	try {    		
+    		manager.database.getTableManager().removeTable("table1");
+    	} catch (Exception e)
+        {
+        	System.err.println(e.getMessage());
+            System.exit(0);
+        }
+    }
+    public static void test6_primaryKey(DatabaseManager manager) {
+    	Schema n_schema = manager.database.getTableManager().getDatabaseFile(manager.database.getTableManager().getTableId("table1")).getSchema();
+    	String[] primary_key = n_schema.getIndex();
+    	for (String elem: primary_key) {
+    		System.out.println(elem);    		
+    	}
+    }
     public static void main (String args[])
     {
-    	test2_recoverTables();
+    	DatabaseManager manager = new DatabaseManager();
+    	test6_primaryKey(manager);
+    	manager.database.close();
     }
     
 }
