@@ -125,10 +125,17 @@ public class Main
             System.exit(0);
         }
     }
+    public static void test6_primaryKey(DatabaseManager manager) {
+    	Schema n_schema = manager.database.getTableManager().getDatabaseFile(manager.database.getTableManager().getTableId("table1")).getSchema();
+    	String[] primary_key = n_schema.getIndex();
+    	for (String elem: primary_key) {
+    		System.out.println(elem);    		
+    	}
+    }
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test2_recoverTables(manager);
+    	test6_primaryKey(manager);
     	manager.database.close();
     }
     
