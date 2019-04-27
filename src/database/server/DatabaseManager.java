@@ -8,7 +8,7 @@ public class DatabaseManager {
 	public DatabaseManager() {
 		database = new Database(this);
 		setDBname("default");
-		createBasic();
+		createSchema(database.dbname);
 		database.getTableManager().loadSchema();
 	}
 	/**
@@ -37,10 +37,11 @@ public class DatabaseManager {
 	 * 创建指定数据库目录和其下的schema.txt
 	 * 返回true说明成功创建 返回false说明本来就已经存在该目录下的schema.txt
 	 */
-	private boolean createBasic() {
-		if (schemaExists(database.dbname)) {
+	private boolean createSchema(String name) {
+		if (schemaExists(name)) {
 			return false;
 		}
+		String prefix = getPrefix(name);
 		File dbpath = new File(prefix);
 		if (!dbpath.exists()) {
 			try {
@@ -83,10 +84,7 @@ public class DatabaseManager {
 		if (schemaExists(name)) {
 			throw new Exception("Database already exists: " + name);
 		}
-		String oldname = database.dbname;
-		setDBname(name);
-		createBasic();
-		setDBname(oldname);
+		createSchema(name);
 	}
 	/**
 	 * 删除数据库，不能删除当前数据库
