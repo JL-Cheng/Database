@@ -7,7 +7,7 @@ public class DatabaseManager {
 	public Database database;
 	public DatabaseManager() {
 		database = new Database(this);
-		setDBname("defalut");
+		setDBname("default");
 		createBasic();
 		database.getTableManager().loadSchema();
 	}
@@ -76,17 +76,17 @@ public class DatabaseManager {
 		database.getTableManager().loadSchema();
 	}
 	/**
-	 * 增加数据库 并切换到此数据库
+	 * 增加数据库
 	 * @param name
 	 */
 	public void addDatabase(String name) throws Exception {
 		if (schemaExists(name)) {
 			throw new Exception("Database already exists: " + name);
 		}
-		database.clearAll();
+		String oldname = database.dbname;
 		setDBname(name);
 		createBasic();
-		database.getTableManager().loadSchema();
+		setDBname(oldname);
 	}
 	/**
 	 * 删除数据库，不能删除当前数据库

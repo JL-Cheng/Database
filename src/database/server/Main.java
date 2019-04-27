@@ -33,7 +33,7 @@ public class Main
         {
         	names[i] = name + i;
         }           
-        return new Schema(types, names, 0);
+        return new Schema(types, names, new int[]{0, 1});
     }
     
     /**
@@ -94,6 +94,7 @@ public class Main
     {
     	try {
     		manager.addDatabase("public");
+    		manager.switchDatabase("public");
     		test1_createTable(manager);
     		
     	} catch (Exception e)
@@ -127,7 +128,7 @@ public class Main
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test4_switchDB_recover(manager);
+    	test2_recoverTables(manager);
     	manager.database.close();
     }
     

@@ -114,7 +114,7 @@ public class DBTableManager
      * 获得一张表的主键
      * @param table_id 表的id
      */
-    public String getPrimaryKey(int table_id)
+    public String[] getPrimaryKey(int table_id)
     {
     	if (dbfiles.containsKey(table_id))
     	{
@@ -221,7 +221,7 @@ public class DBTableManager
                 String[] fields = line.substring(line.indexOf("(") + 1, line.indexOf(")")).trim().split(","); 
                 ArrayList<String> names = new ArrayList<String>();
                 ArrayList<FieldType> types = new ArrayList<FieldType>();
-                int primary_key = 0;
+                ArrayList<Integer> primary_key = new ArrayList<Integer>();
                 for (String str : fields)
                 {
                     String[] n_fields = str.trim().split(" ");
@@ -244,7 +244,7 @@ public class DBTableManager
                     if (n_fields.length == 3)
                     {
                         if (n_fields[2].trim().equals("primary"))
-                            primary_key = names.size() - 1;
+                            primary_key.add(names.size() - 1);
                         else
                         {
                             System.out.println("wrong constraint :" + n_fields[2]);
@@ -254,7 +254,11 @@ public class DBTableManager
                 }
                 FieldType[] types_array = types.toArray(new FieldType[0]);
                 String[] names_array = names.toArray(new String[0]);
-                Schema n_schema = new Schema(types_array, names_array, primary_key);
+                int[] primary_key_array = new int[primary_key.size()];
+                for (int i = 0; i < primary_key.size(); i++) {
+                	primary_key_array[i] = primary_key.get(i).intValue();
+                }
+                Schema n_schema = new Schema(types_array, names_array, primary_key_array);
                 File dat = new File(base_folder+"/"+ name + ".dat");
                 if (!dat.exists()) {
                 	System.err.println("Data Lost: " + name);
@@ -262,7 +266,7 @@ public class DBTableManager
                 }
                 DBFile n_dbfile = new DBFile(manager, dat, n_schema);
                 addTable(n_dbfile,name);
-                System.out.println("Added table : " + name + " ( " + n_schema + " ) ");
+                System.out.println("[Load "+ manager.database.dbname + "]Added table : " + name + n_schema);
             }
 			reader.close();
         }
