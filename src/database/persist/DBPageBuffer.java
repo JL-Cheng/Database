@@ -20,7 +20,9 @@ public class DBPageBuffer
     private DatabaseManager manager;
     
     /**
+     * 
      * 构造函数，创建一个缓冲区来容纳一定数量的页
+     * @param m
      * @param num_pages 缓冲区中最大页数
      */
     public DBPageBuffer(DatabaseManager m, int num_pages)

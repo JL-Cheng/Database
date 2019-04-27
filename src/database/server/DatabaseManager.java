@@ -36,6 +36,8 @@ public class DatabaseManager {
 	/**
 	 * 创建指定数据库目录和其下的schema.txt
 	 * 返回true说明成功创建 返回false说明本来就已经存在该目录下的schema.txt
+	 * @param name
+	 * @return
 	 */
 	private boolean createSchema(String name) {
 		if (schemaExists(name)) {

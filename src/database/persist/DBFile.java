@@ -27,8 +27,9 @@ public class DBFile
 	
     /**
      * 构造函数
-     * @param file 存于磁盘的对应于该表的数据库文件
-     * @param schema 该表对应的元数据
+     * @param m 
+     * @param file
+     * @param schema
      */
     public DBFile(DatabaseManager m, File file, Schema schema)
     {

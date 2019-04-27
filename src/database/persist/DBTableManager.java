@@ -25,9 +25,10 @@ public class DBTableManager
 	private Map<Integer,DBFile> dbfiles;//数据库中表的id与表文件键值对
 	private DatabaseManager manager;
 	
-    /**
-     * 构造函数
-     */
+	/**
+	 * 构造函数
+	 * @param m
+	 */
     public DBTableManager(DatabaseManager m)
     {
     	manager = m;
@@ -171,12 +172,11 @@ public class DBTableManager
         return dbfile;
     }
     
-    /**
-     * 删除一个表 不会遍历缓冲区删除page 等待page自己被慢慢删除
-     * @param name
-     * @param n_schema
-     * @return 
-     */
+	/**
+	 * 删除一个表 不会遍历缓冲区删除page 等待page自己被慢慢删除
+	 * @param name
+	 * @throws Exception
+	 */
     public void removeTable(String name) throws Exception
     {
     	String path = manager.prefix + name + ".dat";
