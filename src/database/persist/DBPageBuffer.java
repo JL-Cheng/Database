@@ -17,10 +17,9 @@ public class DBPageBuffer
     public static int DEFAULT_PAGES = 50;//每一个缓冲区中的默认页数
     private DBPage[] buffer;//缓冲区
     private int old_page_id = 0;//旧的页的id（用于从缓冲区中移去操作）
-    private DatabaseManager manager;
+    private DatabaseManager manager;//数据库管理对象
     
     /**
-     * 
      * 构造函数，创建一个缓冲区来容纳一定数量的页
      * @param m 数据库管理类
      * @param num_pages 缓冲区中最大页数
@@ -33,7 +32,8 @@ public class DBPageBuffer
     /** 
      * 清空
      */
-    public void clearAll() {
+    public void clearAll()
+    {
     	writeOperatedPages();
     	buffer = null;
     	old_page_id = 0;
@@ -42,7 +42,8 @@ public class DBPageBuffer
     * 创建一个缓冲区来容纳一定数量的页
     * @param num_pages
     */
-    public void createBuffer(int num_pages) {
+    public void createBuffer(int num_pages)
+    {
     	buffer = new DBPage[num_pages];
     }
     /**
@@ -101,7 +102,8 @@ public class DBPageBuffer
     public void insertTuple(int table_id, Tuple tuple)
     {
     	DBFile file = manager.database.getTableManager().getDatabaseFile(table_id);
-    	if (file != null) {
+    	if (file != null)
+    	{
     		DBPage page = file.insertTuple(tuple);    		
     		page.setOperated(true);
     	}
@@ -114,7 +116,8 @@ public class DBPageBuffer
     public void deleteTuple(Tuple tuple)
     {
     	DBFile file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
-    	if (file == null) {
+    	if (file == null)
+    	{
     		return;
     	}
     	DBPage page = file.deleteTuple(tuple);

@@ -23,11 +23,11 @@ public class DBTableManager
 	
 	private Map<Integer,String> dbnames;//数据库中表的id与名字键值对
 	private Map<Integer,DBFile> dbfiles;//数据库中表的id与表文件键值对
-	private DatabaseManager manager;
+	private DatabaseManager manager;//数据库管理对象
 	
 	/**
 	 * 构造函数
-	 * @param m
+	 * @param m 数据库管理类
 	 */
     public DBTableManager(DatabaseManager m)
     {
@@ -38,7 +38,8 @@ public class DBTableManager
     /** 
      * 清空
      */
-    public void clearAll() {
+    public void clearAll()
+    {
     	dbnames.clear();
     	dbfiles.clear();
     }
@@ -137,16 +138,17 @@ public class DBTableManager
     	return null;
     }
     /**
-     * 创建一个新表 创建一个新的空的数据表文件，向其中加入一个空的页。
+     * 创建一个新表（创建一个新的空的数据表文件，向其中加入一个空的页）
      * @param name 表名
-     * @param n_schema 模式
-     * @return 
+     * @param schema 模式
+     * @return 数据表文件对象
      */
     public DBFile createNewTable(String name,Schema schema) throws Exception
     {
     	String path = manager.prefix + name + ".dat";
         File f = new File(path);
-        if (f.exists()) {
+        if (f.exists())
+        {
         	throw new Exception("The Table Already exists.");
         }
         try
@@ -172,28 +174,31 @@ public class DBTableManager
     }
     
 	/**
-	 * 删除一个表 不会遍历缓冲区删除page 等待page自己被慢慢删除
-	 * @param name
+	 * 删除一个表（不会遍历缓冲区删除page，等待page自己被慢慢删除）
+	 * @param name 表名
 	 * @throws Exception
 	 */
     public void removeTable(String name) throws Exception
     {
     	String path = manager.prefix + name + ".dat";
         File f = new File(path);
-        if (!f.exists()) {
+        if (!f.exists())
+        {
         	throw new Exception("The Table does not exists.");
         }
         f.delete();
         Integer id = -1;
     	for (Map.Entry<Integer, String> entry: dbnames.entrySet())
     	{
-    		if (entry.getValue() == name)
+    		System.out.println(entry.getValue());
+    		if (entry.getValue().equals(name))
     		{
     			id = entry.getKey();
     			break;
     		}
     	}
-    	if (id == -1) {
+    	if (id == -1)
+    	{
     		throw new Exception("Can't find table record.");
     	}
     	dbnames.remove(id);
@@ -202,7 +207,7 @@ public class DBTableManager
     
     /**
      * 加载所有表的元数据来构建所有表
-     * -文件中每一行格式为： 数据库名字 (列名字 数据类型, 列名字 数据类型, ...)
+     * -文件中每一行格式为： 表名字 (列名字 数据类型, 列名字 数据类型, ...)
      * 
      */
     public void loadSchema()
@@ -254,12 +259,14 @@ public class DBTableManager
                 FieldType[] types_array = types.toArray(new FieldType[0]);
                 String[] names_array = names.toArray(new String[0]);
                 int[] primary_key_array = new int[primary_key.size()];
-                for (int i = 0; i < primary_key.size(); i++) {
+                for (int i = 0; i < primary_key.size(); i++)
+                {
                 	primary_key_array[i] = primary_key.get(i).intValue();
                 }
                 Schema n_schema = new Schema(types_array, names_array, primary_key_array);
                 File dat = new File(base_folder+"/"+ name + ".dat");
-                if (!dat.exists()) {
+                if (!dat.exists())
+                {
                 	System.err.println("Data Lost: " + name);
                     System.exit(0);
                 }
@@ -276,19 +283,23 @@ public class DBTableManager
         }
     }
     /**
-     * 持久化schema
+     * 持久化表的元数据
      */
-    public void writeSchema() {
+    public void writeSchema()
+    {
     	String schema_file = manager.prefix + "schema.txt";
-    	try {
+    	try
+    	{
         	FileOutputStream outstream = new FileOutputStream(schema_file);
         	PrintStream ps = new PrintStream(outstream);
-        	for (Map.Entry<Integer, DBFile> entry : dbfiles.entrySet()) { 
+        	for (Map.Entry<Integer, DBFile> entry : dbfiles.entrySet())
+        	{ 
         		DBFile file = entry.getValue();
         		ps.println(dbnames.get(entry.getKey()) + file.getSchema().toString());
         	}
         	ps.close();
-    	} catch(Exception e)
+    	}
+    	catch(Exception e)
         {
         	System.err.println(e.getMessage());
         }

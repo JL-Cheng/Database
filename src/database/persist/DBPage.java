@@ -72,7 +72,7 @@ public class DBPage
     Tuple tuples[];//页中的元组
     int num_tuples;//页中的元组个数
     boolean operated = false;//该页是否修改过
-    DatabaseManager manager;
+    DatabaseManager manager;//数据库管理对象
     
     /**
      * 构造函数，从磁盘数据构造数据页

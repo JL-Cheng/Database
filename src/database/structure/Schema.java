@@ -21,7 +21,6 @@ public class Schema implements Serializable
     private int[] index;// 主键的下标
 	
     /**
-     * 
      * 构造函数
      * @param types 数据类型数组
      * @param names 名称数组
@@ -47,13 +46,20 @@ public class Schema implements Serializable
     		field_names[i] = names[i];
     	}
     }
-    public String[] getIndex() {
+    
+    /**
+     * 获取主键对应的列名
+     */
+    public String[] getIndex()
+    {
     	String[] primary_key = new String[index.length];
-    	for (int i = 0; i < index.length; i++) {
-    		primary_key[i] = field_names[i];
+    	for (int i = 0; i < index.length; i++)
+    	{
+    		primary_key[i] = field_names[index[i]];
     	}
     	return primary_key;
 	}
+    
 	/**
 	 * 类型：类（辅助）
 	 * 
