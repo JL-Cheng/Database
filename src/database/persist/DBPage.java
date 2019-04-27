@@ -76,7 +76,7 @@ public class DBPage
     
     /**
      * 构造函数，从磁盘数据构造数据页
-     * @param m
+     * @param m 数据库管理类
      * @param id 页的id
      * @param data 页的写入数据
      */

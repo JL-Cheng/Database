@@ -21,9 +21,11 @@ public class Schema implements Serializable
     private int[] index;// 主键的下标
 	
     /**
+     * 
      * 构造函数
      * @param types 数据类型数组
      * @param names 名称数组
+     * @param index 主键数组
      */
     public Schema(FieldType[] types, String[] names, int[] index)
     {

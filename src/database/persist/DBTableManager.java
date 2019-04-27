@@ -138,9 +138,8 @@ public class DBTableManager
     }
     /**
      * 创建一个新表 创建一个新的空的数据表文件，向其中加入一个空的页。
-     * @param name
-     * @param n_schema
-     * @param index 索引在schema里的位置
+     * @param name 表名
+     * @param n_schema 模式
      * @return 
      */
     public DBFile createNewTable(String name,Schema schema) throws Exception
