@@ -1,9 +1,13 @@
-package database;
+package database.persist;
 
 import java.io.*;
 import java.util.Iterator;
 
-import database.DBPage.DBPageId;
+import database.persist.DBPage.DBPageId;
+import database.server.DatabaseManager;
+import database.structure.ITupleIterator;
+import database.structure.Schema;
+import database.structure.Tuple;
 
 /**
  * 类型：类
@@ -19,14 +23,17 @@ public class DBFile
 
 	private File file;
 	private Schema schema;
+	private DatabaseManager manager;
 	
     /**
      * 构造函数
+     * @param m 数据库管理类
      * @param file 存于磁盘的对应于该表的数据库文件
      * @param schema 该表对应的元数据
      */
-    public DBFile(File file, Schema schema)
+    public DBFile(DatabaseManager m, File file, Schema schema)
     {
+    	this.manager = m;
     	this.file = file;
     	this.schema = schema;
     }
@@ -59,7 +66,7 @@ public class DBFile
     				access_file.read(bytes, 0, DBPageBuffer.getPageSize());
     				DBPageId n_page_id = new DBPageId(page_id.getTableId(),page_id.getPageNumber());				
 					access_file.close();
-					return new DBPage(n_page_id, bytes);
+					return new DBPage(manager, n_page_id, bytes);
     			}
     			catch (Exception e)
     			{
@@ -103,7 +110,7 @@ public class DBFile
     public DBPage insertTuple(Tuple tuple)
     {
     	DBPage page = null;
-    	DBPageBuffer pool = Database.getPageBuffer();
+    	DBPageBuffer pool = manager.database.getPageBuffer();
     	int table_id = getId();
     	int page_no = 0;
     	
@@ -120,7 +127,7 @@ public class DBFile
     	}
     	if (page_no == numPages())
     	{
-    		page = new DBPage(new DBPageId(table_id, page_no), DBPage.createEmptyPageData());  		
+    		page = new DBPage(manager, new DBPageId(table_id, page_no), DBPage.createEmptyPageData());  		
     		page.insertTuple(tuple);
     		writePage(page);
     	}
@@ -134,7 +141,7 @@ public class DBFile
      */
     public DBPage deleteTuple(Tuple tuple)
     {
-    	DBPageBuffer pool = Database.getPageBuffer();
+    	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.deleteTuple(tuple);
         return page;
@@ -149,7 +156,7 @@ public class DBFile
     	return new ITupleIterator()
     	{
 
-        	private DBPageBuffer pool = Database.getPageBuffer();
+        	private DBPageBuffer pool = manager.database.getPageBuffer();
         	private int table_id = getId();
         	private int page_id = -1;     	
         	private Iterator<Tuple> tuples;

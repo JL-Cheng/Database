@@ -1,8 +1,8 @@
-package database;
+package database.field;
 
 import java.io.*;
 
-import database.FieldCompare.Re;
+import database.field.FieldCompare.Re;
 
 /**
  * 类型：类
