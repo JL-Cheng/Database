@@ -153,9 +153,9 @@ public class DBFile
      * */
     public ITupleIterator iterator()
     {
+    	Schema m_schema = this.schema;
     	return new ITupleIterator()
     	{
-
         	private DBPageBuffer pool = manager.database.getPageBuffer();
         	private int table_id = getId();
         	private int page_id = -1;     	
@@ -208,12 +208,9 @@ public class DBFile
 				tuples = null;
 			}
 
-			/**
-			 * 请不要使用这一接口
-			 */
 			public Schema getSchema()
 			{
-				return null;
+				return m_schema;
 			}
         };
     }

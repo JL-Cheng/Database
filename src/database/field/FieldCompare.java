@@ -1,6 +1,7 @@
 package database.field;
 
 import java.io.Serializable;
+import database.structure.Tuple;
 
 /**
  * 类型：类
@@ -95,6 +96,15 @@ public class FieldCompare implements Serializable
     public IField getOperand()
     {
         return operand;
+    }
+    
+    /**
+     * 筛选满足条件的元组
+     * @param tuple 待筛选的元组
+     */
+    public boolean filter(Tuple tuple)
+    {
+    	return tuple.getField(field_id).compare(re, operand);
     }
     
     /**

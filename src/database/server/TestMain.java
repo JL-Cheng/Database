@@ -156,14 +156,14 @@ public class TestMain
     
     public static void main (String args[])
     {
-    	DatabaseManager manager = new DatabaseManager();
-    	test1_createTable(manager);
+    	//DatabaseManager manager = new DatabaseManager();
+    	//test1_createTable(manager);
     	//test2_recoverTables(manager);
     	//test3_switchDB_createTable(manager);
     	//test4_switchDB_recover(manager);
     	//test5_deleteTable(manager);  	
     	//test6_primaryKey(manager);
-    	manager.database.close();
+    	//manager.database.close();
     }
     
 }
