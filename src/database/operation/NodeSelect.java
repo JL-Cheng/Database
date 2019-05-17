@@ -20,4 +20,18 @@ public class NodeSelect
     {
     	this.field_name = field_name;
     }
+    
+    public boolean equals(Object obj)
+    {
+    	if (!(obj instanceof NodeSelect))
+    	{
+    		return false;
+    	}
+    	NodeSelect node = (NodeSelect) obj;
+    	if(node.field_name.equals(this.field_name))
+    	{
+    		return true;
+    	}
+    	return false;
+    }
 }

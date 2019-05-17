@@ -23,4 +23,18 @@ public class NodeFrom
     	this.table_name = table_name;
     	this.table_id = table_id;
     }
+    
+    public boolean equals(Object obj)
+    {
+    	if (!(obj instanceof NodeFrom))
+    	{
+    		return false;
+    	}
+    	NodeFrom node = (NodeFrom) obj;
+    	if(node.table_id == this.table_id && node.table_name.equals(this.table_name))
+    	{
+    		return true;
+    	}
+    	return false;
+    }
 }
