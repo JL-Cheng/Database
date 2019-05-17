@@ -29,6 +29,7 @@ public class Query
 	private Vector<NodeWhere> where_nodes;//WHERE语句中的节点
 	
 	private String query_string;//查询语句
+	private String error_message;//解析过程中是否出现错误，若是""则说明没有错误
 	
 	private DatabaseManager manager;
 	
@@ -42,11 +43,14 @@ public class Query
     	select_nodes = new Vector<NodeSelect>();
     	where_nodes = new Vector<NodeWhere>();
     	query_string = "";
+    	error_message = "";
     	this.manager = m;
     }
     
     public void setQuery(String query_string) { this.query_string = query_string; }
     public String getQuery() { return query_string; }
+    public void setErrorMessage(String error_message) { this.error_message = this.error_message + error_message + "\n"; }
+    public String getErrorMessage() { return error_message; }
     
     /**
      * 增加一个WHERE节点
@@ -58,21 +62,45 @@ public class Query
     {
     	String[] result = getTableAndFieldName(field_name);
     	NodeWhere node = new NodeWhere(result[0],result[1], re, cons);
-    	where_nodes.addElement(node);
+    	if(!where_nodes.contains(node))
+    	{
+    		where_nodes.addElement(node);
+    	}  
     }
     
     /**
      * 增加一个JOIN节点
-     * @param field1_name 第一张表列名，非空
-     * @param field2_name 第二张表列名，非空
+     * @param name1 第一张表列名（或表名），非空
+     * @param name2 第二张表列名（或表名），非空
      * @param re 关系
      */
-    public void addNodeJoin(String field1_name,String field2_name, Re re) throws Exception
+    public void addNodeJoin(String name1,String name2, Re re) throws Exception
     {
-    	String[] result1 = getTableAndFieldName(field1_name);
-    	String[] result2 = getTableAndFieldName(field2_name);
-    	NodeJoin node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
-    	join_nodes.addElement(node);
+    	NodeJoin node = null;
+    	String[] result1 = null;
+    	String[] result2 = null;
+    	//若只是两张表普通连接
+    	if(name1.split("[.]").length==1&&name2.split("[.]").length==1&&re==null)
+    	{
+    		result1 = getTableAndFieldName(name1+".*");
+        	result2 = getTableAndFieldName(name2+".*");
+    		node = new NodeJoin(result1[0], result2[0], null,null, null);
+    	}
+    	//若是两个表的列名关系
+    	else if(name1.split("[.]").length==2&&name2.split("[.]").length==2&&re!=null)
+    	{
+    		result1 = getTableAndFieldName(name1);
+        	result2 = getTableAndFieldName(name2);
+    		node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
+    	}
+    	else
+    	{
+    		throw new Exception("Parse error on TABLE JOIN.");
+    	}
+    	if(!join_nodes.contains(node))
+    	{
+    		join_nodes.addElement(node);
+    	}  
     }
 
     /**
@@ -83,7 +111,10 @@ public class Query
     public void addNodeFrom(int table_id,String table_name) throws Exception
     {
     	NodeFrom node = new NodeFrom(table_name, table_id);
-    	from_nodes.addElement(node);
+    	if(!from_nodes.contains(node))
+    	{
+    		from_nodes.addElement(node);
+    	}  	
     }
 
     /**
@@ -92,8 +123,12 @@ public class Query
      */
     public void addNodeSelect(String field_name) throws Exception
     {
-    	NodeSelect node = new NodeSelect(field_name);
-    	select_nodes.addElement(node);
+    	String result = getTableAndFieldName(field_name)[1];
+    	NodeSelect node = new NodeSelect(result);
+    	if(!select_nodes.contains(node))
+    	{
+    		select_nodes.addElement(node);
+    	} 
     }
     
     /**
@@ -220,22 +255,30 @@ public class Query
      */
     public ITupleIterator getJoinTable(NodeJoin join_node,ITupleIterator tuples1, ITupleIterator tuples2) throws Exception
     {
-    	int field1_id=0, field2_id=0;
-    	
-    	field1_id = tuples1.getSchema().getFieldIndex(join_node.field1_name); 
-    	field2_id = tuples2.getSchema().getFieldIndex(join_node.field2_name);  	
-    	if(field1_id == -1)
+    	JoinCompare jc = null;
+    	OperatorJoin join = null;
+    	if(join_node.field1_name==null&&join_node.field2_name==null&&join_node.re==null)
     	{
-    		throw new Exception("Unknown field " + join_node.field1_name);
+        	jc = new JoinCompare(0,0,null);
+        	join = new OperatorJoin(jc,tuples1,tuples2);
     	}
-    	if(field2_id == -1)
+    	else if(join_node.field1_name!=null&&join_node.field2_name!=null&&join_node.re!=null)
     	{
-    		throw new Exception("Unknown field " + join_node.field2_name);
-    	}
-    	
-    	JoinCompare jc = new JoinCompare(field1_id,field2_id,join_node.re);
-    	OperatorJoin join = new OperatorJoin(jc,tuples1,tuples2);
-        
+    		int field1_id=0, field2_id=0;
+        	
+        	field1_id = tuples1.getSchema().getFieldIndex(join_node.field1_name); 
+        	field2_id = tuples2.getSchema().getFieldIndex(join_node.field2_name);  	
+        	if(field1_id == -1)
+        	{
+        		throw new Exception("Unknown field " + join_node.field1_name);
+        	}
+        	if(field2_id == -1)
+        	{
+        		throw new Exception("Unknown field " + join_node.field2_name);
+        	}
+        	jc = new JoinCompare(field1_id,field2_id,join_node.re);
+        	join = new OperatorJoin(jc,tuples1,tuples2);
+    	}     
         return join;
     }
     
@@ -311,7 +354,7 @@ public class Query
     		
     		//将筛选操作加入到tables_operation中
     		OperatorFilter filter = new OperatorFilter(field_cp,table_it);
-    		tables_operation.put(where_node.table_name,filter);  			
+    		tables_operation.put(where_node.table_name,filter);  
     	}
     	
     	//第三步，遍历所有JOIN节点
@@ -348,10 +391,10 @@ public class Query
     		{
     			throw new Exception("Unknown table "+join_node.table2_name);
     		}
-    		
+        	
     		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
     		tables_operation.put(table1_name,temp);
-    		
+        	 		
     		//将所有出现过表2名字的地方都替换为表1的名字
     		tables_operation.remove(table2_name);
     		tables_equiv.put(table2_name,table1_name);
@@ -372,14 +415,13 @@ public class Query
     	
     	//第四步，遍历所有SELECT节点，决定最终合成的表应当输出哪几列（投影操作）
     	ITupleIterator final_table = (ITupleIterator)(tables_operation.entrySet().iterator().next().getValue());
+    	final_table.start();
     	ArrayList<Integer> final_fields_id = new ArrayList<Integer>();
         ArrayList<FieldType> final_types = new ArrayList<FieldType>();
         Iterator<NodeSelect> select_node_it = select_nodes.iterator();
     	while(select_node_it.hasNext())
     	{
     		NodeSelect select_node = select_node_it.next();
-    		//因为SELECT节点是在FROM节点前插入，所以先对其field_name进行处理
-    		select_node.field_name = getTableAndFieldName(select_node.field_name)[1];
     		String[] names = select_node.field_name.split("[.]");
     		//第一种情况：table.field形式
     		if(!(names[0].equals("null"))&&!(names[1].equals("*")))
@@ -435,6 +477,7 @@ public class Query
     		}
     	}
     	
-    	return null;
+    	return new OperatorProject(final_fields_id, final_types, final_table);
     }
+
 }

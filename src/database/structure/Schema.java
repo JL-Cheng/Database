@@ -28,8 +28,9 @@ public class Schema implements Serializable
      */
     public Schema(FieldType[] types, String[] names, int[] index)
     {
-    	if (types.length == 0 || types.length != names.length) {
-    		System.out.println("Invalid Schema Constructor Para.");
+    	if (types.length == 0 || types.length != names.length)
+    	{
+    		System.out.println("Invalid Schema Constructor Param.");
             System.exit(0);
     	}
     	this.index = index;
@@ -201,7 +202,7 @@ public class Schema implements Serializable
     {
     	FieldType[] new_types = new FieldType[(schema1.field_types.length+schema2.field_types.length)];
     	String[] new_names = new String[(schema1.field_names.length+schema2.field_names.length)];
-    	int[] new_index = null;//JOIN操作中合并的临时表主键为空
+    	int[] new_index = {};//JOIN操作中合并的临时表主键为空
     	int i = 0;
     	
     	for (int j=0; j<schema1.field_types.length; j++)
@@ -216,7 +217,8 @@ public class Schema implements Serializable
     		new_names[i] = schema2.field_names[j];
     		i=i+1;
     	}
-    	return new Schema(new_types, new_names, new_index);
+    	Schema result = new Schema(new_types, new_names, new_index);
+    	return result;
     }
 
     /**

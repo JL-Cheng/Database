@@ -19,7 +19,7 @@ public class OperatorJoin extends Operator
 	/**
 	 * 类型：类
 	 * 
-	 * 功能：结合操作中比较两元组是否满足结合条件
+	 * 功能：结合操作中比较两元组是否满足结合条件（若re均为null时，则总返回true）
 	 * 
 	 */
 	public static class JoinCompare
@@ -45,7 +45,14 @@ public class OperatorJoin extends Operator
 	     */
 		public boolean filter(Tuple tuple1, Tuple tuple2)
 		{
-			return tuple1.getField(field1_id).compare(re, tuple2.getField(field2_id));
+			if(re==null)
+			{
+				return true;
+			}
+			else
+			{
+				return tuple1.getField(field1_id).compare(re, tuple2.getField(field2_id));
+			}			
 		}
 	}
 
@@ -114,7 +121,7 @@ public class OperatorJoin extends Operator
 			{
 				while(true)
 				{
-					while(!tuples2.hasNext())
+					if(!tuples2.hasNext())
 					{
 						if(!tuples1.hasNext())
 						{
@@ -132,11 +139,11 @@ public class OperatorJoin extends Operator
 					if(join_compare.filter(fst_tuple, snd_tuple))
 					{
 						int i = 0;
-						for(int j = 0;j<fst_tuple.getSchema().numFields();j++)
+						for(int j = 0;j<fst_tuple.getSchema().numFields();j++,i++)
 						{
 							temp.setField(i, fst_tuple.getField(j));
 						}
-						for(int j = 0;j<snd_tuple.getSchema().numFields();j++)
+						for(int j = 0;j<snd_tuple.getSchema().numFields();j++,i++)
 						{
 							temp.setField(i, snd_tuple.getField(j));
 						}

@@ -32,4 +32,21 @@ public class NodeWhere
     	this.re = re;
     	this.cons = cons;
     }
+    
+    public boolean equals(Object obj)
+    {
+    	if (!(obj instanceof NodeWhere))
+    	{
+    		return false;
+    	}
+    	NodeWhere node = (NodeWhere) obj;
+    	if(node.field_name.equals(this.field_name)&&
+    			node.table_name.equals(this.table_name)&&
+    			node.re.equals(this.re)&&
+    			node.cons.equals(this.cons))
+    	{
+    		return true;
+    	}
+    	return false;
+    }
 }

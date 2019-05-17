@@ -10,7 +10,9 @@
     <property name="source" value="1.8"/>
     <path id="Database.classpath">
         <pathelement location="bin"/>
-        <pathelement location="lib/zql.jar"/>
+        <pathelement location="lib/jsqlparser-2.0.jar"/>
+        <pathelement location="lib/jsqlparser-2.0-javadoc.jar"/>
+        <pathelement location="lib/jsqlparser-2.0-sources.jar"/>
     </path>
     <target name="init">
         <mkdir dir="bin"/>
@@ -46,6 +48,16 @@
     <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
+    </target>
+    <target name="Parser">
+        <java classname="database.operation.Parser" failonerror="true" fork="yes">
+            <classpath refid="Database.classpath"/>
+        </java>
+    </target>
+    <target name="Query">
+        <java classname="database.operation.Query" failonerror="true" fork="yes">
+            <classpath refid="Database.classpath"/>
+        </java>
     </target>
     <target name="TestMain">
         <java classname="database.server.TestMain" failonerror="true" fork="yes">
