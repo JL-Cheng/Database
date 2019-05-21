@@ -17,7 +17,7 @@ public class TestMain
     /**
      * 创建有n列的元数据，其中每一列均为整型，每一列名字均为name+i
      */
-    private static Schema createSchema(int n, String name)
+    public static Schema createSchema(int n, String column_name, String table_name)
     {
         FieldType[] types = new FieldType[n];
         String[] names = new String[n];
@@ -27,7 +27,7 @@ public class TestMain
         }
         for (int i = 0; i < n; ++i)
         {
-        	names[i] = name + i;
+        	names[i] = table_name + "."+column_name + i;
         }           
         return new Schema(types, names, new int[]{0, 2});
     }
@@ -35,7 +35,7 @@ public class TestMain
     /**
      * 创建有n列的元组（行），每一列均为整型
      */
-    private static Tuple createTuple(int[] data,Schema schema)
+    public static Tuple createTuple(int[] data,Schema schema)
     {
         Tuple tuple = new Tuple(schema);
         for (int i = 0; i < data.length; ++i)
@@ -56,7 +56,7 @@ public class TestMain
     	String name = "name";
     	int[] data1 = {1,2,3};
     	
-    	Schema n_schema = createSchema(num_col,name);
+    	Schema n_schema = createSchema(num_col,name,"table1");
     	System.out.println("Schema : " + n_schema);
     	
     	Tuple tuple_1 = createTuple(data1,n_schema);
@@ -156,14 +156,14 @@ public class TestMain
     
     public static void main (String args[])
     {
-    	DatabaseManager manager = new DatabaseManager();
-    	test1_createTable(manager);
+    	//DatabaseManager manager = new DatabaseManager();
+    	//test1_createTable(manager);
     	//test2_recoverTables(manager);
     	//test3_switchDB_createTable(manager);
     	//test4_switchDB_recover(manager);
     	//test5_deleteTable(manager);  	
     	//test6_primaryKey(manager);
-    	manager.database.close();
+    	//manager.database.close();
     }
     
 }

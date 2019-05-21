@@ -1,6 +1,5 @@
 bin/
 conf/
-lib/
 supp/
 dist/
 db/
@@ -26,3 +25,4 @@ db/
 log
 .idea
 *.iml
+.DS_Store

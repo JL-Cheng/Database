@@ -28,8 +28,9 @@ public class Schema implements Serializable
      */
     public Schema(FieldType[] types, String[] names, int[] index)
     {
-    	if (types.length == 0 || types.length != names.length) {
-    		System.out.println("Invalid Schema Constructor Para.");
+    	if (types.length == 0 || types.length != names.length)
+    	{
+    		System.out.println("Invalid Schema Constructor Param.");
             System.exit(0);
     	}
     	this.index = index;
@@ -140,6 +141,26 @@ public class Schema implements Serializable
     }
 
     /**
+     * 获取某一列的索引
+     * @param name 列的名称
+     * @return 列的索引,不存在则返回-1
+     */
+    public int getFieldIndex(String name)
+    {  	
+    	if(name != null)
+    	{
+    		for(int i=0;i<field_names.length;i++)
+    		{
+    			if(name.equals(field_names[i]))
+    			{
+    				return i;
+    			}
+    		}
+    	}
+        return -1;
+    }
+    
+    /**
      * 获取某一列的数据类型
      * @param i 列的索引
      * @return 第i列的数据类型
@@ -169,6 +190,35 @@ public class Schema implements Serializable
     		size += field_types[i].getLen();
     	}
         return size;
+    }
+    
+    /**
+     * 合并两个元数据（用在JOIN操作中）
+     * @param schema1 第一个元数据
+     * @param schema2 第二个元数据
+     * @return 合成之后的元数据
+     */
+    public static Schema merge(Schema schema1, Schema schema2)
+    {
+    	FieldType[] new_types = new FieldType[(schema1.field_types.length+schema2.field_types.length)];
+    	String[] new_names = new String[(schema1.field_names.length+schema2.field_names.length)];
+    	int[] new_index = {};//JOIN操作中合并的临时表主键为空
+    	int i = 0;
+    	
+    	for (int j=0; j<schema1.field_types.length; j++)
+    	{
+    		new_types[i] = schema1.field_types[j];
+    		new_names[i] = schema1.field_names[j];
+    		i=i+1;
+    	}
+    	for (int j=0; j<schema2.field_types.length; j++)
+    	{
+    		new_types[i] = schema2.field_types[j];
+    		new_names[i] = schema2.field_names[j];
+    		i=i+1;
+    	}
+    	Schema result = new Schema(new_types, new_names, new_index);
+    	return result;
     }
 
     /**
