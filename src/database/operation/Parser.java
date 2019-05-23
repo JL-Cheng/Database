@@ -66,12 +66,14 @@ public class Parser
 			//创建表语句
 			else if(statement instanceof CreateTable)
 			{
-				return processCreateStatement((CreateTable) statement);
+				DDLOperation.operateCreateTable(this.manager, (CreateTable)statement);
+				return null;
 			}
 			//删除表语句
 			else if(statement instanceof Drop)
 			{
-				return processDropStatement((Drop) statement);
+				DDLOperation.operateDropTable(this.manager, (Drop)statement);
+				return null;
 			}
 			//解析失败
 			else
@@ -110,17 +112,6 @@ public class Parser
 	public ITupleIterator processDeleteStatement(Delete statement) throws Exception
 	{
 		return null;	
-	}
-	
-	public ITupleIterator processCreateStatement(CreateTable statement) throws Exception
-	{
-		DDLOperation.operateCreateTable(this.manager, statement);
-		return null;	
-	}
-	public ITupleIterator processDropStatement(Drop statement) throws Exception
-	{
-		DDLOperation.operateDropTable(this.manager, statement);
-		return null;		
 	}
 	
 //********************测试函数********************	
