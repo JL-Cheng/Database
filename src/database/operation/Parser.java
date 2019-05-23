@@ -7,6 +7,7 @@ import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
+import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
 import database.persist.DBFile;
 import database.server.DatabaseManager;
@@ -67,6 +68,11 @@ public class Parser
 			{
 				return processCreateStatement((CreateTable) statement);
 			}
+			//删除表语句
+			else if(statement instanceof Drop)
+			{
+				return processDropStatement((Drop) statement);
+			}
 			//解析失败
 			else
 			{
@@ -108,10 +114,13 @@ public class Parser
 	
 	public ITupleIterator processCreateStatement(CreateTable statement) throws Exception
 	{
-		ParseCreateTable parse_createtable = new ParseCreateTable(this.manager);
-		parse_createtable.parse(statement);
-		parse_createtable.oprateCreate();
+		DDLOperation.operateCreateTable(this.manager, statement);
 		return null;	
+	}
+	public ITupleIterator processDropStatement(Drop statement) throws Exception
+	{
+		DDLOperation.operateDropTable(this.manager, statement);
+		return null;		
 	}
 	
 //********************测试函数********************	
@@ -182,7 +191,7 @@ public class Parser
     	String str = "CREATE TABLE Person \n" + 
     			"(\n" + 
     			"LastName String,\n" + 
-    			"FirstName String,\n" + 
+    			"FirstName String NOT NULL,\n" + 
     			"Address String,\n" + 
     			"Age Int,\n" + 
     			"PRIMARY KEY (LastName, FirstName)" +
