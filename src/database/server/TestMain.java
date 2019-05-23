@@ -2,7 +2,7 @@ package database.server;
 
 import database.field.FieldInt;
 import database.field.FieldType;
-import database.persist.DBFile;
+import database.persist.DBTable;
 import database.structure.Schema;
 import database.structure.Tuple;
 
@@ -63,7 +63,7 @@ public class TestMain
     	System.out.println("Tuple : " + tuple_1);
     	try
     	{    		
-    		DBFile dbfile = manager.database.getTableManager().createNewTable("table1",n_schema);
+    		DBTable dbfile = manager.database.getTableManager().createNewTable("table1",n_schema);
     		manager.database.getPageBuffer().insertTuple(dbfile.getId(), tuple_1);
     	}
     	catch (Exception e)

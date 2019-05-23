@@ -9,7 +9,7 @@ import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
-import database.persist.DBFile;
+import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
 import database.structure.Schema;
@@ -50,7 +50,8 @@ public class Parser
 			//插入语句
 			if(statement instanceof Insert)
 			{
-				
+				DMLOperation.operateInsert(manager, (Insert) statement);
+				return null;
 			}
 			//删除语句
 			else if(statement instanceof Delete)
@@ -104,16 +105,6 @@ public class Parser
 		return tuple_iterator;
 	}
 	
-	public ITupleIterator processInsertStatement(Insert statement) throws Exception
-	{
-		return null;
-	}
-	
-	public ITupleIterator processDeleteStatement(Delete statement) throws Exception
-	{
-		return null;	
-	}
-	
 //********************测试函数********************	
 	public static void testQuery() 
 	{
@@ -131,8 +122,8 @@ public class Parser
     	Tuple tuple2 = null;
     	try
     	{    		
-    		DBFile dbfile1 = parser.manager.database.getTableManager().createNewTable("table1",schema1);
-    		DBFile dbfile2 = parser.manager.database.getTableManager().createNewTable("table2",schema2);
+    		DBTable dbfile1 = parser.manager.database.getTableManager().createNewTable("table1",schema1);
+    		DBTable dbfile2 = parser.manager.database.getTableManager().createNewTable("table2",schema2);
     		for(int i=0;i<5;i++)
     		{
     			data[0]= i;
@@ -212,11 +203,27 @@ public class Parser
     	}
     	
 	}
+	public static void testInsert()
+	{
+		DatabaseManager manager = new DatabaseManager();
+    	Parser parser = new Parser(manager);
+    	String str = "INSERT INTO table1 VALUES(1, 2, 3);";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    		manager.database.close();
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
 //********************主函数********************	
     public static void main (String args[])
     {
+    	testInsert();
 //    	testQuery();
-    	testCreateTable();
-    	testDropTable();
+//    	testCreateTable();
+//    	testDropTable();
     }
 }

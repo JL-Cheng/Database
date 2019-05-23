@@ -18,7 +18,7 @@ import database.structure.Tuple;
  *     - 每一个数据库文件都有一个id与元数据与之对应。
  *     
  */
-public class DBFile
+public class DBTable
 {
 
 	private File file;
@@ -31,7 +31,7 @@ public class DBFile
      * @param file 存于磁盘的对应于该表的数据库文件
      * @param schema 该表对应的元数据
      */
-    public DBFile(DatabaseManager m, File file, Schema schema)
+    public DBTable(DatabaseManager m, File file, Schema schema)
     {
     	this.manager = m;
     	this.file = file;

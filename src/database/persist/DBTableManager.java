@@ -22,7 +22,7 @@ public class DBTableManager
 {
 	
 	private Map<Integer,String> dbnames;//数据库中表的id与名字键值对
-	private Map<Integer,DBFile> dbfiles;//数据库中表的id与表文件键值对
+	private Map<Integer,DBTable> dbfiles;//数据库中表的id与表文件键值对
 	private DatabaseManager manager;//数据库管理对象
 	
 	/**
@@ -33,7 +33,7 @@ public class DBTableManager
     {
     	manager = m;
     	dbnames = new HashMap<Integer,String>();
-    	dbfiles = new HashMap<Integer,DBFile>();
+    	dbfiles = new HashMap<Integer,DBTable>();
     }
     /** 
      * 清空
@@ -59,7 +59,7 @@ public class DBTableManager
      * @param dbname 数据表名字
      * 
      */
-    public void addTable(DBFile dbfile, String dbname)
+    public void addTable(DBTable dbfile, String dbname)
     {
     	int table_id = dbfile.getId();
     	for (Integer id: dbnames.keySet())
@@ -112,7 +112,7 @@ public class DBTableManager
      * 获得一张表的数据文件
      * @param table_id 表的id
      */
-    public DBFile getDatabaseFile(int table_id)
+    public DBTable getDatabaseFile(int table_id)
     {
     	if (dbfiles.containsKey(table_id))
     	{
@@ -153,7 +153,7 @@ public class DBTableManager
      * @param schema 模式
      * @return 数据表文件对象
      */
-    public DBFile createNewTable(String name,Schema schema) throws Exception
+    public DBTable createNewTable(String name,Schema schema) throws Exception
     {
     	String path = manager.prefix + name + ".dat";
         File f = new File(path);
@@ -172,7 +172,7 @@ public class DBTableManager
         	System.err.println(e.getMessage());
         }
         
-        DBFile dbfile = new DBFile(manager, f, schema);
+        DBTable dbfile = new DBTable(manager, f, schema);
         manager.database.getTableManager().addTable(dbfile,name);
         
         DBPageId page_id = new DBPageId(dbfile.getId(), 0);
@@ -274,7 +274,7 @@ public class DBTableManager
                 	System.err.println("Data Lost: " + name);
                     System.exit(0);
                 }
-                DBFile n_dbfile = new DBFile(manager, dat, n_schema);
+                DBTable n_dbfile = new DBTable(manager, dat, n_schema);
                 addTable(n_dbfile,name);
                 System.out.println("[Load "+ manager.database.dbname + "]Added table : " + name + n_schema);
             }
@@ -296,9 +296,9 @@ public class DBTableManager
     	{
         	FileOutputStream outstream = new FileOutputStream(schema_file);
         	PrintStream ps = new PrintStream(outstream);
-        	for (Map.Entry<Integer, DBFile> entry : dbfiles.entrySet())
+        	for (Map.Entry<Integer, DBTable> entry : dbfiles.entrySet())
         	{ 
-        		DBFile file = entry.getValue();
+        		DBTable file = entry.getValue();
         		ps.println(dbnames.get(entry.getKey()) + file.getSchema().toString());
         	}
         	ps.close();
