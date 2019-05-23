@@ -106,11 +106,24 @@ public class Parser
 	}
 	
 //********************测试函数********************	
-	public static void testQuery() 
+	public static void testQuery(DatabaseManager manager, Parser parser) 
 	{
 		//测试查询语句的解析
-    	DatabaseManager manager = new DatabaseManager();
-    	Parser parser = new Parser(manager);
+    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
+
+    	try
+    	{
+    		ITupleIterator it = parser.processStatement(str);
+    		showResults(it);
+    		System.out.println("QUERY FINISH.");
+		}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
+	
+	public static void createTestData(DatabaseManager manager) {
     	int num_col = 3;
     	String column_name = "column";
     	int[] data = new int[num_col];
@@ -122,17 +135,17 @@ public class Parser
     	Tuple tuple2 = null;
     	try
     	{    		
-    		DBTable dbfile1 = parser.manager.database.getTableManager().createNewTable("table1",schema1);
-    		DBTable dbfile2 = parser.manager.database.getTableManager().createNewTable("table2",schema2);
+    		DBTable dbfile1 = manager.database.getTableManager().createNewTable("table1",schema1);
+    		DBTable dbfile2 = manager.database.getTableManager().createNewTable("table2",schema2);
     		for(int i=0;i<5;i++)
     		{
     			data[0]= i;
     			data[1]=i+1;
     			data[2]=i+2;
     			tuple1 = database.server.TestMain.createTuple(data, schema1);
-        		parser.manager.database.getPageBuffer().insertTuple(dbfile1.getId(), tuple1);
+        		manager.database.getPageBuffer().insertTuple(dbfile1.getId(), tuple1);
     			tuple2 = database.server.TestMain.createTuple(data, schema2);
-        		parser.manager.database.getPageBuffer().insertTuple(dbfile2.getId(), tuple2);   			
+        		manager.database.getPageBuffer().insertTuple(dbfile2.getId(), tuple2);   			
     		}
     	}
     	catch (Exception e)
@@ -140,36 +153,22 @@ public class Parser
         	System.err.println(e.getMessage());
             System.exit(0);
         }
-    	
-    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
-
-    	try
-    	{
-    		ITupleIterator it = parser.processStatement(str);
-    		it.start();
-    		Schema schema = it.getSchema();
-    		for(int i=0;i<schema.numFields();i++)
-    		{
-    			System.out.print(schema.getFieldName(i)+"    ");
-    		}
-    		System.out.println();
-    		while(it.hasNext())
-    		{
-    			System.out.println(it.next());
-    		}
-    		System.out.println("QUERY FINISH.");
-		}
-    	catch(Exception e)
-    	{
-    		System.out.println(e.getMessage());
-    	}
-    	manager.database.close();
 	}
-	
-	public static void testCreateTable()
+	public static void showResults(ITupleIterator it) {
+		it.start();
+		Schema schema = it.getSchema();
+		for(int i=0;i<schema.numFields();i++)
+		{
+			System.out.print(schema.getFieldName(i)+"    ");
+		}
+		System.out.println();
+		while(it.hasNext())
+		{
+			System.out.println(it.next());
+		}
+	}
+	public static void testCreateTable(DatabaseManager manager, Parser parser)
 	{
-		DatabaseManager manager = new DatabaseManager();
-    	Parser parser = new Parser(manager);
     	String str = "CREATE TABLE Person \n" + 
     			"(\n" + 
     			"LastName String,\n" + 
@@ -181,37 +180,32 @@ public class Parser
     	try 
     	{    		
     		parser.processStatement(str);
-    		manager.database.close();
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
     	}
     	
 	}
-	public static void testDropTable()
+	public static void testDropTable(DatabaseManager manager, Parser parser)
 	{
-		DatabaseManager manager = new DatabaseManager();
-    	Parser parser = new Parser(manager);
     	String str = "DROP TABLE Person";
     	try 
     	{    		
     		parser.processStatement(str);
-    		manager.database.close();
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
     	}
     	
 	}
-	public static void testInsert()
+	public static void testInsert(DatabaseManager manager, Parser parser)
 	{
-		DatabaseManager manager = new DatabaseManager();
-    	Parser parser = new Parser(manager);
     	String str = "INSERT INTO table1 VALUES(1, 2, 3);";
     	try 
     	{    		
     		parser.processStatement(str);
-    		manager.database.close();
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
@@ -221,9 +215,15 @@ public class Parser
 //********************主函数********************	
     public static void main (String args[])
     {
-    	testInsert();
-//    	testQuery();
-//    	testCreateTable();
-//    	testDropTable();
+    	DatabaseManager manager = new DatabaseManager();
+    	Parser parser = new Parser(manager);
+//    	createTestData(manager);
+    	
+    	testInsert(manager, parser);
+//    	testQuery(manager, parser);
+//    	testCreateTable(manager, parser);
+//    	testDropTable(manager, parser);
+    	
+    	manager.database.close();
     }
 }

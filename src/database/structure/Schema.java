@@ -61,6 +61,14 @@ public class Schema implements Serializable
     	return primary_key;
 	}
     
+    /**
+     * 获取列数
+     */
+    public int getColumnSize()
+    {
+    	return field_types.length;
+	}
+    
 	/**
 	 * 类型：类（辅助）
 	 * 
