@@ -2,6 +2,7 @@ package database.field;
 
 import java.io.*;
 
+
 /**
  * 类型：枚举类
  * 
@@ -13,6 +14,10 @@ public enum FieldType implements Serializable
 	//Int类型
     INT_TYPE()
     {
+    	public String getName() {
+    		return "Int";
+    	}
+    	
         public int getLen()
         {
             return 4;
@@ -34,6 +39,10 @@ public enum FieldType implements Serializable
 	//Long类型
     LONG_TYPE()
     {
+    	public String getName() {
+    		return "Long";
+    	}
+    	
         public int getLen()
         {
             return 8;
@@ -55,6 +64,10 @@ public enum FieldType implements Serializable
 	//Float类型
     FLOAT_TYPE()
     {
+    	public String getName() {
+    		return "Float";
+    	}
+    	
         public int getLen()
         {
             return 4;
@@ -76,6 +89,10 @@ public enum FieldType implements Serializable
 	//Double类型
     DOUBLE_TYPE()
     {
+    	public String getName() {
+    		return "Double";
+    	}
+    	
         public int getLen()
         {
             return 8;
@@ -97,6 +114,10 @@ public enum FieldType implements Serializable
     //String类型
     STRING_TYPE()
     {
+    	public String getName() {
+    		return "String";
+    	}
+    	
 	    public int getLen()
 	    {
 	        return STRING_LEN + 4;
@@ -128,8 +149,28 @@ public enum FieldType implements Serializable
 	public abstract int getLen();
 	
 	/**
+	 * @return 这种数据类型在定义时的名称.
+	 */
+	public abstract String getName();
+	
+	/**
 	 * @param instream 输入数据流
 	 * @return 从数据流中读入的某数据类型对象
 	 */
-	 public abstract IField parse(DataInputStream instream);
+	public abstract IField parse(DataInputStream instream);
+	 
+	 /**
+	 * @return 这种数据类型在定义时的名称.
+	 */
+	public static FieldType getType(String name)
+	{
+    	for (FieldType type: FieldType.values()) 
+    	{
+    		if (type.getName().equals(name))
+    		{
+    			return type;
+    		}
+    	}
+    	return null;
+	}
 }

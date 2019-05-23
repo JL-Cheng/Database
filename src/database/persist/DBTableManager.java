@@ -45,6 +45,15 @@ public class DBTableManager
     }
 
     /**
+     * 表是否存在
+     * @param dbname 数据表名字
+     * 
+     */
+    public boolean isTableExist(String dbname) {
+		return getTableId(dbname) != -1;
+	}
+    
+    /**
      * 加入一张新表
      * @param dbfile 数据表文件
      * @param dbname 数据表名字
@@ -137,6 +146,7 @@ public class DBTableManager
     	}
     	return null;
     }
+    
     /**
      * 创建一个新表（创建一个新的空的数据表文件，向其中加入一个空的页）
      * @param name 表名
@@ -230,16 +240,11 @@ public class DBTableManager
                 {
                     String[] n_fields = str.trim().split(" ");
                     names.add(n_fields[0].trim());
-                    if (n_fields[1].trim().equals("INT_TYPE"))
-                        types.add(FieldType.INT_TYPE);
-                    else if (n_fields[1].trim().equals("LONG_TYPE"))
-                        types.add(FieldType.LONG_TYPE);
-                    else if (n_fields[1].trim().equals("FLOAT_TYPE"))
-                        types.add(FieldType.FLOAT_TYPE);
-                    else if (n_fields[1].trim().equals("DOUBLE_TYPE"))
-                        types.add(FieldType.DOUBLE_TYPE);
-                    else if (n_fields[1].trim().equals("STRING_TYPE"))
-                        types.add(FieldType.STRING_TYPE);
+                    FieldType type = FieldType.getType(n_fields[1].trim());
+                    if (type != null)
+                    {
+                    	types.add(type);                    	
+                    }
                     else
                     {
                         System.out.println("wrong type :" + n_fields[1]);

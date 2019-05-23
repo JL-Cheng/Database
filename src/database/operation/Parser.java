@@ -1,9 +1,10 @@
 package database.operation;
 
-import java.io.*;
 
+import java.io.*;
 import net.sf.jsqlparser.parser.*;
 import net.sf.jsqlparser.statement.*;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
 import net.sf.jsqlparser.statement.select.*;
@@ -61,6 +62,11 @@ public class Parser
 				Select select_statement = (Select) statement;
 				return processQueryStatement(select_statement);
 			}
+			//创建表语句
+			else if(statement instanceof CreateTable)
+			{
+				return processCreateStatement((CreateTable) statement);
+			}
 			//解析失败
 			else
 			{
@@ -99,11 +105,19 @@ public class Parser
 	{
 		return null;	
 	}
-
-//********************主函数********************	
-    public static void main (String args[])
-    {
-    	//测试查询语句的解析
+	
+	public ITupleIterator processCreateStatement(CreateTable statement) throws Exception
+	{
+		ParseCreateTable parse_createtable = new ParseCreateTable(this.manager);
+		parse_createtable.parse(statement);
+		parse_createtable.oprateCreate();
+		return null;	
+	}
+	
+//********************测试函数********************	
+	public static void testQuery() 
+	{
+		//测试查询语句的解析
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
     	int num_col = 3;
@@ -158,7 +172,35 @@ public class Parser
     	{
     		System.out.println(e.getMessage());
     	}
+    	manager.database.close();
+	}
+	
+	public static void testCreateTable()
+	{
+		DatabaseManager manager = new DatabaseManager();
+    	Parser parser = new Parser(manager);
+    	String str = "CREATE TABLE Person \n" + 
+    			"(\n" + 
+    			"LastName String,\n" + 
+    			"FirstName String,\n" + 
+    			"Address String,\n" + 
+    			"Age Int,\n" + 
+    			"PRIMARY KEY (LastName, FirstName)" +
+    			") ";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    		manager.database.close();
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
     	
+	}
+//********************主函数********************	
+    public static void main (String args[])
+    {
+//    	testQuery();
+    	testCreateTable();
     }
-
 }

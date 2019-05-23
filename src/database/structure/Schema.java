@@ -231,7 +231,7 @@ public class Schema implements Serializable
     	String result = "(";
     	int n = this.field_types.length;
     	
-    	result += this.field_names[0] + " "+ this.field_types[0];
+    	result += this.field_names[0] + " "+ this.field_types[0].getName();
     	int i_count = 0;
     	int index_length = index.length;
     	if (i_count < index_length && index[i_count] == 0) {
@@ -240,11 +240,11 @@ public class Schema implements Serializable
     	}
     	for (int i=1; i<n; i++)
     	{
-    		result += "," + this.field_names[i];
-    		result += " "+this.field_types[i];
+    		result += ", " + this.field_names[i];
+    		result += " "+this.field_types[i].getName();
     		if (i_count < index_length && index[i_count] == i) {
     			i_count++;
-        		result += " primary";
+        		result += " primary key";
         	}
     	}
     	result += ')';
