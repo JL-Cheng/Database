@@ -206,10 +206,26 @@ public class Parser
     	}
     	
 	}
+	public static void testDropTable()
+	{
+		DatabaseManager manager = new DatabaseManager();
+    	Parser parser = new Parser(manager);
+    	String str = "DROP TABLE Person";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    		manager.database.close();
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
 //********************主函数********************	
     public static void main (String args[])
     {
 //    	testQuery();
     	testCreateTable();
+    	testDropTable();
     }
 }

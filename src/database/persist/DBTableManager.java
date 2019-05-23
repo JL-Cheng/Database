@@ -200,7 +200,6 @@ public class DBTableManager
         Integer id = -1;
     	for (Map.Entry<Integer, String> entry: dbnames.entrySet())
     	{
-    		System.out.println(entry.getValue());
     		if (entry.getValue().equals(name))
     		{
     			id = entry.getKey();

@@ -50,14 +50,11 @@ public class DDLOperation {
 	 * @param CreateTable CreateTable类对象，代表解析结果
 	 */
 	public static void operateCreateTable(DatabaseManager manager, CreateTable createTableStatement) throws Exception {
-		System.out.println("CreateTable:"+createTableStatement.toString());
-		List<ColumnDefinition> columns;
-		List<Index> indexes;
-		Table table;
-		table = createTableStatement.getTable();
-		columns =  createTableStatement.getColumnDefinitions();
-		indexes = createTableStatement.getIndexes();
 		System.out.println("Start Create Table");
+		System.out.println("CreateTable:"+createTableStatement.toString());
+		Table table = createTableStatement.getTable();
+		List<ColumnDefinition> columns =  createTableStatement.getColumnDefinitions();
+		List<Index> indexes = createTableStatement.getIndexes();
 		String tablename = table.getName();
 		System.out.println("Table name:" + tablename);
 		if (manager.database.getTableManager().isTableExist(tablename)) {
@@ -105,8 +102,15 @@ public class DDLOperation {
 	 * @param Drop Drop类对象，代表解析结果
 	 */
 	public static void operateDropTable(DatabaseManager manager, Drop statement) throws Exception {
+		System.out.println("Start Drop Table");
 		System.out.println("DropTable:"+statement.toString());
-		
+		Table table = statement.getName();
+		String tablename = table.getName();
+		System.out.println("Table name:" + tablename);
+		if (!manager.database.getTableManager().isTableExist(tablename)) {
+			throw new Exception("Invalid Table Name.");
+		}
+		manager.database.getTableManager().removeTable(tablename);
 		System.out.println("Finish Drop Table");
 	}
 }
