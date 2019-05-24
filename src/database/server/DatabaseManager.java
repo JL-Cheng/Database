@@ -9,7 +9,7 @@ public class DatabaseManager
 	
 	/**
 	 * 构造函数
-	 */
+	 */ 
 	public DatabaseManager()
 	{
 		database = new Database(this);

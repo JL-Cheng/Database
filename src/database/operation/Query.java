@@ -10,7 +10,7 @@ import database.field.FieldCompare.Re;
 import database.server.DatabaseManager;
 import database.structure.Schema;
 import database.structure.ITupleIterator;
-import database.persist.DBFile;
+import database.persist.DBTable;
 import database.field.*;
 import database.operation.OperatorJoin.JoinCompare;
 
@@ -298,7 +298,7 @@ public class Query
     	while (from_node_it.hasNext())
     	{
     		NodeFrom from_node = from_node_it.next();
-    		DBFile table = manager.database.getTableManager().getDatabaseFile(from_node.table_id);
+    		DBTable table = manager.database.getTableManager().getDatabaseFile(from_node.table_id);
 			if(table == null)
 			{
 				throw new Exception("Unknown table "+from_node.table_name);

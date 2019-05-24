@@ -1,13 +1,15 @@
 package database.operation;
 
-import java.io.*;
 
+import java.io.*;
 import net.sf.jsqlparser.parser.*;
 import net.sf.jsqlparser.statement.*;
+import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
+import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
-import database.persist.DBFile;
+import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
 import database.structure.Schema;
@@ -48,7 +50,8 @@ public class Parser
 			//插入语句
 			if(statement instanceof Insert)
 			{
-				
+				DMLOperation.operateInsert(manager, (Insert) statement);
+				return null;
 			}
 			//删除语句
 			else if(statement instanceof Delete)
@@ -60,6 +63,18 @@ public class Parser
 			{
 				Select select_statement = (Select) statement;
 				return processQueryStatement(select_statement);
+			}
+			//创建表语句
+			else if(statement instanceof CreateTable)
+			{
+				DDLOperation.operateCreateTable(this.manager, (CreateTable)statement);
+				return null;
+			}
+			//删除表语句
+			else if(statement instanceof Drop)
+			{
+				DDLOperation.operateDropTable(this.manager, (Drop)statement);
+				return null;
 			}
 			//解析失败
 			else
@@ -90,22 +105,25 @@ public class Parser
 		return tuple_iterator;
 	}
 	
-	public ITupleIterator processInsertStatement(Insert statement) throws Exception
+//********************测试函数********************	
+	public static void testQuery(DatabaseManager manager, Parser parser) 
 	{
-		return null;
+		//测试查询语句的解析
+    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
+
+    	try
+    	{
+    		ITupleIterator it = parser.processStatement(str);
+    		showResults(it);
+    		System.out.println("QUERY FINISH.");
+		}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
 	}
 	
-	public ITupleIterator processDeleteStatement(Delete statement) throws Exception
-	{
-		return null;	
-	}
-
-//********************主函数********************	
-    public static void main (String args[])
-    {
-    	//测试查询语句的解析
-    	DatabaseManager manager = new DatabaseManager();
-    	Parser parser = new Parser(manager);
+	public static void createTestData(DatabaseManager manager) {
     	int num_col = 3;
     	String column_name = "column";
     	int[] data = new int[num_col];
@@ -117,17 +135,17 @@ public class Parser
     	Tuple tuple2 = null;
     	try
     	{    		
-    		DBFile dbfile1 = parser.manager.database.getTableManager().createNewTable("table1",schema1);
-    		DBFile dbfile2 = parser.manager.database.getTableManager().createNewTable("table2",schema2);
+    		DBTable dbfile1 = manager.database.getTableManager().createNewTable("table1",schema1);
+    		DBTable dbfile2 = manager.database.getTableManager().createNewTable("table2",schema2);
     		for(int i=0;i<5;i++)
     		{
     			data[0]= i;
     			data[1]=i+1;
     			data[2]=i+2;
     			tuple1 = database.server.TestMain.createTuple(data, schema1);
-        		parser.manager.database.getPageBuffer().insertTuple(dbfile1.getId(), tuple1);
+        		manager.database.getPageBuffer().insertTuple(dbfile1.getId(), tuple1);
     			tuple2 = database.server.TestMain.createTuple(data, schema2);
-        		parser.manager.database.getPageBuffer().insertTuple(dbfile2.getId(), tuple2);   			
+        		manager.database.getPageBuffer().insertTuple(dbfile2.getId(), tuple2);   			
     		}
     	}
     	catch (Exception e)
@@ -135,30 +153,77 @@ public class Parser
         	System.err.println(e.getMessage());
             System.exit(0);
         }
-    	
-    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
-
-    	try
-    	{
-    		ITupleIterator it = parser.processStatement(str);
-    		it.start();
-    		Schema schema = it.getSchema();
-    		for(int i=0;i<schema.numFields();i++)
-    		{
-    			System.out.print(schema.getFieldName(i)+"    ");
-    		}
-    		System.out.println();
-    		while(it.hasNext())
-    		{
-    			System.out.println(it.next());
-    		}
-    		System.out.println("QUERY FINISH.");
+	}
+	public static void showResults(ITupleIterator it) {
+		it.start();
+		Schema schema = it.getSchema();
+		for(int i=0;i<schema.numFields();i++)
+		{
+			System.out.print(schema.getFieldName(i)+"    ");
 		}
-    	catch(Exception e)
+		System.out.println();
+		while(it.hasNext())
+		{
+			System.out.println(it.next());
+		}
+	}
+	public static void testCreateTable(DatabaseManager manager, Parser parser)
+	{
+    	String str = "CREATE TABLE Person \n" + 
+    			"(\n" + 
+    			"LastName String,\n" + 
+    			"FirstName String NOT NULL,\n" + 
+    			"Address String,\n" + 
+    			"Age Int,\n" + 
+    			"PRIMARY KEY (LastName, FirstName)" +
+    			") ";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
     	}
     	
+	}
+	public static void testDropTable(DatabaseManager manager, Parser parser)
+	{
+    	String str = "DROP TABLE Person";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
+	public static void testInsert(DatabaseManager manager, Parser parser)
+	{
+    	String str = "INSERT INTO table1 VALUES(1, 2, 3);";
+    	try 
+    	{    		
+    		parser.processStatement(str);
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
+//********************主函数********************	
+    public static void main (String args[])
+    {
+    	DatabaseManager manager = new DatabaseManager();
+    	Parser parser = new Parser(manager);
+//    	createTestData(manager);
+    	
+    	testInsert(manager, parser);
+//    	testQuery(manager, parser);
+//    	testCreateTable(manager, parser);
+//    	testDropTable(manager, parser);
+    	
+    	manager.database.close();
     }
-
 }
