@@ -37,9 +37,13 @@ public class DatabaseOperation {
 	 * 展示所有数据库的执行函数
 	 * 
 	 */
-	public static void operateShowDatabases(DatabaseManager manager)
+	public static void operateShowDatabases(DatabaseManager manager) throws Exception
 	{
-		
+		String[] dbs = manager.getDatabases();
+		System.out.println("Databases:");
+		for (String iString : dbs) {
+			System.out.println("- " + iString);
+		}
 	}
 	
 }

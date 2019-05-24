@@ -249,12 +249,14 @@ public class Parser
     	String create1 = "CREATE DATABASE public1";
     	String create2 = "CREATE DATABASE public2";
     	String use = "use DATABASE public1";
+    	String show = "SHOW DATABASES";
     	String drop = "drop DATABASE public2";
     	try 
     	{    		
-    		parser.processStatement(create1);
+//    		parser.processStatement(create1);
     		parser.processStatement(create2);
     		parser.processStatement(use);
+    		parser.processStatement(show);
     		parser.processStatement(drop);
     	} catch(Exception e)
     	{
@@ -269,6 +271,7 @@ public class Parser
     	Parser parser = new Parser(manager);
 //    	createTestData(manager);
     	testDatabaseOperation(manager, parser);
+    	
 //    	testInsert(manager, parser);
 //    	testQuery(manager, parser);
 //    	testCreateTable(manager, parser);
