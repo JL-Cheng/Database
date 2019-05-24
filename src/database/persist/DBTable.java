@@ -141,6 +141,7 @@ public class DBTable
      */
     public DBPage deleteTuple(Tuple tuple)
     {
+    	System.out.println("deleteTuple: "+ tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.deleteTuple(tuple);
