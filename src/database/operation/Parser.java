@@ -2,6 +2,7 @@ package database.operation;
 
 
 import java.io.*;
+import java.util.regex.*;
 import net.sf.jsqlparser.parser.*;
 import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -25,6 +26,7 @@ public class Parser
 {
 	private DatabaseManager manager;//数据库管理器
 	private CCJSqlParserManager parser;//解析器
+	private Pattern databasePattern;
 	
 	 /**
      * 构造函数
@@ -33,6 +35,7 @@ public class Parser
     {
     	this.manager = m;
     	this.parser = new CCJSqlParserManager();
+    	databasePattern = Pattern.compile("(.*)(DATABASE|database)(.*)");
     }
 
 //********************SQL类型判断与分派处理********************
@@ -45,8 +48,37 @@ public class Parser
 	{
 		try
 		{
-			Statement statement = parser.parse(new StringReader(str));
+			//数据库操作语句
+			Matcher matcher = databasePattern.matcher(str);
+			if (matcher.find()) {
+				String optype = matcher.group(1).strip().toUpperCase();
+				switch (optype) {
+				case "CREATE":
+					DatabaseOperation.operateCreateDatabase(manager, matcher.group(3).strip());
+					break;
+				case "DROP":
+					DatabaseOperation.operateDropDatabase(manager, matcher.group(3).strip());
+					break;
+				case "USE":
+					DatabaseOperation.operateSwitchDatabase(manager, matcher.group(3).strip());
+					break;
+				case "SHOW":
+					if (matcher.group(3).toUpperCase().equals("S"))
+					{
+						DatabaseOperation.operateShowDatabases(manager);
+						break;
+					}
+					else
+					{
+						throw new Exception("Parse error.");
+					}
+				default:
+					throw new Exception("Parse error.");
+				}
+				return null;
+			} 
 			
+			Statement statement = parser.parse(new StringReader(str));
 			//插入语句
 			if(statement instanceof Insert)
 			{
@@ -76,10 +108,10 @@ public class Parser
 				DDLOperation.operateDropTable(this.manager, (Drop)statement);
 				return null;
 			}
-			//解析失败
-			else
+			//解析错误
+			else 
 			{
-				throw new Exception("Parse error.");
+				throw new Exception("Parse error.");					
 			}
 			return null;
 		}
@@ -212,14 +244,32 @@ public class Parser
     	}
     	
 	}
+	public static void testDatabaseOperation(DatabaseManager manager, Parser parser)
+	{
+    	String create1 = "CREATE DATABASE public1";
+    	String create2 = "CREATE DATABASE public2";
+    	String use = "use DATABASE public1";
+    	String drop = "drop DATABASE public2";
+    	try 
+    	{    		
+    		parser.processStatement(create1);
+    		parser.processStatement(create2);
+    		parser.processStatement(use);
+    		parser.processStatement(drop);
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
 //********************主函数********************	
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
 //    	createTestData(manager);
-    	
-    	testInsert(manager, parser);
+    	testDatabaseOperation(manager, parser);
+//    	testInsert(manager, parser);
 //    	testQuery(manager, parser);
 //    	testCreateTable(manager, parser);
 //    	testDropTable(manager, parser);
