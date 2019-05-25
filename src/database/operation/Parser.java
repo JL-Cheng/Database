@@ -12,6 +12,7 @@ import net.sf.jsqlparser.statement.delete.*;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.update.Update;
+import database.field.FieldType;
 import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -153,8 +154,8 @@ public class Parser
 	public static void testQuery(DatabaseManager manager, Parser parser) 
 	{
 		//测试查询语句的解析
-    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
-//		String str = "SELECT column1 from table1";
+//    	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
+		String str = "SELECT column1 from table1";
     	try
     	{
     		ITupleIterator it = parser.processStatement(str);
@@ -215,9 +216,9 @@ public class Parser
 	{
     	String str = "CREATE TABLE Person \n" + 
     			"(\n" + 
-    			"LastName String,\n" + 
-    			"FirstName String NOT NULL,\n" + 
-    			"Address String,\n" + 
+    			"LastName String(10),\n" + 
+    			"FirstName String(20) NOT NULL,\n" + 
+    			"Address String(50),\n" + 
     			"Age Int,\n" + 
     			"PRIMARY KEY (LastName, FirstName)" +
     			") ";
@@ -312,12 +313,11 @@ public class Parser
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
 //    	testDeleteOperation(manager, parser);
-    	testUpdateOperation(manager, parser);
+//    	testUpdateOperation(manager, parser);
 //    	testInsert(manager, parser);
 //    	testQuery(manager, parser);
-//    	testCreateTable(manager, parser);
+    	testCreateTable(manager, parser);
 //    	testDropTable(manager, parser);
-    	
     	manager.database.close();
     }
 }

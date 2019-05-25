@@ -231,10 +231,11 @@ public class DBTableManager
 			while ((line = reader.readLine()) != null)
 			{
                 String name = line.substring(0, line.indexOf("(")).trim();
-                String[] fields = line.substring(line.indexOf("(") + 1, line.indexOf(")")).trim().split(","); 
+                String[] fields = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")")).trim().split(","); 
                 ArrayList<String> names = new ArrayList<String>();
                 ArrayList<FieldType> types = new ArrayList<FieldType>();
                 ArrayList<Integer> primary_key = new ArrayList<Integer>();
+                HashMap<Integer, Integer> str_len = new HashMap<Integer, Integer>();
                 for (String str : fields)
                 {
                     String[] n_fields = str.trim().split(" ");
@@ -242,7 +243,11 @@ public class DBTableManager
                     FieldType type = FieldType.getType(n_fields[1].trim());
                     if (type != null)
                     {
-                    	types.add(type);                    	
+                    	if (type.equals(FieldType.STRING_TYPE))
+                    	{
+                    		str_len.put(types.size(), Integer.parseInt(n_fields[1].substring(n_fields[1].indexOf("(") + 1, n_fields[1].indexOf(")"))));
+                    	}
+                    	types.add(type);  
                     }
                     else
                     {
@@ -267,7 +272,7 @@ public class DBTableManager
                 {
                 	primary_key_array[i] = primary_key.get(i).intValue();
                 }
-                Schema n_schema = new Schema(types_array, names_array, primary_key_array);
+                Schema n_schema = new Schema(types_array, names_array, primary_key_array, str_len);
                 File dat = new File(base_folder+"/"+ name + ".dat");
                 if (!dat.exists())
                 {

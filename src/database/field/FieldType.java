@@ -3,6 +3,7 @@ package database.field;
 import java.io.*;
 
 
+
 /**
  * 类型：枚举类
  * 
@@ -131,23 +132,35 @@ public enum FieldType implements Serializable
     STRING_TYPE()
     {
     	public String getName() {
-    		return "String";
+    		return getName(STRING_LEN);
+    	}
+    	public String getName(int len) {
+    		return "String(" + len + ")";
     	}
     	
 	    public int getLen()
 	    {
-	        return STRING_LEN + 4;
+	    	return getLen(STRING_LEN);
+	    }
+	   
+	    public int getLen(int len)
+	    {
+	        return len + 4;
 	    }
 	
 	    public IField parse(DataInputStream instream)
+	    {
+	        return parse(instream, STRING_LEN);
+	    }
+	    public IField parse(DataInputStream instream, int len)
 	    {
 	        try
 	        {
 	            int str_len = instream.readInt();
 	            byte bs[] = new byte[str_len];
 	            instream.read(bs);
-	            instream.skipBytes(STRING_LEN-str_len);
-	            return new FieldString(new String(bs), STRING_LEN);
+	            instream.skipBytes(len-str_len);
+	            return new FieldString(new String(bs), len);
 	        }
 	        catch (IOException e)
 	        {
@@ -157,11 +170,15 @@ public enum FieldType implements Serializable
 	    }
 	    public IField parse(String str)
 	    {
-            return new FieldString(new String(str), STRING_LEN);
+            return parse(str, STRING_LEN);
+	    }
+	    public IField parse(String str, int len)
+	    {
+            return new FieldString(new String(str), len);
 	    }
     };
 	
-    public static int STRING_LEN = 128;//规定的字符串最大长度
+    public static int STRING_LEN = 128;//默认的字符串最大长度
 	
 	/**
 	 * @return 这种数据类型所需的字节数.
@@ -169,9 +186,21 @@ public enum FieldType implements Serializable
 	public abstract int getLen();
 	
 	/**
+	 * @param len 只在string时有意义 最大长度
+	 * @return
+	 */
+	public int getLen(int len) {return getLen();}
+	
+	/**
 	 * @return 这种数据类型在定义时的名称.
 	 */
 	public abstract String getName();
+	
+	/**
+	 * @param len 只在string时有意义 最大长度
+	 * @return
+	 */
+	public String getName(int len) {return getName();};
 	
 	/**
 	 * @param instream 输入数据流
@@ -180,10 +209,22 @@ public enum FieldType implements Serializable
 	public abstract IField parse(DataInputStream instream);
 	
 	/**
+	 * @param len 只在string时有意义 最大长度
+	 * @return
+	 */
+	public IField parse(DataInputStream instream, int len) {return parse(instream);};
+	
+	/**
 	 * @param String 输入字符串
 	 * @return 从字符串中读入的某数据类型对象
 	 */
 	public abstract IField parse(String str);
+	
+	/**
+	 * @param len 只在string时有意义 最大长度
+	 * @return
+	 */
+	public IField parse(String str, int len) {return parse(str);};
 	 
 	 /**
 	 * @return 这种数据类型在定义时的名称.
@@ -196,6 +237,10 @@ public enum FieldType implements Serializable
     		{
     			return type;
     		}
+    	}
+    	if (name.substring(0, 6).equals("String"))
+    	{
+    		return FieldType.STRING_TYPE;
     	}
     	return null;
 	}

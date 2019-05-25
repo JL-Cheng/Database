@@ -29,7 +29,7 @@ public class TestMain
         {
         	names[i] = table_name + "."+column_name + i;
         }           
-        return new Schema(types, names, new int[]{0, 2});
+        return new Schema(types, names, new int[]{0, 2}, null);
     }
     
     /**
@@ -156,14 +156,14 @@ public class TestMain
     
     public static void main (String args[])
     {
-    	//DatabaseManager manager = new DatabaseManager();
-    	//test1_createTable(manager);
-    	//test2_recoverTables(manager);
-    	//test3_switchDB_createTable(manager);
-    	//test4_switchDB_recover(manager);
-    	//test5_deleteTable(manager);  	
-    	//test6_primaryKey(manager);
-    	//manager.database.close();
+    	DatabaseManager manager = new DatabaseManager();
+    	test1_createTable(manager);
+    	test2_recoverTables(manager);
+    	test3_switchDB_createTable(manager);
+    	test4_switchDB_recover(manager);
+    	test6_primaryKey(manager);
+    	test5_deleteTable(manager);  	
+    	manager.database.close();
     }
     
 }

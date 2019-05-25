@@ -39,7 +39,7 @@ public class OperatorProject extends Operator
 		}
 		int size = fields_type.size();
 		int[] index = {};
-		this.schema = new Schema(fields_type.toArray(new FieldType[size]),field_names,index);
+		this.schema = new Schema(fields_type.toArray(new FieldType[size]),field_names,index, temp.string_len);
     }
     
 

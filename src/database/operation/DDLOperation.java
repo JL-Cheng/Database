@@ -1,6 +1,7 @@
 package database.operation;
 
 
+import java.util.HashMap;
 import java.util.List;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Block;
@@ -63,6 +64,7 @@ public class DDLOperation {
 		int n = columns.size();
 		FieldType[] types = new FieldType[n];
         String[] names = new String[n];
+        HashMap<Integer, Integer> str_len = new HashMap<Integer, Integer>();
         int i = 0;
         for (ColumnDefinition column: columns)
         {
@@ -71,6 +73,10 @@ public class DDLOperation {
         	types[i] = FieldType.getType(typename);
         	if (types[i] == null) {
         		throw new Exception("Invalid Data Type.");
+        	}
+        	if (types[i].equals(FieldType.STRING_TYPE))
+        	{
+        		str_len.put(i, Integer.parseInt(column.getColDataType().getArgumentsStringList().get(0)));
         	}
         	i++;
         }        
@@ -91,7 +97,7 @@ public class DDLOperation {
         		}
         	}
         }
-		Schema schema = new Schema(types, names, i_indexes);
+		Schema schema = new Schema(types, names, i_indexes, str_len);
 		System.out.println("Schema:" + schema.toString());
 		manager.database.getTableManager().createNewTable(tablename, schema);
 		System.out.println("Finish Create Table");

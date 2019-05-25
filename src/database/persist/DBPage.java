@@ -141,7 +141,7 @@ public class DBPage
         {
             for (int i=0; i<schema.numFields(); i++)
             {
-                IField f = schema.getFieldType(i).parse(instream);
+                IField f = schema.getFieldType(i).parse(instream, schema.getStringlen(i));
                 tuple.setField(i, f);
             }
         }
