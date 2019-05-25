@@ -4,7 +4,11 @@ import java.util.Vector;
 
 import javax.swing.text.StyledEditorKit.BoldAction;
 
+import database.field.FieldCompare;
 import database.field.FieldCompare.Re;
+import database.persist.DBTable;
+import database.server.DatabaseManager;
+import database.structure.ITupleIterator;
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnalyticExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
@@ -88,7 +92,62 @@ public class WhereVisitor implements ExpressionVisitor
     public String getErrorMessage() { return error_message; }
     public Vector<NodeWhere> getNodes() { return where_nodes; }
 	
-    
+    /**
+     * 把解析结果作用在一张表上
+     * @param manager 数据库管理类
+     * @param table 解析的到的表
+     * @return 符合条件的元组迭代器
+     * @throws Exception
+     */
+    public ITupleIterator workOnOneTable(DatabaseManager manager, Table table) throws Exception
+    {
+    	int table_id = manager.database.getTableManager().getTableId(table.getName());
+		DBTable dbTable = manager.database.getTableManager().getDatabaseFile(table_id);
+    	ITupleIterator it = dbTable.iterator();
+		for (NodeWhere node : where_nodes)
+		{
+			System.out.println(node.table_name);
+			// 处理左边
+			if (!node.table_name.equals("") && !node.table_name.equals(table.getName()))
+			{
+				throw new Exception("[operateDelete] wrong table name :" + node.field_name);
+			}
+			if (node.table_name.equals(""))
+			{
+				node.field_name = table.getName() + '.' + node.field_name;
+			}
+			int field_id = dbTable.getSchema().getFieldIndex(node.field_name);
+			if (field_id == -1)
+			{
+				throw new Exception("[operateDelete] wrong field name :" + node.field_name);
+			}
+			// 处理右边
+			if (node.isConsType)
+			{
+				FieldCompare field_cp = new FieldCompare(field_id, node.re, dbTable.getSchema().getFieldType(field_id).parse(node.cons));
+				it = new OperatorFilter(field_cp, it);
+			}
+			else 
+			{
+				if (!node.right_table_name.equals("") && !node.right_table_name.equals(table.getName()))
+				{
+					throw new Exception("[operateDelete] wrong right table name :" + node.right_field_name);
+				}
+				if (node.right_table_name.equals(""))
+				{
+					node.right_field_name = table.getName() + '.' + node.right_field_name;
+				}
+				int right_field_id = dbTable.getSchema().getFieldIndex(node.right_field_name);
+				if (right_field_id == -1)
+				{
+					throw new Exception("[operateDelete] wrong right field name :" + node.right_field_name);
+				}
+				FieldCompare field_cp = new FieldCompare(field_id, node.re, right_field_id);	
+				it = new OperatorFilter(field_cp, it);
+			}
+		}
+		return it;
+    }
 	/**
      * 增加一个WHERE节点
      * @param field_name 表列名
@@ -100,7 +159,6 @@ public class WhereVisitor implements ExpressionVisitor
     		where_nodes.addElement(node);
     	}  
     }
-
 	@Override
 	public void visit(AndExpression and_expression) {
 		System.out.println("AndExpression:"+and_expression.toString());

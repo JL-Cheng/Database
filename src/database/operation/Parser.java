@@ -11,6 +11,7 @@ import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.update.Update;
 import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -101,6 +102,12 @@ public class Parser
 			{
 				Select select_statement = (Select) statement;
 				return processQueryStatement(select_statement);
+			}
+			//修改语句
+			else if(statement instanceof Update)
+			{
+				DMLOperation.operateUpdate(manager, (Update) statement);
+				return null;
 			}
 			//创建表语句
 			else if(statement instanceof CreateTable)
@@ -271,7 +278,21 @@ public class Parser
 	}
 	public static void testDeleteOperation(DatabaseManager manager, Parser parser)
 	{
-		String str = "DELETE FROM table1 WHERE table1.column0 = 1";
+		String str = "DELETE FROM table1 WHERE column0 <= 2";
+    	try 
+    	{    		
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    		parser.processStatement(str);
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
+	public static void testUpdateOperation(DatabaseManager manager, Parser parser)
+	{
+		String str = "Update table1 set column0 = 0, column1 = 0 WHERE column0 >= 2";
     	try 
     	{    		
     		int table_id = manager.database.getTableManager().getTableId("table1");
@@ -290,8 +311,8 @@ public class Parser
     	Parser parser = new Parser(manager);
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
-    	testDeleteOperation(manager, parser);
-    	
+//    	testDeleteOperation(manager, parser);
+    	testUpdateOperation(manager, parser);
 //    	testInsert(manager, parser);
 //    	testQuery(manager, parser);
 //    	testCreateTable(manager, parser);

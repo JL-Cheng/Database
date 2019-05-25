@@ -18,6 +18,7 @@ import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.statement.update.Update;
 
 public class DMLOperation {
 	/**
@@ -64,68 +65,86 @@ public class DMLOperation {
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
 	}
-	
+	/**
+	 * 删除元组的执行函数
+	 * @param Delete Delete类对象，代表解析结果
+	 */
 	public static void operateDelete(DatabaseManager manager, Delete statement) throws Exception {
 		System.out.println("Start Delete");
-		WhereVisitor whereVisitor = new WhereVisitor();
+		// 处理表
 		Table table = statement.getTable();
 		if (table == null || !manager.database.getTableManager().isTableExist(table.getName()))
 		{
 			throw new Exception("[operateDelete]: wrong table");
 		}
+		// 处理where
+		WhereVisitor whereVisitor = new WhereVisitor();
+		statement.getWhere().accept(whereVisitor);
+		ITupleIterator it = whereVisitor.workOnOneTable(manager, table);
+		// 执行删除
 		int table_id = manager.database.getTableManager().getTableId(table.getName());
 		DBTable dbTable = manager.database.getTableManager().getDatabaseFile(table_id);
-		ITupleIterator it = dbTable.iterator();
-		statement.getWhere().accept(whereVisitor);
-		Vector<NodeWhere> nodes = whereVisitor.getNodes();
-		for (NodeWhere node : nodes)
-		{
-			System.out.println(node.table_name);
-			System.out.println(table.getName());
-			// 处理左边
-			if (!node.table_name.equals("") && !node.table_name.equals(table.getName()))
-			{
-				throw new Exception("[operateDelete] wrong table name :" + node.field_name);
-			}
-			if (node.table_name.equals(""))
-			{
-				node.field_name = table.getName() + '.' + node.field_name;
-			}
-			int field_id = dbTable.getSchema().getFieldIndex(node.field_name);
-			if (field_id == -1)
-			{
-				throw new Exception("[operateDelete] wrong field name :" + node.field_name);
-			}
-			// 处理右边
-			if (node.isConsType)
-			{
-				FieldCompare field_cp = new FieldCompare(field_id, node.re, dbTable.getSchema().getFieldType(field_id).parse(node.cons));
-				it = new OperatorFilter(field_cp, it);
-			}
-			else 
-			{
-				if (!node.right_table_name.equals("") && !node.right_table_name.equals(table.getName()))
-				{
-					throw new Exception("[operateDelete] wrong right table name :" + node.right_field_name);
-				}
-				if (node.right_table_name.equals(""))
-				{
-					node.right_field_name = table.getName() + '.' + node.right_field_name;
-				}
-				int right_field_id = dbTable.getSchema().getFieldIndex(node.right_field_name);
-				if (right_field_id == -1)
-				{
-					throw new Exception("[operateDelete] wrong right field name :" + node.right_field_name);
-				}
-				FieldCompare field_cp = new FieldCompare(field_id, node.re, right_field_id);	
-				it = new OperatorFilter(field_cp, it);
-			}
-		}
 		it.start();
 		while(it.hasNext())
 		{
-			manager.database.getPageBuffer().deleteTuple(it.next());
+			dbTable.deleteTuple(it.next());
 		}
 		System.out.println("Finish Delete");
+	}
+	/**
+	 * 修改元组的执行函数
+	 * @param Update Update类对象，代表解析结果
+	 */
+	public static void operateUpdate(DatabaseManager manager, Update statement) throws Exception {
+		System.out.println("Update Delete");
+		// 处理表 
+		Table table = statement.getTables().get(0);
+		System.out.println(table);
+		if (table == null || !manager.database.getTableManager().isTableExist(table.getName()))
+		{
+			throw new Exception("[operateDelete]: wrong table");
+		}
+		// 处理where部分
+		WhereVisitor whereVisitor = new WhereVisitor();
+		statement.getWhere().accept(whereVisitor);
+		ITupleIterator it = whereVisitor.workOnOneTable(manager, table);
+		// 处理set部分
+		List<Column> columns = statement.getColumns();
+		List<Expression> expressions = statement.getExpressions();
+		int table_id = manager.database.getTableManager().getTableId(table.getName());
+		DBTable dbTable = manager.database.getTableManager().getDatabaseFile(table_id);
+		Schema schema = dbTable.getSchema();
+		int size = columns.size();
+		int[] field_ids = new int[size];
+		int i = 0;
+		for (Column column: columns)
+		{
+			if (column.getTable() != null && !column.getTable().getName().equals(table.getName()))
+			{
+				throw new Exception("[operateUpdate] wrong table :" + column.toString());
+			}
+			int id = schema.getFieldIndex(table.getName() + '.' + column.getColumnName());
+			if (id == -1)
+			{
+				throw new Exception("[operateUpdate] wrong column :" + column.toString());
+			}
+			else
+			{
+				field_ids[i++] = id;
+			}
+		}
+		// 执行更改
+		it.start();
+		while(it.hasNext())
+		{
+			Tuple tuple = it.next();
+			Tuple newTuple = new Tuple(tuple);
+			for (i = 0; i < size; i++)
+			{
+				newTuple.setField(field_ids[i], schema.getFieldType(field_ids[i]).parse(expressions.get(i).toString()));
+			}
+			dbTable.updateTuple(tuple, newTuple);
+		}
+		System.out.println("Finish Update");
 	}
 }
