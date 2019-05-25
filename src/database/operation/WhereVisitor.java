@@ -124,7 +124,7 @@ public class WhereVisitor implements ExpressionVisitor
 			// 处理右边
 			if (node.isConsType)
 			{
-				FieldCompare field_cp = new FieldCompare(field_id, node.re, dbTable.getSchema().getFieldType(field_id).parse(node.cons, dbTable.getSchema().getStringlen(field_id)));
+				FieldCompare field_cp = new FieldCompare(field_id, node.re, dbTable.getSchema().parse(field_id, node.cons));
 				it = new OperatorFilter(field_cp, it);
 			}
 			else 

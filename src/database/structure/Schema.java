@@ -210,7 +210,45 @@ public class Schema implements Serializable
         	return null;
         }
     }
-
+    /**
+     * 从str中解析出field_id对应列的一个Field
+     * @param field_id
+     * @param str
+     * @return
+     */
+    public IField parse(int field_id, String str)
+    {
+    	FieldType type = getFieldType(field_id);
+    	if (type.equals(FieldType.STRING_TYPE))
+    	{
+    		return type.parse(str, getStringlen(field_id));
+    	}
+    	else
+    	{
+    		return type.parse(str);
+    	}
+    	
+    }
+    /**
+     * 从instream中解析出field_id对应列的一个Field
+     * @param field_id
+     * @param instream
+     * @return
+     */
+    public IField parse(int field_id, DataInputStream instream)
+    {
+    	FieldType type = getFieldType(field_id);
+    	if (type.equals(FieldType.STRING_TYPE))
+    	{
+    		return type.parse(instream, getStringlen(field_id));
+    	}
+    	else
+    	{
+    		return type.parse(instream);
+    	}
+    	
+    }
+    
     /**
      * 获取该元数据的大小（字节）
      * @return 元数据的大小
@@ -220,7 +258,14 @@ public class Schema implements Serializable
     	int size = 0;  	
     	for (int i=0; i<field_types.length; i++)
     	{
-    		size += field_types[i].getLen(getStringlen(i));
+    		if (field_types[i].equals(FieldType.STRING_TYPE))
+    		{
+    			size += field_types[i].getLen(getStringlen(i));    			
+    		}
+    		else 
+    		{
+    			size += field_types[i].getLen();
+    		}
     	}
         return size;
     }

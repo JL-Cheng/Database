@@ -48,7 +48,7 @@ public class DMLOperation {
 					throw new Exception("Invalid column name.");
 				}
 				String value = exlist.get(i).toString();
-				tuple.setField(index, schema.getFieldType(index).parse(value, schema.getStringlen(index)));
+				tuple.setField(index, schema.parse(index, value));
 			}
 		} 
 		else
@@ -57,7 +57,7 @@ public class DMLOperation {
 			for (int i = 0; i < size; i++)
 			{
 				String value = exlist.get(i).toString();
-				tuple.setField(i, schema.getFieldType(i).parse(value, schema.getStringlen(i)));
+				tuple.setField(i, schema.parse(i, value));
 			}
 		}
 		
@@ -141,7 +141,7 @@ public class DMLOperation {
 			Tuple newTuple = new Tuple(tuple);
 			for (i = 0; i < size; i++)
 			{
-				newTuple.setField(field_ids[i], schema.getFieldType(field_ids[i]).parse(expressions.get(i).toString(), schema.getStringlen(field_ids[i])));
+				newTuple.setField(field_ids[i], schema.parse(field_ids[i], expressions.get(i).toString()));
 			}
 			dbTable.updateTuple(tuple, newTuple);
 		}
