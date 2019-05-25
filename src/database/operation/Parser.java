@@ -2,13 +2,16 @@ package database.operation;
 
 
 import java.io.*;
+import java.util.regex.*;
 import net.sf.jsqlparser.parser.*;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.*;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.insert.*;
 import net.sf.jsqlparser.statement.delete.*;
 import net.sf.jsqlparser.statement.drop.Drop;
 import net.sf.jsqlparser.statement.select.*;
+import net.sf.jsqlparser.statement.update.Update;
 import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -25,6 +28,7 @@ public class Parser
 {
 	private DatabaseManager manager;//数据库管理器
 	private CCJSqlParserManager parser;//解析器
+	private Pattern databasePattern;
 	
 	 /**
      * 构造函数
@@ -33,6 +37,7 @@ public class Parser
     {
     	this.manager = m;
     	this.parser = new CCJSqlParserManager();
+    	databasePattern = Pattern.compile("(.*)(DATABASE|database)(.*)");
     }
 
 //********************SQL类型判断与分派处理********************
@@ -45,8 +50,41 @@ public class Parser
 	{
 		try
 		{
-			Statement statement = parser.parse(new StringReader(str));
+			//数据库操作语句
+			Matcher matcher = databasePattern.matcher(str);
+			if (matcher.find()) {
+				String optype = matcher.group(1).strip().toUpperCase();
+				switch (optype) {
+				case "CREATE": 
+					//创建数据库
+					DatabaseOperation.operateCreateDatabase(manager, matcher.group(3).strip());
+					break;
+				case "DROP":
+					//删除数据库
+					DatabaseOperation.operateDropDatabase(manager, matcher.group(3).strip());
+					break;
+				case "USE":
+					//切换数据库
+					DatabaseOperation.operateSwitchDatabase(manager, matcher.group(3).strip());
+					break;
+				case "SHOW":
+					if (matcher.group(3).toUpperCase().equals("S"))
+					{
+						//展示所有数据库
+						DatabaseOperation.operateShowDatabases(manager);
+						break;
+					}
+					else
+					{
+						throw new Exception("Parse error.");
+					}
+				default:
+					throw new Exception("Parse error.");
+				}
+				return null;
+			} 
 			
+			Statement statement = parser.parse(new StringReader(str));
 			//插入语句
 			if(statement instanceof Insert)
 			{
@@ -56,13 +94,20 @@ public class Parser
 			//删除语句
 			else if(statement instanceof Delete)
 			{
-				
+				DMLOperation.operateDelete(manager, (Delete) statement);
+				return null;
 			}
 			//查询语句
 			else if(statement instanceof Select)
 			{
 				Select select_statement = (Select) statement;
 				return processQueryStatement(select_statement);
+			}
+			//修改语句
+			else if(statement instanceof Update)
+			{
+				DMLOperation.operateUpdate(manager, (Update) statement);
+				return null;
 			}
 			//创建表语句
 			else if(statement instanceof CreateTable)
@@ -76,12 +121,11 @@ public class Parser
 				DDLOperation.operateDropTable(this.manager, (Drop)statement);
 				return null;
 			}
-			//解析失败
-			else
+			//解析错误
+			else 
 			{
-				throw new Exception("Parse error.");
+				throw new Exception("Parse error.");					
 			}
-			return null;
 		}
 		catch(Exception e)
 		{
@@ -110,7 +154,7 @@ public class Parser
 	{
 		//测试查询语句的解析
     	String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table1.column1 < 3";
-
+//		String str = "SELECT column1 from table1";
     	try
     	{
     		ITupleIterator it = parser.processStatement(str);
@@ -212,14 +256,64 @@ public class Parser
     	}
     	
 	}
+	public static void testDatabaseOperation(DatabaseManager manager, Parser parser)
+	{
+    	String create1 = "CREATE DATABASE public1";
+    	String create2 = "CREATE DATABASE public2";
+    	String use = "use DATABASE public1";
+    	String show = "SHOW DATABASES";
+    	String drop = "drop DATABASE public2";
+    	try 
+    	{    		
+//    		parser.processStatement(create1);
+    		parser.processStatement(create2);
+    		parser.processStatement(use);
+    		parser.processStatement(show);
+    		parser.processStatement(drop);
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+    	
+	}
+	public static void testDeleteOperation(DatabaseManager manager, Parser parser)
+	{
+		String str = "DELETE FROM table1 WHERE column0 <= 2";
+    	try 
+    	{    		
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    		parser.processStatement(str);
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
+	public static void testUpdateOperation(DatabaseManager manager, Parser parser)
+	{
+		String str = "Update table1 set column0 = 0, column1 = 0 WHERE column0 >= 2";
+    	try 
+    	{    		
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    		parser.processStatement(str);
+    		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
+    	} catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
 //********************主函数********************	
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
 //    	createTestData(manager);
-    	
-    	testInsert(manager, parser);
+//    	testDatabaseOperation(manager, parser);
+//    	testDeleteOperation(manager, parser);
+    	testUpdateOperation(manager, parser);
+//    	testInsert(manager, parser);
 //    	testQuery(manager, parser);
 //    	testCreateTable(manager, parser);
 //    	testDropTable(manager, parser);

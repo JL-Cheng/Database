@@ -1,5 +1,6 @@
 package database.persist;
 
+import database.field.IField;
 import database.persist.DBPage.DBPageId;
 import database.server.DatabaseManager;
 import database.structure.Tuple;
@@ -104,8 +105,7 @@ public class DBPageBuffer
     	DBTable file = manager.database.getTableManager().getDatabaseFile(table_id);
     	if (file != null)
     	{
-    		DBPage page = file.insertTuple(tuple);    		
-    		page.setOperated(true);
+    		file.insertTuple(tuple);
     	}
     }
 
@@ -120,8 +120,23 @@ public class DBPageBuffer
     	{
     		return;
     	}
-    	DBPage page = file.deleteTuple(tuple);
-    	page.setOperated(true);
+    	file.deleteTuple(tuple);
+    }
+    
+    /**
+     * 
+     * 从缓冲区中修改元组
+     * @param tuple 待修改的元组
+     * @param newTuple 新值
+     */
+    public void updateTuple(Tuple tuple, Tuple newTuple)
+    {
+    	DBTable file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
+    	if (file == null)
+    	{
+    		return;
+    	}
+    	file.updateTuple(tuple, newTuple);
     }
 
     /**

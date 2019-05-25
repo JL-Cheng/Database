@@ -131,6 +131,7 @@ public class DBTable
     		page.insertTuple(tuple);
     		writePage(page);
     	}
+    	page.setOperated(true);
         return page;
     }
 
@@ -141,9 +142,27 @@ public class DBTable
      */
     public DBPage deleteTuple(Tuple tuple)
     {
+    	System.out.println("deleteTuple: "+ tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.deleteTuple(tuple);
+    	page.setOperated(true);
+        return page;
+    }
+    
+    /**
+     * 将某一元组从数据库文件中替换
+     * @param tuple 将要删除的元组
+     * @param newTuple 新元组
+     * @return 被修改的页
+     */
+    public DBPage updateTuple(Tuple tuple, Tuple newTuple)
+    {
+    	System.out.println("deleteTuple: "+ tuple);
+    	DBPageBuffer pool = manager.database.getPageBuffer();
+    	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
+    	page.updateTuple(tuple, newTuple);
+    	page.setOperated(true);
         return page;
     }
 
