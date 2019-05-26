@@ -25,7 +25,7 @@ public class ProcessDML {
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果
 	 */
-	public static void operateInsert(DatabaseManager manager, Insert statement) throws Exception 
+	public static String operateInsert(DatabaseManager manager, Insert statement) throws Exception 
 	{
 		System.out.println("Start Insert");
 		Table table = statement.getTable();
@@ -67,12 +67,13 @@ public class ProcessDML {
 		System.out.println(tuple);
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
+		return "Insert successfully";
 	}
 	/**
 	 * 删除元组的执行函数
 	 * @param Delete Delete类对象，代表解析结果
 	 */
-	public static void operateDelete(DatabaseManager manager, Delete statement) throws Exception 
+	public static String operateDelete(DatabaseManager manager, Delete statement) throws Exception 
 	{
 		System.out.println("Start Delete");
 		// 处理表
@@ -89,17 +90,20 @@ public class ProcessDML {
 		int table_id = manager.database.getTableManager().getTableId(table.getName());
 		DBTable dbTable = manager.database.getTableManager().getDatabaseFile(table_id);
 		it.start();
+		int count = 0;
 		while(it.hasNext())
 		{
+			count++;
 			dbTable.deleteTuple(it.next());
 		}
 		System.out.println("Finish Delete");
+		return "Delete successfully(" + count + " tuples deleted.)";
 	}
 	/**
 	 * 修改元组的执行函数
 	 * @param Update Update类对象，代表解析结果
 	 */
-	public static void operateUpdate(DatabaseManager manager, Update statement) throws Exception {
+	public static String operateUpdate(DatabaseManager manager, Update statement) throws Exception {
 		System.out.println("Update Delete");
 		// 处理表 
 		Table table = statement.getTables().get(0);
@@ -139,6 +143,7 @@ public class ProcessDML {
 		}
 		// 执行更改
 		it.start();
+		int count = 0;
 		while(it.hasNext())
 		{
 			Tuple tuple = it.next();
@@ -147,8 +152,10 @@ public class ProcessDML {
 			{
 				newTuple.setField(field_ids[i], schema.parse(field_ids[i], expressions.get(i).toString()));
 			}
+			count++;
 			dbTable.updateTuple(tuple, newTuple);
 		}
 		System.out.println("Finish Update");
+		return "Update successfully(" + count + " tuples updated.)";
 	}
 }

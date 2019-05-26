@@ -50,7 +50,7 @@ public class ProcessDDL {
 	 * 创建表的执行函数
 	 * @param CreateTable CreateTable类对象，代表解析结果
 	 */
-	public static void operateCreateTable(DatabaseManager manager, CreateTable createTableStatement) throws Exception 
+	public static String operateCreateTable(DatabaseManager manager, CreateTable createTableStatement) throws Exception 
 	{
 		System.out.println("Start Create Table");
 		System.out.println("CreateTable:"+createTableStatement.toString());
@@ -103,13 +103,14 @@ public class ProcessDDL {
 		System.out.println("Schema:" + schema.toString());
 		manager.database.getTableManager().createNewTable(tablename, schema);
 		System.out.println("Finish Create Table");
+		return "Create Table(Schema:" + schema;
 	}
 	
 	/**
 	 * 删除表的执行函数
 	 * @param Drop Drop类对象，代表解析结果
 	 */
-	public static void operateDropTable(DatabaseManager manager, Drop statement) throws Exception {
+	public static String operateDropTable(DatabaseManager manager, Drop statement) throws Exception {
 		System.out.println("Start Drop Table");
 		System.out.println("DropTable:"+statement.toString());
 		Table table = statement.getName();
@@ -121,5 +122,6 @@ public class ProcessDDL {
 		}
 		manager.database.getTableManager().removeTable(tablename);
 		System.out.println("Finish Drop Table");
+		return "Drop Table " + tablename;
 	}
 }

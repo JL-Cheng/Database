@@ -45,9 +45,9 @@ public class Parser
     /**
      * 处理读入的SQL字符串
      * @param str String类型的SQL语句
-     * @return 处理结束的元组迭代器
+     * @return 结果字符串
      */
-	public ITupleIterator processStatement(String str) throws Exception
+	public String processStatement(String str) throws Exception
 	{
 		try
 		{
@@ -58,22 +58,18 @@ public class Parser
 				switch (optype) {
 				case "CREATE": 
 					//创建数据库
-					ProcessDatabase.operateCreateDatabase(manager, matcher.group(3).strip());
-					break;
+					return ProcessDatabase.operateCreateDatabase(manager, matcher.group(3).strip());
 				case "DROP":
 					//删除数据库
-					ProcessDatabase.operateDropDatabase(manager, matcher.group(3).strip());
-					break;
+					return ProcessDatabase.operateDropDatabase(manager, matcher.group(3).strip());
 				case "USE":
 					//切换数据库
-					ProcessDatabase.operateSwitchDatabase(manager, matcher.group(3).strip());
-					break;
+					return ProcessDatabase.operateSwitchDatabase(manager, matcher.group(3).strip());
 				case "SHOW":
 					if (matcher.group(3).toUpperCase().equals("S"))
 					{
 						//展示所有数据库
-						ProcessDatabase.operateShowDatabases(manager);
-						break;
+						return ProcessDatabase.operateShowDatabases(manager);
 					}
 					else
 					{
@@ -82,21 +78,18 @@ public class Parser
 				default:
 					throw new Exception("Parse error.");
 				}
-				return null;
 			} 
 			
 			Statement statement = parser.parse(new StringReader(str));
 			//插入语句
 			if(statement instanceof Insert)
 			{
-				ProcessDML.operateInsert(manager, (Insert) statement);
-				return null;
+				return ProcessDML.operateInsert(manager, (Insert) statement);
 			}
 			//删除语句
 			else if(statement instanceof Delete)
 			{
-				ProcessDML.operateDelete(manager, (Delete) statement);
-				return null;
+				return ProcessDML.operateDelete(manager, (Delete) statement);
 			}
 			//查询语句
 			else if(statement instanceof Select)
@@ -107,20 +100,17 @@ public class Parser
 			//修改语句
 			else if(statement instanceof Update)
 			{
-				ProcessDML.operateUpdate(manager, (Update) statement);
-				return null;
+				return ProcessDML.operateUpdate(manager, (Update) statement);
 			}
 			//创建表语句
 			else if(statement instanceof CreateTable)
 			{
-				ProcessDDL.operateCreateTable(this.manager, (CreateTable)statement);
-				return null;
+				return ProcessDDL.operateCreateTable(this.manager, (CreateTable)statement);
 			}
 			//删除表语句
 			else if(statement instanceof Drop)
 			{
-				ProcessDDL.operateDropTable(this.manager, (Drop)statement);
-				return null;
+				return ProcessDDL.operateDropTable(this.manager, (Drop)statement);
 			}
 			//解析错误
 			else 
@@ -142,14 +132,29 @@ public class Parser
 	 * @return 查询成功的元组迭代器
 	 * @throws Exception
 	 */
-	public ITupleIterator processQueryStatement(Select statement) throws Exception
+	public String processQueryStatement(Select statement) throws Exception
 	{
 		ParseQuery parse_query = new ParseQuery(this.manager);
 		parse_query.parse(statement);
 		ITupleIterator tuple_iterator = parse_query.getQuery().operateQuery();
-		return tuple_iterator;
+		return showResults(tuple_iterator);
 	}
-	
+	public static String showResults(ITupleIterator it) {
+		String res = "";
+		it.start();
+		Schema schema = it.getSchema();
+		for(int i=0;i<schema.numFields();i++)
+		{
+			System.out.print(schema.getFieldName(i)+"    ");
+		}
+		System.out.println();
+		while(it.hasNext())
+		{
+			res += it.next();
+			res += '\n';
+		}
+		return res;
+	}
 //********************测试函数********************	
 	public static void testQuery(DatabaseManager manager, Parser parser) 
 	{
@@ -158,8 +163,7 @@ public class Parser
 		String str = "SELECT column1 from table1";
     	try
     	{
-    		ITupleIterator it = parser.processStatement(str);
-    		showResults(it);
+    		System.out.println(parser.processStatement(str));
     		System.out.println("QUERY FINISH.");
 		}
     	catch(Exception e)
@@ -199,19 +203,6 @@ public class Parser
             System.exit(0);
         }
 	}
-	public static void showResults(ITupleIterator it) {
-		it.start();
-		Schema schema = it.getSchema();
-		for(int i=0;i<schema.numFields();i++)
-		{
-			System.out.print(schema.getFieldName(i)+"    ");
-		}
-		System.out.println();
-		while(it.hasNext())
-		{
-			System.out.println(it.next());
-		}
-	}
 	public static void testCreateTable(DatabaseManager manager, Parser parser)
 	{
     	String str = "CREATE TABLE Person \n" + 
@@ -224,7 +215,7 @@ public class Parser
     			") ";
     	try 
     	{    		
-    		parser.processStatement(str);
+    		System.out.println(parser.processStatement(str));
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
@@ -236,7 +227,7 @@ public class Parser
     	String str = "DROP TABLE Person";
     	try 
     	{    		
-    		parser.processStatement(str);
+    		System.out.println(parser.processStatement(str));
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
@@ -248,7 +239,7 @@ public class Parser
     	String str = "INSERT INTO table1 VALUES(1, 2, 3);";
     	try 
     	{    		
-    		parser.processStatement(str);
+    		System.out.println(parser.processStatement(str));
     		int table_id = manager.database.getTableManager().getTableId("table1");
     		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
     	} catch(Exception e)
@@ -266,11 +257,11 @@ public class Parser
     	String drop = "drop DATABASE public2";
     	try 
     	{    		
-//    		parser.processStatement(create1);
-    		parser.processStatement(create2);
-    		parser.processStatement(use);
-    		parser.processStatement(show);
-    		parser.processStatement(drop);
+//    		System.out.println(parser.processStatement(create1));
+    		System.out.println(parser.processStatement(create2));
+    		System.out.println(parser.processStatement(use));
+    		System.out.println(parser.processStatement(show));
+    		System.out.println(parser.processStatement(drop));
     	} catch(Exception e)
     	{
     		System.out.println(e.getMessage());
@@ -284,7 +275,7 @@ public class Parser
     	{    		
     		int table_id = manager.database.getTableManager().getTableId("table1");
     		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
-    		parser.processStatement(str);
+    		System.out.println(parser.processStatement(str));
     		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
     	} catch(Exception e)
     	{
@@ -298,7 +289,7 @@ public class Parser
     	{    		
     		int table_id = manager.database.getTableManager().getTableId("table1");
     		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
-    		parser.processStatement(str);
+    		System.out.println(parser.processStatement(str));
     		showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator());
     	} catch(Exception e)
     	{
@@ -310,14 +301,14 @@ public class Parser
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
-//    	createTestData(manager);
-//    	testDatabaseOperation(manager, parser);
-//    	testDeleteOperation(manager, parser);
-//    	testUpdateOperation(manager, parser);
-//    	testInsert(manager, parser);
-//    	testQuery(manager, parser);
-    	testCreateTable(manager, parser);
-//    	testDropTable(manager, parser);
+    	createTestData(manager);
+    	testDatabaseOperation(manager, parser);
+    	testDeleteOperation(manager, parser);
+    	testUpdateOperation(manager, parser);
+    	testInsert(manager, parser);
+    	testQuery(manager, parser);
+//    	testCreateTable(manager, parser);
+    	testDropTable(manager, parser);
     	manager.database.close();
     }
 }
