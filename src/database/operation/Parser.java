@@ -58,21 +58,21 @@ public class Parser
 				switch (optype) {
 				case "CREATE": 
 					//创建数据库
-					DatabaseOperation.operateCreateDatabase(manager, matcher.group(3).strip());
+					ProcessDatabase.operateCreateDatabase(manager, matcher.group(3).strip());
 					break;
 				case "DROP":
 					//删除数据库
-					DatabaseOperation.operateDropDatabase(manager, matcher.group(3).strip());
+					ProcessDatabase.operateDropDatabase(manager, matcher.group(3).strip());
 					break;
 				case "USE":
 					//切换数据库
-					DatabaseOperation.operateSwitchDatabase(manager, matcher.group(3).strip());
+					ProcessDatabase.operateSwitchDatabase(manager, matcher.group(3).strip());
 					break;
 				case "SHOW":
 					if (matcher.group(3).toUpperCase().equals("S"))
 					{
 						//展示所有数据库
-						DatabaseOperation.operateShowDatabases(manager);
+						ProcessDatabase.operateShowDatabases(manager);
 						break;
 					}
 					else
@@ -89,13 +89,13 @@ public class Parser
 			//插入语句
 			if(statement instanceof Insert)
 			{
-				DMLOperation.operateInsert(manager, (Insert) statement);
+				ProcessDML.operateInsert(manager, (Insert) statement);
 				return null;
 			}
 			//删除语句
 			else if(statement instanceof Delete)
 			{
-				DMLOperation.operateDelete(manager, (Delete) statement);
+				ProcessDML.operateDelete(manager, (Delete) statement);
 				return null;
 			}
 			//查询语句
@@ -107,19 +107,19 @@ public class Parser
 			//修改语句
 			else if(statement instanceof Update)
 			{
-				DMLOperation.operateUpdate(manager, (Update) statement);
+				ProcessDML.operateUpdate(manager, (Update) statement);
 				return null;
 			}
 			//创建表语句
 			else if(statement instanceof CreateTable)
 			{
-				DDLOperation.operateCreateTable(this.manager, (CreateTable)statement);
+				ProcessDDL.operateCreateTable(this.manager, (CreateTable)statement);
 				return null;
 			}
 			//删除表语句
 			else if(statement instanceof Drop)
 			{
-				DDLOperation.operateDropTable(this.manager, (Drop)statement);
+				ProcessDDL.operateDropTable(this.manager, (Drop)statement);
 				return null;
 			}
 			//解析错误

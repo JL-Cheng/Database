@@ -2,7 +2,7 @@ package database.operation;
 
 import database.server.DatabaseManager;
 
-public class DatabaseOperation {
+public class ProcessDatabase {
 	/**
 	 * 创建数据库的执行函数
 	 * @param dbname 数据库名

@@ -20,7 +20,7 @@ import net.sf.jsqlparser.statement.insert.Insert;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class DMLOperation {
+public class ProcessDML {
 	/**
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果
@@ -78,7 +78,7 @@ public class DMLOperation {
 			throw new Exception("[operateDelete]: wrong table");
 		}
 		// 处理where
-		WhereVisitor whereVisitor = new WhereVisitor();
+		VisitorWhere whereVisitor = new VisitorWhere();
 		statement.getWhere().accept(whereVisitor);
 		ITupleIterator it = whereVisitor.workOnOneTable(manager, table);
 		// 执行删除
@@ -105,7 +105,7 @@ public class DMLOperation {
 			throw new Exception("[operateDelete]: wrong table");
 		}
 		// 处理where部分
-		WhereVisitor whereVisitor = new WhereVisitor();
+		VisitorWhere whereVisitor = new VisitorWhere();
 		statement.getWhere().accept(whereVisitor);
 		ITupleIterator it = whereVisitor.workOnOneTable(manager, table);
 		// 处理set部分

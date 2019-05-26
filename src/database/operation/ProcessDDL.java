@@ -44,7 +44,7 @@ import database.structure.Schema;
  * 功能：处理数据定义语言的语句
  * 
  */
-public class DDLOperation {
+public class ProcessDDL {
 	
 	/**
 	 * 创建表的执行函数

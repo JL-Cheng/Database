@@ -84,7 +84,7 @@ import net.sf.jsqlparser.statement.select.SubSelect;
  * 功能：通用的解析表达式的访问者
  * 
  */
-public class WhereVisitor implements ExpressionVisitor
+public class VisitorWhere implements ExpressionVisitor
 {
 	private Vector<NodeWhere> where_nodes = new Vector<NodeWhere>();//WHERE语句中的节点
 	private String error_message;//解析过程中是否出现错误，若是""则说明没有错误
