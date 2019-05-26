@@ -21,7 +21,7 @@ public class NodeWhere
 	public String right_field_name;//另一个列名，形如table.attr
 	public Re re;//关系类型，如“=”
 	public String cons;//常量
-	boolean isConsType = true;//标注右边是否是常量类型
+	boolean is_cons_type = true;//标注右边是否是常量类型
 	
     /**
      * 构造函数
@@ -45,7 +45,7 @@ public class NodeWhere
     	this.table_name = table_name;
     	this.field_name = field_name;
     	this.re = re;
-    	this.isConsType = false;
+    	this.is_cons_type = false;
 		this.right_field_name = right_field;   
 		this.right_table_name = right_table;   
 		this.cons = "";
@@ -62,7 +62,7 @@ public class NodeWhere
     			node.table_name.equals(this.table_name)&&
     			node.re.equals(this.re)&&
     			node.cons.equals(this.cons)&&
-    			node.isConsType== this.isConsType&&
+    			node.is_cons_type== this.is_cons_type&&
     			node.right_field_name.equals(this.right_field_name)&&
     			node.right_table_name.equals(this.right_table_name))
     	{

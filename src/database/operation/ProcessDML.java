@@ -25,11 +25,13 @@ public class ProcessDML {
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果
 	 */
-	public static void operateInsert(DatabaseManager manager, Insert statement) throws Exception {
+	public static void operateInsert(DatabaseManager manager, Insert statement) throws Exception 
+	{
 		System.out.println("Start Insert");
 		Table table = statement.getTable();
 		int table_id = manager.database.getTableManager().getTableId(table.getName());
-		if (table_id == -1) {
+		if (table_id == -1) 
+		{
 			throw new Exception("Invalid Table Name");
 		}
 		Schema schema = manager.database.getTableManager().getSchema(table_id);
@@ -42,7 +44,8 @@ public class ProcessDML {
 		if (columns != null) 
 		{
 			int size = exlist.size();
-			for (int i = 0; i < size; i++) {
+			for (int i = 0; i < size; i++) 
+			{
 				int index = schema.getFieldIndex(columns.get(i).getColumnName());
 				if (index == -1) {
 					throw new Exception("Invalid column name.");
@@ -69,7 +72,8 @@ public class ProcessDML {
 	 * 删除元组的执行函数
 	 * @param Delete Delete类对象，代表解析结果
 	 */
-	public static void operateDelete(DatabaseManager manager, Delete statement) throws Exception {
+	public static void operateDelete(DatabaseManager manager, Delete statement) throws Exception 
+	{
 		System.out.println("Start Delete");
 		// 处理表
 		Table table = statement.getTable();

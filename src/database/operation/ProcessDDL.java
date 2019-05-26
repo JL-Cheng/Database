@@ -50,7 +50,8 @@ public class ProcessDDL {
 	 * 创建表的执行函数
 	 * @param CreateTable CreateTable类对象，代表解析结果
 	 */
-	public static void operateCreateTable(DatabaseManager manager, CreateTable createTableStatement) throws Exception {
+	public static void operateCreateTable(DatabaseManager manager, CreateTable createTableStatement) throws Exception 
+	{
 		System.out.println("Start Create Table");
 		System.out.println("CreateTable:"+createTableStatement.toString());
 		Table table = createTableStatement.getTable();
@@ -58,7 +59,8 @@ public class ProcessDDL {
 		List<Index> indexes = createTableStatement.getIndexes();
 		String tablename = table.getName();
 		System.out.println("Table name:" + tablename);
-		if (manager.database.getTableManager().isTableExist(tablename)) {
+		if (manager.database.getTableManager().isTableExist(tablename)) 
+		{
 			throw new Exception("Duplicated Table Name.");
 		}
 		int n = columns.size();
@@ -113,7 +115,8 @@ public class ProcessDDL {
 		Table table = statement.getName();
 		String tablename = table.getName();
 		System.out.println("Table name:" + tablename);
-		if (!manager.database.getTableManager().isTableExist(tablename)) {
+		if (!manager.database.getTableManager().isTableExist(tablename)) 
+		{
 			throw new Exception("Invalid Table Name.");
 		}
 		manager.database.getTableManager().removeTable(tablename);

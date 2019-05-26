@@ -122,7 +122,7 @@ public class VisitorWhere implements ExpressionVisitor
 				throw new Exception("[operateDelete] wrong field name :" + node.field_name);
 			}
 			// 处理右边
-			if (node.isConsType)
+			if (node.is_cons_type)
 			{
 				FieldCompare field_cp = new FieldCompare(field_id, node.re, dbTable.getSchema().parse(field_id, node.cons));
 				it = new OperatorFilter(field_cp, it);
@@ -160,7 +160,8 @@ public class VisitorWhere implements ExpressionVisitor
     	}  
     }
 	@Override
-	public void visit(AndExpression and_expression) {
+	public void visit(AndExpression and_expression) 
+	{
 		System.out.println("AndExpression:"+and_expression.toString());
 		and_expression.getLeftExpression().accept(this);
 		and_expression.getRightExpression().accept(this);

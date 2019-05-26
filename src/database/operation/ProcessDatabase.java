@@ -41,8 +41,8 @@ public class ProcessDatabase {
 	{
 		String[] dbs = manager.getDatabases();
 		System.out.println("Databases:");
-		for (String iString : dbs) {
-			System.out.println("- " + iString);
+		for (String i_string : dbs) {
+			System.out.println("- " + i_string);
 		}
 	}
 	
