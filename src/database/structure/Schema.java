@@ -210,6 +210,7 @@ public class Schema implements Serializable
         	return null;
         }
     }
+    
     /**
      * 从str中解析出field_id对应列的一个Field
      * @param field_id
@@ -226,9 +227,9 @@ public class Schema implements Serializable
     	else
     	{
     		return type.parse(str);
-    	}
-    	
+    	} 	
     }
+    
     /**
      * 从instream中解析出field_id对应列的一个Field
      * @param field_id
@@ -245,8 +246,7 @@ public class Schema implements Serializable
     	else
     	{
     		return type.parse(instream);
-    	}
-    	
+    	} 	
     }
     
     /**

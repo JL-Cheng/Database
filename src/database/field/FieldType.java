@@ -15,7 +15,8 @@ public enum FieldType implements Serializable
 	//Int类型
     INT_TYPE()
     {
-    	public String getName() {
+    	public String getName()
+    	{
     		return "Int";
     	}
     	
@@ -44,7 +45,8 @@ public enum FieldType implements Serializable
 	//Long类型
     LONG_TYPE()
     {
-    	public String getName() {
+    	public String getName()
+    	{
     		return "Long";
     	}
     	
@@ -73,7 +75,8 @@ public enum FieldType implements Serializable
 	//Float类型
     FLOAT_TYPE()
     {
-    	public String getName() {
+    	public String getName()
+    	{
     		return "Float";
     	}
     	
@@ -102,7 +105,8 @@ public enum FieldType implements Serializable
 	//Double类型
     DOUBLE_TYPE()
     {
-    	public String getName() {
+    	public String getName()
+    	{
     		return "Double";
     	}
     	
@@ -131,10 +135,13 @@ public enum FieldType implements Serializable
     //String类型
     STRING_TYPE()
     {
-    	public String getName() {
+    	public String getName()
+    	{
     		return getName(STRING_LEN);
     	}
-    	public String getName(int len) {
+    	
+    	public String getName(int len)
+    	{
     		return "String(" + len + ")";
     	}
     	
@@ -187,7 +194,6 @@ public enum FieldType implements Serializable
 	
 	/**
 	 * @param len 只在string时有意义 最大长度
-	 * @return
 	 */
 	public int getLen(int len) {return getLen();}
 	
@@ -198,7 +204,6 @@ public enum FieldType implements Serializable
 	
 	/**
 	 * @param len 只在string时有意义 最大长度
-	 * @return
 	 */
 	public String getName(int len) {return getName();};
 	
@@ -210,19 +215,18 @@ public enum FieldType implements Serializable
 	
 	/**
 	 * @param len 只在string时有意义 最大长度
-	 * @return
 	 */
 	public IField parse(DataInputStream instream, int len) {return parse(instream);};
 	
 	/**
-	 * @param String 输入字符串
+	 * @param str 输入字符串
 	 * @return 从字符串中读入的某数据类型对象
 	 */
 	public abstract IField parse(String str);
 	
 	/**
+	 * @param str 字符串
 	 * @param len 只在string时有意义 最大长度
-	 * @return
 	 */
 	public IField parse(String str, int len) {return parse(str);};
 	 

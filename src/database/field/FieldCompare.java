@@ -14,8 +14,8 @@ public class FieldCompare implements Serializable
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
-    private int field_id;//数据类型对应编号
-    private int right_field_id = -1;//数据类型对应编号
+    private int field_id;//列编号
+    private int right_field_id = -1;//第二列编号
     private Re re;//比较关系
     private IField operand;//比较数
 	
@@ -64,7 +64,7 @@ public class FieldCompare implements Serializable
 
     /**
      * 构造函数
-     * @param field_id 数据类型对应编号
+     * @param field_id 列编号
      * @param re 比较关系
      * @param operand 比较数
      */
@@ -74,6 +74,13 @@ public class FieldCompare implements Serializable
     	this.re = re;
     	this.operand = operand;
     }
+
+    /**
+     * 构造函数
+     * @param field_id 第一列编号
+     * @param re 比较关系
+     * @param right_field_id 第二列编号
+     */
     public FieldCompare(int field_id, Re re, int right_field_id)
     {
     	this.field_id = field_id;
@@ -82,14 +89,14 @@ public class FieldCompare implements Serializable
     }
 
     /**
-     * @return 数据类型对应编号
+     * @return 第一列对应编号
      */
     public int getField()
     {
         return field_id;
     }
     /**
-     * @return 右边数据类型对应编号
+     * @return 第二列对应编号
      */
     public int getRightField()
     {

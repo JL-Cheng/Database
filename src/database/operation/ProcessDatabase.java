@@ -2,7 +2,8 @@ package database.operation;
 
 import database.server.DatabaseManager;
 
-public class ProcessDatabase {
+public class ProcessDatabase
+{
 	/**
 	 * 创建数据库的执行函数
 	 * @param dbname 数据库名
@@ -38,13 +39,13 @@ public class ProcessDatabase {
 	
 	/**
 	 * 展示所有数据库的执行函数
-	 * 
 	 */
 	public static String operateShowDatabases(DatabaseManager manager) throws Exception
 	{
 		String[] dbs = manager.getDatabases();
 		String res = "Databases:\n";
-		for (String i_string : dbs) {
+		for (String i_string : dbs)
+		{
 			res = res + "- " + i_string + '\n';
 		}
 		return res;

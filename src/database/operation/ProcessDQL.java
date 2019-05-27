@@ -1,6 +1,7 @@
 package database.operation;
 
 import java.util.Iterator;
+import java.util.Vector;
 
 import net.sf.jsqlparser.statement.select.*;
 import net.sf.jsqlparser.statement.values.ValuesStatement;
@@ -9,8 +10,11 @@ import net.sf.jsqlparser.expression.operators.arithmetic.*;
 import net.sf.jsqlparser.expression.operators.conditional.*;
 import net.sf.jsqlparser.expression.operators.relational.*;
 import net.sf.jsqlparser.schema.*;
+import database.structure.Tuple;
 import database.field.FieldCompare.Re;
 import database.server.DatabaseManager;
+import database.structure.ITupleIterator;
+import database.structure.Schema;
 
 /**
  * 类型：类
@@ -18,7 +22,7 @@ import database.server.DatabaseManager;
  * 功能：解析查询语句
  * 
  */
-public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVisitor, SelectItemVisitor
+public class ProcessDQL implements SelectVisitor, FromItemVisitor, ExpressionVisitor, SelectItemVisitor
 {
 	private DatabaseManager manager;
 	private Query query;
@@ -27,19 +31,79 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	 * 构造函数
 	 * @param m 数据库管理器
 	 */
-	public ParseQuery(DatabaseManager m)
+	public ProcessDQL(DatabaseManager m)
 	{
 		this.manager = m;
 		this.query = new Query(manager);
 	}
 	
-	public Query getQuery() { return this.query; }
-	
+	/**
+	 * 处理查询语句
+	 * @param statement 查询语句
+	 * @return 查询结果的字符串
+	 * @throws Exception
+	 */
+	public String operateQuery(Select statement) throws Exception
+	{
+		this.parse(statement);
+		ITupleIterator tuple_iterator = this.query.operateQuery();
+		if(!(this.query.getErrorMessage().equals("")))
+		{
+			throw new Exception(this.query.getErrorMessage());
+		}
+		
+		int max_len = 0;
+		Schema schema = tuple_iterator.getSchema();
+		Vector<String[]> res_vec = new Vector<String[]>();
+		int num_cols = schema.numFields();
+		String res = "";
+		
+		tuple_iterator.start();	
+		String[] temp = new String[num_cols];
+		for(int i=0;i<num_cols;i++)
+		{
+			temp[i] = schema.getFieldName(i);
+			max_len = temp[i].length()>max_len?temp[i].length():max_len;
+		}
+		res_vec.add(temp);
+		while(tuple_iterator.hasNext())
+		{
+			temp = new String[num_cols];
+			Tuple tuple = tuple_iterator.next();
+			for(int i=0;i<num_cols;i++)
+			{
+				temp[i] = tuple.getField(i).toString();
+				max_len = temp[i].length()>max_len?temp[i].length():max_len;
+			}
+			res_vec.add(temp);
+		}
+		max_len += 2;
+		for(int i=0;i<(max_len*num_cols + num_cols + 1);i++,res += "—");
+		res += "\n";
+		for(int i=0;i<res_vec.size();i++)
+		{
+			temp = res_vec.get(i);
+			res += "|";
+			for(int j=0;j<temp.length;j++)
+			{
+				int space = (max_len - temp[j].length())/2;
+				for(int k=0;k<space;k++,res += " ");
+				res += temp[j];
+				for(int k=0;k<(max_len - space - temp[j].length());k++,res += " ");
+				res += "|";
+			}
+			res += "\n";
+			for(int j=0;j<(max_len*num_cols + num_cols + 1);j++,res += "—");
+			res += "\n";
+		}
+		return res;
+	}
+
 	/**
 	 * 查询语句的语法解析函数
 	 * @param select Select类对象，代表查询语句
 	 */
-	public void parse(Select select)
+	private void parse(Select select)
 	{
 		System.out.println("Select:"+select.toString());
 		select.getSelectBody().accept(this);
@@ -154,19 +218,17 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	}
 	
 	/**
-	 * 解析FROM语句与WHERE语句中的相等子句
+	 * 解析FROM语句与WHERE语句中的二元表达式
 	 */
-	@Override
-	public void visit(EqualsTo equals_to)
+	private void binaryExpressionVisit(BinaryExpression statement, Re re) 
 	{
-		System.out.println("EqualsTo:"+equals_to.toString());
 		//第一步，获取左侧的列
-		if(!(equals_to.getLeftExpression() instanceof Column))
+		if(!(statement.getLeftExpression() instanceof Column))
 		{
-			this.query.setErrorMessage("Wrong column : "+equals_to.getLeftExpression().toString());
+			this.query.setErrorMessage("Wrong column : "+statement.getLeftExpression().toString());
 			return;
 		}
-		Column left_column = (Column) equals_to.getLeftExpression();
+		Column left_column = (Column) statement.getLeftExpression();
 		Table left_table = left_column.getTable();
 		String left_column_name = "";
 		if(left_table == null)
@@ -179,9 +241,9 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 		}
 		System.out.println("Left Column:"+left_column_name);
 		//第二步，获取右侧的列或者值
-		if(equals_to.getRightExpression() instanceof Column)
+		if(statement.getRightExpression() instanceof Column)
 		{
-			Column right_column = (Column) equals_to.getRightExpression();
+			Column right_column = (Column) statement.getRightExpression();
 			Table right_table = right_column.getTable();
 			String right_column_name = "";
 			if(right_table == null)
@@ -195,7 +257,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 			System.out.println("Right Column:"+right_column_name);
 			try
 			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Eq);
+				this.query.addNodeJoin(left_column_name, right_column_name, re);
 			}
 			catch(Exception e)
 			{
@@ -203,14 +265,14 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 				return;
 			}
 		}
-		else if(equals_to.getRightExpression() instanceof DoubleValue ||
-					equals_to.getRightExpression() instanceof LongValue ||
-					equals_to.getRightExpression() instanceof StringValue)
+		else if(statement.getRightExpression() instanceof DoubleValue ||
+				statement.getRightExpression() instanceof LongValue ||
+				statement.getRightExpression() instanceof StringValue)
 		{
-			System.out.println("Right value:"+equals_to.getRightExpression().toString());
+			System.out.println("Right value:"+statement.getRightExpression().toString());
 			try
 			{
-				this.query.addNodeWhere(left_column_name, Re.Eq, equals_to.getRightExpression().toString());
+				this.query.addNodeWhere(left_column_name, re, statement.getRightExpression().toString());
 			}
 			catch(Exception e)
 			{
@@ -220,10 +282,21 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 		}
 		else
 		{
-			this.query.setErrorMessage("Wrong value : "+equals_to.getRightExpression().toString());
+			this.query.setErrorMessage("Wrong value : "+statement.getRightExpression().toString());
 			return;
 		}
 			
+	}
+
+	
+	/**
+	 * 解析FROM语句与WHERE语句中的相等子句
+	 */
+	@Override
+	public void visit(EqualsTo equals_to)
+	{
+		System.out.println("EqualsTo:"+equals_to.toString());
+		binaryExpressionVisit(equals_to, Re.Eq);
 	}
 
 	/**
@@ -233,69 +306,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	public void visit(GreaterThan greater_than)
 	{
 		System.out.println("GreaterThan:"+greater_than.toString());
-		//第一步，获取左侧的列
-		if(!(greater_than.getLeftExpression() instanceof Column))
-		{
-			this.query.setErrorMessage("Wrong column : "+greater_than.getLeftExpression().toString());
-			return;
-		}
-		Column left_column = (Column) greater_than.getLeftExpression();
-		Table left_table = left_column.getTable();
-		String left_column_name = "";
-		if(left_table == null)
-		{
-			left_column_name = "null."+left_column.getColumnName();
-		}
-		else
-		{
-			left_column_name = left_table.getName()+"."+left_column.getColumnName();
-		}
-		System.out.println("Left Column:"+left_column_name);
-		//第二步，获取右侧的列或者值
-		if(greater_than.getRightExpression() instanceof Column)
-		{
-			Column right_column = (Column) greater_than.getRightExpression();
-			Table right_table = right_column.getTable();
-			String right_column_name = "";
-			if(right_table == null)
-			{
-				right_column_name = "null."+right_column.getColumnName();
-			}
-			else
-			{
-				right_column_name = right_table.getName()+"."+right_column.getColumnName();
-			}
-			System.out.println("Right Column:"+right_column_name);
-			try
-			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Gt);
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else if(greater_than.getRightExpression() instanceof DoubleValue ||
-				greater_than.getRightExpression() instanceof LongValue ||
-					greater_than.getRightExpression() instanceof StringValue)
-		{
-			System.out.println("Right value:"+greater_than.getRightExpression().toString());
-			try
-			{
-				this.query.addNodeWhere(left_column_name, Re.Gt, greater_than.getRightExpression().toString());
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else
-		{
-			this.query.setErrorMessage("Wrong value : "+greater_than.getRightExpression().toString());
-			return;
-		}		
+		binaryExpressionVisit(greater_than, Re.Gt);
 	}
 
 	/**
@@ -305,69 +316,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	public void visit(GreaterThanEquals greater_than_equals)
 	{
 		System.out.println("GreaterThanEquals:"+greater_than_equals.toString());
-		//第一步，获取左侧的列
-		if(!(greater_than_equals.getLeftExpression() instanceof Column))
-		{
-			this.query.setErrorMessage("Wrong column : "+greater_than_equals.getLeftExpression().toString());
-			return;
-		}
-		Column left_column = (Column) greater_than_equals.getLeftExpression();
-		Table left_table = left_column.getTable();
-		String left_column_name = "";
-		if(left_table == null)
-		{
-			left_column_name = "null."+left_column.getColumnName();
-		}
-		else
-		{
-			left_column_name = left_table.getName()+"."+left_column.getColumnName();
-		}
-		System.out.println("Left Column:"+left_column_name);
-		//第二步，获取右侧的列或者值
-		if(greater_than_equals.getRightExpression() instanceof Column)
-		{
-			Column right_column = (Column) greater_than_equals.getRightExpression();
-			Table right_table = right_column.getTable();
-			String right_column_name = "";
-			if(right_table == null)
-			{
-				right_column_name = "null."+right_column.getColumnName();
-			}
-			else
-			{
-				right_column_name = right_table.getName()+"."+right_column.getColumnName();
-			}
-			System.out.println("Right Column:"+right_column_name);
-			try
-			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Ge);
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else if(greater_than_equals.getRightExpression() instanceof DoubleValue ||
-				greater_than_equals.getRightExpression() instanceof LongValue ||
-				greater_than_equals.getRightExpression() instanceof StringValue)
-		{
-			System.out.println("Right value:"+greater_than_equals.getRightExpression().toString());
-			try
-			{
-				this.query.addNodeWhere(left_column_name, Re.Ge, greater_than_equals.getRightExpression().toString());
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else
-		{
-			this.query.setErrorMessage("Wrong value : "+greater_than_equals.getRightExpression().toString());
-			return;
-		}		
+		binaryExpressionVisit(greater_than_equals, Re.Ge);
 	}
 	
 	/**
@@ -377,69 +326,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	public void visit(MinorThan minor_than)
 	{
 		System.out.println("MinorThan:"+minor_than.toString());
-		//第一步，获取左侧的列
-		if(!(minor_than.getLeftExpression() instanceof Column))
-		{
-			this.query.setErrorMessage("Wrong column : "+minor_than.getLeftExpression().toString());
-			return;
-		}
-		Column left_column = (Column) minor_than.getLeftExpression();
-		Table left_table = left_column.getTable();
-		String left_column_name = "";
-		if(left_table == null)
-		{
-			left_column_name = "null."+left_column.getColumnName();
-		}
-		else
-		{
-			left_column_name = left_table.getName()+"."+left_column.getColumnName();
-		}
-		System.out.println("Left Column:"+left_column_name);
-		//第二步，获取右侧的列或者值
-		if(minor_than.getRightExpression() instanceof Column)
-		{
-			Column right_column = (Column) minor_than.getRightExpression();
-			Table right_table = right_column.getTable();
-			String right_column_name = "";
-			if(right_table == null)
-			{
-				right_column_name = "null."+right_column.getColumnName();
-			}
-			else
-			{
-				right_column_name = right_table.getName()+"."+right_column.getColumnName();
-			}
-			System.out.println("Right Column:"+right_column_name);
-			try
-			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Lt);
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else if(minor_than.getRightExpression() instanceof DoubleValue ||
-				minor_than.getRightExpression() instanceof LongValue ||
-				minor_than.getRightExpression() instanceof StringValue)
-		{
-			System.out.println("Right value:"+minor_than.getRightExpression().toString());
-			try
-			{
-				this.query.addNodeWhere(left_column_name, Re.Lt, minor_than.getRightExpression().toString());
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else
-		{
-			this.query.setErrorMessage("Wrong value : "+minor_than.getRightExpression().toString());
-			return;
-		}				
+		binaryExpressionVisit(minor_than, Re.Lt);
 	}
 
 	/**
@@ -449,69 +336,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	public void visit(MinorThanEquals minor_than_equals)
 	{
 		System.out.println("MinorThanEquals:"+minor_than_equals.toString());
-		//第一步，获取左侧的列
-		if(!(minor_than_equals.getLeftExpression() instanceof Column))
-		{
-			this.query.setErrorMessage("Wrong column : "+minor_than_equals.getLeftExpression().toString());
-			return;
-		}
-		Column left_column = (Column) minor_than_equals.getLeftExpression();
-		Table left_table = left_column.getTable();
-		String left_column_name = "";
-		if(left_table == null)
-		{
-			left_column_name = "null."+left_column.getColumnName();
-		}
-		else
-		{
-			left_column_name = left_table.getName()+"."+left_column.getColumnName();
-		}
-		System.out.println("Left Column:"+left_column_name);
-		//第二步，获取右侧的列或者值
-		if(minor_than_equals.getRightExpression() instanceof Column)
-		{
-			Column right_column = (Column) minor_than_equals.getRightExpression();
-			Table right_table = right_column.getTable();
-			String right_column_name = "";
-			if(right_table == null)
-			{
-				right_column_name = "null."+right_column.getColumnName();
-			}
-			else
-			{
-				right_column_name = right_table.getName()+"."+right_column.getColumnName();
-			}
-			System.out.println("Right Column:"+right_column_name);
-			try
-			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Le);
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else if(minor_than_equals.getRightExpression() instanceof DoubleValue ||
-				minor_than_equals.getRightExpression() instanceof LongValue ||
-				minor_than_equals.getRightExpression() instanceof StringValue)
-		{
-			System.out.println("Right value:"+minor_than_equals.getRightExpression().toString());
-			try
-			{
-				this.query.addNodeWhere(left_column_name, Re.Le, minor_than_equals.getRightExpression().toString());
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else
-		{
-			this.query.setErrorMessage("Wrong value : "+minor_than_equals.getRightExpression().toString());
-			return;
-		}			
+		binaryExpressionVisit(minor_than_equals, Re.Le);
 	}
 
 	/**
@@ -521,69 +346,7 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 	public void visit(NotEqualsTo not_equals_to)
 	{
 		System.out.println("NotEqualsTo:"+not_equals_to.toString());
-		//第一步，获取左侧的列
-		if(!(not_equals_to.getLeftExpression() instanceof Column))
-		{
-			this.query.setErrorMessage("Wrong column : "+not_equals_to.getLeftExpression().toString());
-			return;
-		}
-		Column left_column = (Column) not_equals_to.getLeftExpression();
-		Table left_table = left_column.getTable();
-		String left_column_name = "";
-		if(left_table == null)
-		{
-			left_column_name = "null."+left_column.getColumnName();
-		}
-		else
-		{
-			left_column_name = left_table.getName()+"."+left_column.getColumnName();
-		}
-		System.out.println("Left Column:"+left_column_name);
-		//第二步，获取右侧的列或者值
-		if(not_equals_to.getRightExpression() instanceof Column)
-		{
-			Column right_column = (Column) not_equals_to.getRightExpression();
-			Table right_table = right_column.getTable();
-			String right_column_name = "";
-			if(right_table == null)
-			{
-				right_column_name = "null."+right_column.getColumnName();
-			}
-			else
-			{
-				right_column_name = right_table.getName()+"."+right_column.getColumnName();
-			}
-			System.out.println("Right Column:"+right_column_name);
-			try
-			{
-				this.query.addNodeJoin(left_column_name, right_column_name, Re.Ne);
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else if(not_equals_to.getRightExpression() instanceof DoubleValue ||
-				not_equals_to.getRightExpression() instanceof LongValue ||
-				not_equals_to.getRightExpression() instanceof StringValue)
-		{
-			System.out.println("Right value:"+not_equals_to.getRightExpression().toString());
-			try
-			{
-				this.query.addNodeWhere(left_column_name, Re.Ne, not_equals_to.getRightExpression().toString());
-			}
-			catch(Exception e)
-			{
-				this.query.setErrorMessage(e.getMessage());
-				return;
-			}
-		}
-		else
-		{
-			this.query.setErrorMessage("Wrong value : "+not_equals_to.getRightExpression().toString());
-			return;
-		}					
+		binaryExpressionVisit(not_equals_to, Re.Ne);
 	}
 
 	/**
@@ -657,9 +420,6 @@ public class ParseQuery implements SelectVisitor, FromItemVisitor, ExpressionVis
 		}		
 	}
 	
-	/**
-	 * 解析FROM语句中的JOIN子句，形如：(table1 join table2 (on table1.attr1 = table2.attr2))，暂不支持
-	 */
 	@Override
 	public void visit(SubJoin arg0) {
 		// TODO Auto-generated method stub
