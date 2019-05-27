@@ -78,6 +78,21 @@ public class Tuple implements Serializable
     	this.schema = schema;
     	this.fields = new IField[schema.numFields()];
     }
+    /**
+     * 拷贝构造函数
+     * @param tuple
+     */
+    public Tuple(Tuple tuple)
+    {
+    	this.schema = tuple.schema;
+    	int size = schema.numFields();
+    	this.fields = new IField[size];
+    	this.id = tuple.id;
+    	for (int i = 0; i < size; i++)
+    	{
+    		this.fields[i] = tuple.fields[i];
+    	}
+    }
     
     /**
      * 遍历元组元素的迭代器

@@ -18,7 +18,7 @@ import database.structure.Tuple;
  *     - 每一个数据库文件都有一个id与元数据与之对应。
  *     
  */
-public class DBFile
+public class DBTable
 {
 
 	private File file;
@@ -31,7 +31,7 @@ public class DBFile
      * @param file 存于磁盘的对应于该表的数据库文件
      * @param schema 该表对应的元数据
      */
-    public DBFile(DatabaseManager m, File file, Schema schema)
+    public DBTable(DatabaseManager m, File file, Schema schema)
     {
     	this.manager = m;
     	this.file = file;
@@ -131,6 +131,7 @@ public class DBFile
     		page.insertTuple(tuple);
     		writePage(page);
     	}
+    	page.setOperated(true);
         return page;
     }
 
@@ -141,9 +142,27 @@ public class DBFile
      */
     public DBPage deleteTuple(Tuple tuple)
     {
+    	System.out.println("deleteTuple: "+ tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.deleteTuple(tuple);
+    	page.setOperated(true);
+        return page;
+    }
+    
+    /**
+     * 将某一元组从数据库文件中替换
+     * @param tuple 将要删除的元组
+     * @param newTuple 新元组
+     * @return 被修改的页
+     */
+    public DBPage updateTuple(Tuple tuple, Tuple newTuple)
+    {
+    	System.out.println("deleteTuple: "+ tuple);
+    	DBPageBuffer pool = manager.database.getPageBuffer();
+    	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
+    	page.updateTuple(tuple, newTuple);
+    	page.setOperated(true);
         return page;
     }
 

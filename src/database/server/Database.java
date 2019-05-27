@@ -41,6 +41,7 @@ public class Database
     {
     	table_manager.writeSchema();
     	page_buffer.writeOperatedPages();
+    	System.out.println("Database closed.");
     }
     public DBPageBuffer getPageBuffer() { return page_buffer; }
 

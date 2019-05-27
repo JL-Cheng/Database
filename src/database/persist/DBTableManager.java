@@ -22,7 +22,7 @@ public class DBTableManager
 {
 	
 	private Map<Integer,String> dbnames;//数据库中表的id与名字键值对
-	private Map<Integer,DBFile> dbfiles;//数据库中表的id与表文件键值对
+	private Map<Integer,DBTable> dbfiles;//数据库中表的id与表文件键值对
 	private DatabaseManager manager;//数据库管理对象
 	
 	/**
@@ -33,7 +33,7 @@ public class DBTableManager
     {
     	manager = m;
     	dbnames = new HashMap<Integer,String>();
-    	dbfiles = new HashMap<Integer,DBFile>();
+    	dbfiles = new HashMap<Integer,DBTable>();
     }
     /** 
      * 清空
@@ -45,12 +45,21 @@ public class DBTableManager
     }
 
     /**
+     * 表是否存在
+     * @param dbname 数据表名字
+     * 
+     */
+    public boolean isTableExist(String dbname) {
+		return getTableId(dbname) != -1;
+	}
+    
+    /**
      * 加入一张新表
      * @param dbfile 数据表文件
      * @param dbname 数据表名字
      * 
      */
-    public void addTable(DBFile dbfile, String dbname)
+    public void addTable(DBTable dbfile, String dbname)
     {
     	int table_id = dbfile.getId();
     	for (Integer id: dbnames.keySet())
@@ -103,7 +112,7 @@ public class DBTableManager
      * 获得一张表的数据文件
      * @param table_id 表的id
      */
-    public DBFile getDatabaseFile(int table_id)
+    public DBTable getDatabaseFile(int table_id)
     {
     	if (dbfiles.containsKey(table_id))
     	{
@@ -137,13 +146,14 @@ public class DBTableManager
     	}
     	return null;
     }
+    
     /**
      * 创建一个新表（创建一个新的空的数据表文件，向其中加入一个空的页）
      * @param name 表名
      * @param schema 模式
      * @return 数据表文件对象
      */
-    public DBFile createNewTable(String name,Schema schema) throws Exception
+    public DBTable createNewTable(String name,Schema schema) throws Exception
     {
     	String path = manager.prefix + name + ".dat";
         File f = new File(path);
@@ -162,7 +172,7 @@ public class DBTableManager
         	System.err.println(e.getMessage());
         }
         
-        DBFile dbfile = new DBFile(manager, f, schema);
+        DBTable dbfile = new DBTable(manager, f, schema);
         manager.database.getTableManager().addTable(dbfile,name);
         
         DBPageId page_id = new DBPageId(dbfile.getId(), 0);
@@ -190,7 +200,6 @@ public class DBTableManager
         Integer id = -1;
     	for (Map.Entry<Integer, String> entry: dbnames.entrySet())
     	{
-    		System.out.println(entry.getValue());
     		if (entry.getValue().equals(name))
     		{
     			id = entry.getKey();
@@ -222,24 +231,24 @@ public class DBTableManager
 			while ((line = reader.readLine()) != null)
 			{
                 String name = line.substring(0, line.indexOf("(")).trim();
-                String[] fields = line.substring(line.indexOf("(") + 1, line.indexOf(")")).trim().split(","); 
+                String[] fields = line.substring(line.indexOf("(") + 1, line.lastIndexOf(")")).trim().split(","); 
                 ArrayList<String> names = new ArrayList<String>();
                 ArrayList<FieldType> types = new ArrayList<FieldType>();
                 ArrayList<Integer> primary_key = new ArrayList<Integer>();
+                HashMap<Integer, Integer> str_len = new HashMap<Integer, Integer>();
                 for (String str : fields)
                 {
                     String[] n_fields = str.trim().split(" ");
                     names.add(n_fields[0].trim());
-                    if (n_fields[1].trim().equals("INT_TYPE"))
-                        types.add(FieldType.INT_TYPE);
-                    else if (n_fields[1].trim().equals("LONG_TYPE"))
-                        types.add(FieldType.LONG_TYPE);
-                    else if (n_fields[1].trim().equals("FLOAT_TYPE"))
-                        types.add(FieldType.FLOAT_TYPE);
-                    else if (n_fields[1].trim().equals("DOUBLE_TYPE"))
-                        types.add(FieldType.DOUBLE_TYPE);
-                    else if (n_fields[1].trim().equals("STRING_TYPE"))
-                        types.add(FieldType.STRING_TYPE);
+                    FieldType type = FieldType.getType(n_fields[1].trim());
+                    if (type != null)
+                    {
+                    	if (type.equals(FieldType.STRING_TYPE))
+                    	{
+                    		str_len.put(types.size(), Integer.parseInt(n_fields[1].substring(n_fields[1].indexOf("(") + 1, n_fields[1].indexOf(")"))));
+                    	}
+                    	types.add(type);  
+                    }
                     else
                     {
                         System.out.println("wrong type :" + n_fields[1]);
@@ -263,14 +272,14 @@ public class DBTableManager
                 {
                 	primary_key_array[i] = primary_key.get(i).intValue();
                 }
-                Schema n_schema = new Schema(types_array, names_array, primary_key_array);
+                Schema n_schema = new Schema(types_array, names_array, primary_key_array, str_len);
                 File dat = new File(base_folder+"/"+ name + ".dat");
                 if (!dat.exists())
                 {
                 	System.err.println("Data Lost: " + name);
                     System.exit(0);
                 }
-                DBFile n_dbfile = new DBFile(manager, dat, n_schema);
+                DBTable n_dbfile = new DBTable(manager, dat, n_schema);
                 addTable(n_dbfile,name);
                 System.out.println("[Load "+ manager.database.dbname + "]Added table : " + name + n_schema);
             }
@@ -292,9 +301,9 @@ public class DBTableManager
     	{
         	FileOutputStream outstream = new FileOutputStream(schema_file);
         	PrintStream ps = new PrintStream(outstream);
-        	for (Map.Entry<Integer, DBFile> entry : dbfiles.entrySet())
+        	for (Map.Entry<Integer, DBTable> entry : dbfiles.entrySet())
         	{ 
-        		DBFile file = entry.getValue();
+        		DBTable file = entry.getValue();
         		ps.println(dbnames.get(entry.getKey()) + file.getSchema().toString());
         	}
         	ps.close();
