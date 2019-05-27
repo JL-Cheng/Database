@@ -1,39 +1,14 @@
 package database.operation;
 
-
 import java.util.HashMap;
 import java.util.List;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.Block;
-import net.sf.jsqlparser.statement.Commit;
-import net.sf.jsqlparser.statement.DescribeStatement;
-import net.sf.jsqlparser.statement.ExplainStatement;
-import net.sf.jsqlparser.statement.SetStatement;
-import net.sf.jsqlparser.statement.ShowStatement;
-import net.sf.jsqlparser.statement.StatementVisitor;
-import net.sf.jsqlparser.statement.Statements;
-import net.sf.jsqlparser.statement.UseStatement;
-import net.sf.jsqlparser.statement.alter.Alter;
-import net.sf.jsqlparser.statement.comment.Comment;
-import net.sf.jsqlparser.statement.create.index.CreateIndex;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
 import net.sf.jsqlparser.statement.create.table.Index;
-import net.sf.jsqlparser.statement.create.view.AlterView;
-import net.sf.jsqlparser.statement.create.view.CreateView;
-import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.drop.Drop;
-import net.sf.jsqlparser.statement.execute.Execute;
-import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.merge.Merge;
-import net.sf.jsqlparser.statement.replace.Replace;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.truncate.Truncate;
-import net.sf.jsqlparser.statement.update.Update;
-import net.sf.jsqlparser.statement.upsert.Upsert;
-import net.sf.jsqlparser.statement.values.ValuesStatement;
+
 import database.field.FieldType;
-import database.field.FieldCompare.Re;
 import database.server.DatabaseManager;
 import database.structure.Schema;
 
@@ -44,7 +19,8 @@ import database.structure.Schema;
  * 功能：处理数据定义语言的语句
  * 
  */
-public class ProcessDDL {
+public class ProcessDDL
+{
 	
 	/**
 	 * 创建表的执行函数
@@ -73,7 +49,8 @@ public class ProcessDDL {
         	names[i] = tablename + "." + column.getColumnName();
         	String typename = column.getColDataType().getDataType();
         	types[i] = FieldType.getType(typename);
-        	if (types[i] == null) {
+        	if (types[i] == null)
+        	{
         		throw new Exception("Invalid Data Type.");
         	}
         	if (types[i].equals(FieldType.STRING_TYPE))
@@ -103,14 +80,15 @@ public class ProcessDDL {
 		System.out.println("Schema:" + schema.toString());
 		manager.database.getTableManager().createNewTable(tablename, schema);
 		System.out.println("Finish Create Table");
-		return "Create Table(Schema:" + schema;
+		return "Create Table (Schema:" + schema + ")";
 	}
 	
 	/**
 	 * 删除表的执行函数
 	 * @param Drop Drop类对象，代表解析结果
 	 */
-	public static String operateDropTable(DatabaseManager manager, Drop statement) throws Exception {
+	public static String operateDropTable(DatabaseManager manager, Drop statement) throws Exception
+	{
 		System.out.println("Start Drop Table");
 		System.out.println("DropTable:"+statement.toString());
 		Table table = statement.getName();

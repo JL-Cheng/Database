@@ -1,10 +1,7 @@
 package database.operation;
 
 import java.util.List;
-import java.util.Vector;
 
-
-import database.field.FieldCompare;
 import database.persist.DBTable;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -14,13 +11,12 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.delete.Delete;
 import net.sf.jsqlparser.statement.insert.Insert;
-import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.update.Update;
 
-public class ProcessDML {
+public class ProcessDML
+{
 	/**
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果
@@ -47,7 +43,8 @@ public class ProcessDML {
 			for (int i = 0; i < size; i++) 
 			{
 				int index = schema.getFieldIndex(columns.get(i).getColumnName());
-				if (index == -1) {
+				if (index == -1)
+				{
 					throw new Exception("Invalid column name.");
 				}
 				String value = exlist.get(i).toString();
@@ -67,8 +64,9 @@ public class ProcessDML {
 		System.out.println(tuple);
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
-		return "Insert successfully";
+		return "Insert successfully.";
 	}
+	
 	/**
 	 * 删除元组的执行函数
 	 * @param Delete Delete类对象，代表解析结果
@@ -97,13 +95,15 @@ public class ProcessDML {
 			dbTable.deleteTuple(it.next());
 		}
 		System.out.println("Finish Delete");
-		return "Delete successfully(" + count + " tuples deleted.)";
+		return "Delete successfully.(" + count + " tuples deleted.)";
 	}
+	
 	/**
 	 * 修改元组的执行函数
 	 * @param Update Update类对象，代表解析结果
 	 */
-	public static String operateUpdate(DatabaseManager manager, Update statement) throws Exception {
+	public static String operateUpdate(DatabaseManager manager, Update statement) throws Exception
+	{
 		System.out.println("Update Delete");
 		// 处理表 
 		Table table = statement.getTables().get(0);
@@ -156,6 +156,6 @@ public class ProcessDML {
 			dbTable.updateTuple(tuple, newTuple);
 		}
 		System.out.println("Finish Update");
-		return "Update successfully(" + count + " tuples updated.)";
+		return "Update successfully.(" + count + " tuples updated.)";
 	}
 }

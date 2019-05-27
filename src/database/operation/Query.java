@@ -76,7 +76,8 @@ public class Query
      */
     public void addNodeJoin(String name1,String name2, Re re) throws Exception
     {
-    	NodeJoin node = null;
+    	NodeJoin join_node = null;
+    	NodeWhere where_node = null;
     	String[] result1 = null;
     	String[] result2 = null;
     	//若只是两张表普通连接
@@ -84,23 +85,39 @@ public class Query
     	{
     		result1 = getTableAndFieldName(name1+".*");
         	result2 = getTableAndFieldName(name2+".*");
-    		node = new NodeJoin(result1[0], result2[0], null,null, null);
+        	join_node = new NodeJoin(result1[0], result2[0], null,null, null);
+        	if(!join_nodes.contains(join_node))
+        	{
+        		join_nodes.addElement(join_node);
+        	}  
     	}
     	//若是两个表的列名关系
     	else if(name1.split("[.]").length==2&&name2.split("[.]").length==2&&re!=null)
     	{
     		result1 = getTableAndFieldName(name1);
         	result2 = getTableAndFieldName(name2);
-    		node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
+        	//若是同一张表就加入NodeWhere
+        	if(result1[0].equals(result2[0]))
+        	{
+        		where_node = new NodeWhere(result1[0],result1[1],re,result2[0],result2[1]);
+            	if(!where_nodes.contains(where_node))
+            	{
+            		where_nodes.addElement(where_node);
+            	}  
+        	}
+        	else
+        	{
+            	join_node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
+            	if(!join_nodes.contains(join_node))
+            	{
+            		join_nodes.addElement(join_node);
+            	} 
+        	}
     	}
     	else
     	{
     		throw new Exception("Parse error on TABLE JOIN.");
     	}
-    	if(!join_nodes.contains(node))
-    	{
-    		join_nodes.addElement(node);
-    	}  
     }
 
     /**
@@ -230,7 +247,7 @@ public class Query
     		}
     		if(table_name != null)
     		{
-    			String[] result = {table_name,table_name+"."+name};
+    			String[] result = {table_name,table_name+"."+names[1]};
     			return result;
     		}
     		else
@@ -308,50 +325,62 @@ public class Query
 			tables_operation.put(table_name,table_it);
 		}
         
-    	//第二步，遍历所有WHERE节点，形如：table.attr = cons
+    	//第二步，遍历所有WHERE节点
     	Iterator<NodeWhere> where_node_it = where_nodes.iterator();
     	while(where_node_it.hasNext())
     	{
     		NodeWhere where_node = where_node_it.next();
     		ITupleIterator table_it = tables_operation.get(where_node.table_name);
+    		FieldCompare field_cp = null;
     		if(table_it == null)
     		{
     			throw new Exception("Unknown table "+where_node.table_name);
     		}
-    		
-    		//将常数转换为field类型
-    		IField field;
-    		FieldType type;
-    		Schema schema = tables_operation.get(where_node.table_name).getSchema();
-    		
+    		Schema schema = tables_operation.get(where_node.table_name).getSchema();  		
     		int field_index = schema.getFieldIndex(where_node.field_name);
     		if(field_index == -1)
     		{
     			throw new Exception("Unknown field "+ where_node.field_name);
     		}
-    		type = schema.getFieldType(field_index);
-    		if(type == FieldType.DOUBLE_TYPE)
+    		
+    		//将常数转换为field类型
+    		if(where_node.is_cons_type == true)
     		{
-    			field = new FieldDouble(Double.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.FLOAT_TYPE)
-    		{
-    			field = new FieldFloat(Float.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.INT_TYPE)
-    		{
-    			field = new FieldInt(Integer.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.LONG_TYPE)
-    		{
-    			field = new FieldLong(Long.valueOf(where_node.cons));
+        		IField field;
+        		FieldType type;
+        		type = schema.getFieldType(field_index);
+        		if(type == FieldType.DOUBLE_TYPE)
+        		{
+        			field = new FieldDouble(Double.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.FLOAT_TYPE)
+        		{
+        			field = new FieldFloat(Float.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.INT_TYPE)
+        		{
+        			field = new FieldInt(Integer.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.LONG_TYPE)
+        		{
+        			field = new FieldLong(Long.valueOf(where_node.cons));
+        		}
+        		else
+        		{
+        			field = new FieldString(where_node.cons,FieldType.STRING_LEN);
+        		}			
+        		field_cp = new FieldCompare(field_index,where_node.re,field);
     		}
     		else
     		{
-    			field = new FieldString(where_node.cons,FieldType.STRING_LEN);
-    		}			
-    		FieldCompare field_cp = new FieldCompare(field_index,where_node.re,field);
-    		
+        		int right_field_index = schema.getFieldIndex(where_node.right_field_name);
+        		if(right_field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ where_node.field_name);
+        		}
+        		field_cp = new FieldCompare(field_index,where_node.re,right_field_index);
+    		}
+		
     		//将筛选操作加入到tables_operation中
     		OperatorFilter filter = new OperatorFilter(field_cp,table_it);
     		tables_operation.put(where_node.table_name,filter);  
