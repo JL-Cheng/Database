@@ -141,7 +141,7 @@ public class DBPage
         {
             for (int i=0; i<schema.numFields(); i++)
             {
-                IField f = schema.getFieldType(i).parse(instream);
+                IField f = schema.parse(i, instream);
                 tuple.setField(i, f);
             }
         }
@@ -262,7 +262,28 @@ public class DBPage
     		}
     	}
     }
-
+    /**
+     * 
+     * 修改特定元组
+     * @param tuple 待修改的元组
+     * @param newTuple 新元组
+     */
+    public void updateTuple(Tuple tuple, Tuple newTuple)
+    {
+    	if (id.equals(tuple.getTupleId().getPageId()))
+    	{
+    		int tuple_no = tuple.getTupleId().getTupleNo();
+    		
+    		if (tuple_no >= 0 && tuple_no < num_tuples)
+    		{
+    			if (isTupleUsed(tuple_no))
+    			{
+    				newTuple.setTupleId(tuple.getTupleId());
+    				tuples[tuple_no] = newTuple;
+	    		}
+    		}
+    	}
+    }
     /**
      * 向页中插入特定元组
      * @param tuple 要插入的元组

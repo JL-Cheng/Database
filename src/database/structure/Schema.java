@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 import database.field.FieldType;
+import database.field.IField;
 
 /**
  * 类型：类
@@ -19,6 +20,7 @@ public class Schema implements Serializable
     private FieldType[] field_types;//所有列的数据类型
     private String[] field_names;//所有列的名称
     private int[] index;// 主键的下标
+    public Map<Integer,Integer> string_len;//字符串的最大长度
 	
     /**
      * 构造函数
@@ -26,7 +28,7 @@ public class Schema implements Serializable
      * @param names 名称数组
      * @param index 主键数组
      */
-    public Schema(FieldType[] types, String[] names, int[] index)
+    public Schema(FieldType[] types, String[] names, int[] index, Map<Integer,Integer> string_len)
     {
     	if (types.length == 0 || types.length != names.length)
     	{
@@ -46,8 +48,31 @@ public class Schema implements Serializable
     	{
     		field_names[i] = names[i];
     	}
+    	this.string_len = string_len;
     }
     
+    /**
+     * 获取字符串类型的最大长度
+     * @param field_id
+     * field_id对应的列不是string则返回-1 没有指定则返回默认最大长度
+     * @return 
+     */
+    public int getStringlen(int field_id) 
+    {
+    	FieldType field = getFieldType(field_id);
+		if (field.equals(FieldType.STRING_TYPE))
+		{
+			if (string_len != null && string_len.containsKey(field_id))
+			{
+				return string_len.get(field_id);
+			}
+			else
+			{
+				return FieldType.STRING_LEN;
+			}
+		}
+		return -1;
+	}
     /**
      * 获取主键对应的列名
      */
@@ -59,6 +84,14 @@ public class Schema implements Serializable
     		primary_key[i] = field_names[index[i]];
     	}
     	return primary_key;
+	}
+    
+    /**
+     * 获取列数
+     */
+    public int getColumnSize()
+    {
+    	return field_types.length;
 	}
     
 	/**
@@ -177,7 +210,45 @@ public class Schema implements Serializable
         	return null;
         }
     }
-
+    /**
+     * 从str中解析出field_id对应列的一个Field
+     * @param field_id
+     * @param str
+     * @return
+     */
+    public IField parse(int field_id, String str)
+    {
+    	FieldType type = getFieldType(field_id);
+    	if (type.equals(FieldType.STRING_TYPE))
+    	{
+    		return type.parse(str, getStringlen(field_id));
+    	}
+    	else
+    	{
+    		return type.parse(str);
+    	}
+    	
+    }
+    /**
+     * 从instream中解析出field_id对应列的一个Field
+     * @param field_id
+     * @param instream
+     * @return
+     */
+    public IField parse(int field_id, DataInputStream instream)
+    {
+    	FieldType type = getFieldType(field_id);
+    	if (type.equals(FieldType.STRING_TYPE))
+    	{
+    		return type.parse(instream, getStringlen(field_id));
+    	}
+    	else
+    	{
+    		return type.parse(instream);
+    	}
+    	
+    }
+    
     /**
      * 获取该元数据的大小（字节）
      * @return 元数据的大小
@@ -187,7 +258,14 @@ public class Schema implements Serializable
     	int size = 0;  	
     	for (int i=0; i<field_types.length; i++)
     	{
-    		size += field_types[i].getLen();
+    		if (field_types[i].equals(FieldType.STRING_TYPE))
+    		{
+    			size += field_types[i].getLen(getStringlen(i));    			
+    		}
+    		else 
+    		{
+    			size += field_types[i].getLen();
+    		}
     	}
         return size;
     }
@@ -217,7 +295,23 @@ public class Schema implements Serializable
     		new_names[i] = schema2.field_names[j];
     		i=i+1;
     	}
-    	Schema result = new Schema(new_types, new_names, new_index);
+    	Map<Integer, Integer> str_len = null;
+    	if (schema1.string_len != null)
+    	{
+    		str_len = new HashMap<Integer, Integer>(schema1.string_len);
+    	}
+    	if (schema2.string_len != null)
+    	{
+    		if (str_len != null)
+    		{
+    			str_len.putAll(schema2.string_len);
+    		}
+    		else
+    		{    			
+    			str_len = new HashMap<Integer, Integer>(schema2.string_len);
+    		}
+    	}
+    	Schema result = new Schema(new_types, new_names, new_index, str_len);
     	return result;
     }
 
@@ -231,7 +325,7 @@ public class Schema implements Serializable
     	String result = "(";
     	int n = this.field_types.length;
     	
-    	result += this.field_names[0] + " "+ this.field_types[0];
+    	result += this.field_names[0] + " "+ this.field_types[0].getName(getStringlen(0));
     	int i_count = 0;
     	int index_length = index.length;
     	if (i_count < index_length && index[i_count] == 0) {
@@ -240,11 +334,11 @@ public class Schema implements Serializable
     	}
     	for (int i=1; i<n; i++)
     	{
-    		result += "," + this.field_names[i];
-    		result += " "+this.field_types[i];
+    		result += ", " + this.field_names[i];
+    		result += " "+this.field_types[i].getName(getStringlen(i));
     		if (i_count < index_length && index[i_count] == i) {
     			i_count++;
-        		result += " primary";
+        		result += " primary key";
         	}
     	}
     	result += ')';

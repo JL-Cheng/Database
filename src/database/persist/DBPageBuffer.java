@@ -1,5 +1,6 @@
 package database.persist;
 
+import database.field.IField;
 import database.persist.DBPage.DBPageId;
 import database.server.DatabaseManager;
 import database.structure.Tuple;
@@ -85,7 +86,7 @@ public class DBPageBuffer
     	}
     	else
     	{
-    		DBFile file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
+    		DBTable file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
     		if (file == null) {
     			System.out.println("Invalid Table.");
     			System.exit(0);
@@ -101,11 +102,10 @@ public class DBPageBuffer
      */
     public void insertTuple(int table_id, Tuple tuple)
     {
-    	DBFile file = manager.database.getTableManager().getDatabaseFile(table_id);
+    	DBTable file = manager.database.getTableManager().getDatabaseFile(table_id);
     	if (file != null)
     	{
-    		DBPage page = file.insertTuple(tuple);    		
-    		page.setOperated(true);
+    		file.insertTuple(tuple);
     	}
     }
 
@@ -115,13 +115,28 @@ public class DBPageBuffer
      */
     public void deleteTuple(Tuple tuple)
     {
-    	DBFile file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
+    	DBTable file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
     	if (file == null)
     	{
     		return;
     	}
-    	DBPage page = file.deleteTuple(tuple);
-    	page.setOperated(true);
+    	file.deleteTuple(tuple);
+    }
+    
+    /**
+     * 
+     * 从缓冲区中修改元组
+     * @param tuple 待修改的元组
+     * @param newTuple 新值
+     */
+    public void updateTuple(Tuple tuple, Tuple newTuple)
+    {
+    	DBTable file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
+    	if (file == null)
+    	{
+    		return;
+    	}
+    	file.updateTuple(tuple, newTuple);
     }
 
     /**
@@ -148,7 +163,7 @@ public class DBPageBuffer
     	{
     		if (buffer[i] != null && buffer[i].getId().equals(page_id))
     		{
-    			DBFile file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
+    			DBTable file = manager.database.getTableManager().getDatabaseFile(page_id.getTableId());
     			if (file != null) {
     				file.writePage(buffer[i]);
     				buffer[i].setOperated(false);    				
