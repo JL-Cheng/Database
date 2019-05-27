@@ -2,9 +2,6 @@ package database.server;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.List;
-
-import com.sun.javadoc.ThrowsTag;
 
 public class DatabaseManager
 {
