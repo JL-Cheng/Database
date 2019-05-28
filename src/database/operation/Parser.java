@@ -180,7 +180,7 @@ public class Parser
 	{
 		//测试查询语句的解析
 		//String str = "SELECT table1.column1,table2.* FROM table1 JOIN table2 ON table1.column1 <= table2.column0 WHERE table2.column2 < 4";
-		String str = "SELECT * from table1 where column1 < column2";
+		String str = "SELECT * from table1,table2 where table1.column1 >= table2.column2 and table2.column2 > table1.column0";
     	try
     	{
     		System.out.println(parser.processStatement(str));

@@ -85,7 +85,7 @@ public class Query
     	{
     		result1 = getTableAndFieldName(name1+".*");
         	result2 = getTableAndFieldName(name2+".*");
-        	join_node = new NodeJoin(result1[0], result2[0], null,null, null);
+        	join_node = new NodeJoin(result1[0], result2[0], "","", Re.Eq);
         	if(!join_nodes.contains(join_node))
         	{
         		join_nodes.addElement(join_node);
@@ -274,12 +274,12 @@ public class Query
     {
     	JoinCompare jc = null;
     	OperatorJoin join = null;
-    	if(join_node.field1_name==null&&join_node.field2_name==null&&join_node.re==null)
+    	if(join_node.field1_name.equals("")&&join_node.field2_name.equals(""))
     	{
         	jc = new JoinCompare(0,0,null);
         	join = new OperatorJoin(jc,tuples1,tuples2);
     	}
-    	else if(join_node.field1_name!=null&&join_node.field2_name!=null&&join_node.re!=null)
+    	else if((!join_node.field1_name.equals(""))&&(!join_node.field2_name.equals("")))
     	{
     		int field1_id=0, field2_id=0;
         	
@@ -410,34 +410,62 @@ public class Query
     		{
     			table2_name = join_node.table2_name;
     		}
-    		table1_it = tables_operation.get(table1_name);
-    		table2_it = tables_operation.get(table2_name);
-    		if(table1_it == null)
+    		if(!table1_name.equals(table2_name))
     		{
-    			throw new Exception("Unknown table "+join_node.table1_name);
+        		table1_it = tables_operation.get(table1_name);
+        		table2_it = tables_operation.get(table2_name);
+        		if(table1_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table1_name);
+        		}
+        		if(table2_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table2_name);
+        		}
+            	
+        		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
+        		tables_operation.put(table1_name,temp);
+            	 		
+        		//将所有出现过表2名字的地方都替换为表1的名字
+        		tables_operation.remove(table2_name);
+        		tables_equiv.put(table2_name,table1_name);
+        		for(Map.Entry<String, String> s:tables_equiv.entrySet())
+        		{
+        			String str_val = s.getValue();
+        			if(str_val.equals(table2_name))
+        			{
+        				s.setValue(table1_name);
+        			}
+        		}
     		}
-    		if(table2_it == null)
+    		else //说明两张表已经合并，此时合并操作变成筛选操作
     		{
-    			throw new Exception("Unknown table "+join_node.table2_name);
+        		table1_it = tables_operation.get(table1_name);
+        		if(table1_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table1_name);
+        		}
+        		FieldCompare field_cp = null;
+        		Schema schema = table1_it.getSchema();  		
+        		int field_index = schema.getFieldIndex(join_node.field1_name);
+        		if(field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ join_node.field1_name);
+        		}
+        		int right_field_index = schema.getFieldIndex(join_node.field2_name);
+        		if(right_field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ join_node.field2_name);
+        		}
+        		field_cp = new FieldCompare(field_index,join_node.re,right_field_index);
+        		//将筛选操作加入到tables_operation中
+        		OperatorFilter filter = new OperatorFilter(field_cp,table1_it);
+        		tables_operation.put(table1_name,filter);  
     		}
-        	
-    		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
-    		tables_operation.put(table1_name,temp);
-        	 		
-    		//将所有出现过表2名字的地方都替换为表1的名字
-    		tables_operation.remove(table2_name);
-    		tables_equiv.put(table2_name,table1_name);
-    		for(Map.Entry<String, String> s:tables_equiv.entrySet())
-    		{
-    			String str_val = s.getValue();
-    			if(str_val.equals(table2_name))
-    			{
-    				s.setValue(table1_name);
-    			}
-    		}
+
     	}
     	//第三步结束之后，此时的表应当已经被合成一张表了，若不是则说明出现错误
-    	if(tables_operation.size()>1)
+    	if(tables_operation.size()!=1)
     	{
     		throw new Exception("Something is wrong when QUERY");
     	}
