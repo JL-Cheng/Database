@@ -48,8 +48,8 @@ public class Server {
     }
 
     /**
-     * 查询/解析结果返回给客户端
-     * @param res 查询/解析结果
+     * 查询结果返回给客户端
+     * @param res 查询结果
      */
     public void sendResponse (String  res){
         this.out_socket.println(res);
@@ -58,7 +58,7 @@ public class Server {
     /**
      * 解析客户端输入的sql
      * @param sql 接受的sql语句
-     * @return  查询/解析结果
+     * @return  查询结果
      *          当对表操作时，返回"sql succeed/fail",eg:" create table XXX succeed"
      *          更新元组时，返回"table XXX update"
      *          查询元组时，返回"schema\n tuple1\n tuple2\n ...."
