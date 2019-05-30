@@ -3,7 +3,7 @@ package database.server;
 
 import java.net.*;
 import  java.io.*;
-
+import database.server.DatabaseManager;
 
 public class Server {
     private ServerSocket listening_socket;
@@ -11,6 +11,9 @@ public class Server {
     private Socket data_socket = null; //Socket对象
     private PrintStream out_socket;//socket输出流
     private BufferedReader in_socket; //socket输入流
+
+
+    private DatabaseManager manager;//数据库管理器
 
     /***
      * 构造函数
@@ -59,7 +62,7 @@ public class Server {
      * 解析客户端输入的sql
      * @param sql 接受的sql语句
      * @return  查询结果
-     *          当对表操作时，返回"sql succeed/fail",eg:" create table XXX succeed"
+     *          当对表操作时，返回"sql succeed/fail",eg:"create table XXX succeed"
      *          更新元组时，返回"table XXX update"
      *          查询元组时，返回"schema\n tuple1\n tuple2\n ...."
      */
