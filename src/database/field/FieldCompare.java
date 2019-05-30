@@ -14,7 +14,8 @@ public class FieldCompare implements Serializable
 	
 	private static final long serialVersionUID = 1L;//控制序列化版本
 	
-    private int field_id;//数据类型对应编号
+    private int field_id;//列编号
+    private int right_field_id = -1;//第二列编号
     private Re re;//比较关系
     private IField operand;//比较数
 	
@@ -63,7 +64,7 @@ public class FieldCompare implements Serializable
 
     /**
      * 构造函数
-     * @param field_id 数据类型对应编号
+     * @param field_id 列编号
      * @param re 比较关系
      * @param operand 比较数
      */
@@ -75,13 +76,32 @@ public class FieldCompare implements Serializable
     }
 
     /**
-     * @return 数据类型对应编号
+     * 构造函数
+     * @param field_id 第一列编号
+     * @param re 比较关系
+     * @param right_field_id 第二列编号
+     */
+    public FieldCompare(int field_id, Re re, int right_field_id)
+    {
+    	this.field_id = field_id;
+    	this.re = re;
+    	this.right_field_id = right_field_id;
+    }
+
+    /**
+     * @return 第一列对应编号
      */
     public int getField()
     {
         return field_id;
     }
-
+    /**
+     * @return 第二列对应编号
+     */
+    public int getRightField()
+    {
+        return right_field_id;
+    }
     /**
      * @return 比较关系
      */
@@ -104,7 +124,14 @@ public class FieldCompare implements Serializable
      */
     public boolean filter(Tuple tuple)
     {
-    	return tuple.getField(field_id).compare(re, operand);
+    	if (right_field_id == -1)
+    	{
+    		return tuple.getField(field_id).compare(re, operand);    		
+    	}
+    	else
+    	{
+    		return tuple.getField(field_id).compare(re, tuple.getField(right_field_id));    
+    	}
     }
     
     /**

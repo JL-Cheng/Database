@@ -10,7 +10,7 @@ import database.field.FieldCompare.Re;
 import database.server.DatabaseManager;
 import database.structure.Schema;
 import database.structure.ITupleIterator;
-import database.persist.DBFile;
+import database.persist.DBTable;
 import database.field.*;
 import database.operation.OperatorJoin.JoinCompare;
 
@@ -76,7 +76,8 @@ public class Query
      */
     public void addNodeJoin(String name1,String name2, Re re) throws Exception
     {
-    	NodeJoin node = null;
+    	NodeJoin join_node = null;
+    	NodeWhere where_node = null;
     	String[] result1 = null;
     	String[] result2 = null;
     	//若只是两张表普通连接
@@ -84,23 +85,39 @@ public class Query
     	{
     		result1 = getTableAndFieldName(name1+".*");
         	result2 = getTableAndFieldName(name2+".*");
-    		node = new NodeJoin(result1[0], result2[0], null,null, null);
+        	join_node = new NodeJoin(result1[0], result2[0], "","", Re.Eq);
+        	if(!join_nodes.contains(join_node))
+        	{
+        		join_nodes.addElement(join_node);
+        	}  
     	}
     	//若是两个表的列名关系
     	else if(name1.split("[.]").length==2&&name2.split("[.]").length==2&&re!=null)
     	{
     		result1 = getTableAndFieldName(name1);
         	result2 = getTableAndFieldName(name2);
-    		node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
+        	//若是同一张表就加入NodeWhere
+        	if(result1[0].equals(result2[0]))
+        	{
+        		where_node = new NodeWhere(result1[0],result1[1],re,result2[0],result2[1]);
+            	if(!where_nodes.contains(where_node))
+            	{
+            		where_nodes.addElement(where_node);
+            	}  
+        	}
+        	else
+        	{
+            	join_node = new NodeJoin(result1[0], result2[0], result1[1],result2[1], re);
+            	if(!join_nodes.contains(join_node))
+            	{
+            		join_nodes.addElement(join_node);
+            	} 
+        	}
     	}
     	else
     	{
     		throw new Exception("Parse error on TABLE JOIN.");
     	}
-    	if(!join_nodes.contains(node))
-    	{
-    		join_nodes.addElement(node);
-    	}  
     }
 
     /**
@@ -230,7 +247,7 @@ public class Query
     		}
     		if(table_name != null)
     		{
-    			String[] result = {table_name,table_name+"."+name};
+    			String[] result = {table_name,table_name+"."+names[1]};
     			return result;
     		}
     		else
@@ -257,12 +274,12 @@ public class Query
     {
     	JoinCompare jc = null;
     	OperatorJoin join = null;
-    	if(join_node.field1_name==null&&join_node.field2_name==null&&join_node.re==null)
+    	if(join_node.field1_name.equals("")&&join_node.field2_name.equals(""))
     	{
         	jc = new JoinCompare(0,0,null);
         	join = new OperatorJoin(jc,tuples1,tuples2);
     	}
-    	else if(join_node.field1_name!=null&&join_node.field2_name!=null&&join_node.re!=null)
+    	else if((!join_node.field1_name.equals(""))&&(!join_node.field2_name.equals("")))
     	{
     		int field1_id=0, field2_id=0;
         	
@@ -298,7 +315,7 @@ public class Query
     	while (from_node_it.hasNext())
     	{
     		NodeFrom from_node = from_node_it.next();
-    		DBFile table = manager.database.getTableManager().getDatabaseFile(from_node.table_id);
+    		DBTable table = manager.database.getTableManager().getDatabaseFile(from_node.table_id);
 			if(table == null)
 			{
 				throw new Exception("Unknown table "+from_node.table_name);
@@ -308,50 +325,62 @@ public class Query
 			tables_operation.put(table_name,table_it);
 		}
         
-    	//第二步，遍历所有WHERE节点，形如：table.attr = cons
+    	//第二步，遍历所有WHERE节点
     	Iterator<NodeWhere> where_node_it = where_nodes.iterator();
     	while(where_node_it.hasNext())
     	{
     		NodeWhere where_node = where_node_it.next();
     		ITupleIterator table_it = tables_operation.get(where_node.table_name);
+    		FieldCompare field_cp = null;
     		if(table_it == null)
     		{
     			throw new Exception("Unknown table "+where_node.table_name);
     		}
-    		
-    		//将常数转换为field类型
-    		IField field;
-    		FieldType type;
-    		Schema schema = tables_operation.get(where_node.table_name).getSchema();
-    		
+    		Schema schema = tables_operation.get(where_node.table_name).getSchema();  		
     		int field_index = schema.getFieldIndex(where_node.field_name);
     		if(field_index == -1)
     		{
     			throw new Exception("Unknown field "+ where_node.field_name);
     		}
-    		type = schema.getFieldType(field_index);
-    		if(type == FieldType.DOUBLE_TYPE)
+    		
+    		//将常数转换为field类型
+    		if(where_node.is_cons_type == true)
     		{
-    			field = new FieldDouble(Double.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.FLOAT_TYPE)
-    		{
-    			field = new FieldFloat(Float.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.INT_TYPE)
-    		{
-    			field = new FieldInt(Integer.valueOf(where_node.cons));
-    		}
-    		else if(type == FieldType.LONG_TYPE)
-    		{
-    			field = new FieldLong(Long.valueOf(where_node.cons));
+        		IField field;
+        		FieldType type;
+        		type = schema.getFieldType(field_index);
+        		if(type == FieldType.DOUBLE_TYPE)
+        		{
+        			field = new FieldDouble(Double.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.FLOAT_TYPE)
+        		{
+        			field = new FieldFloat(Float.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.INT_TYPE)
+        		{
+        			field = new FieldInt(Integer.valueOf(where_node.cons));
+        		}
+        		else if(type == FieldType.LONG_TYPE)
+        		{
+        			field = new FieldLong(Long.valueOf(where_node.cons));
+        		}
+        		else
+        		{
+        			field = new FieldString(where_node.cons,FieldType.STRING_LEN);
+        		}			
+        		field_cp = new FieldCompare(field_index,where_node.re,field);
     		}
     		else
     		{
-    			field = new FieldString(where_node.cons,FieldType.STRING_LEN);
-    		}			
-    		FieldCompare field_cp = new FieldCompare(field_index,where_node.re,field);
-    		
+        		int right_field_index = schema.getFieldIndex(where_node.right_field_name);
+        		if(right_field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ where_node.field_name);
+        		}
+        		field_cp = new FieldCompare(field_index,where_node.re,right_field_index);
+    		}
+		
     		//将筛选操作加入到tables_operation中
     		OperatorFilter filter = new OperatorFilter(field_cp,table_it);
     		tables_operation.put(where_node.table_name,filter);  
@@ -381,34 +410,62 @@ public class Query
     		{
     			table2_name = join_node.table2_name;
     		}
-    		table1_it = tables_operation.get(table1_name);
-    		table2_it = tables_operation.get(table2_name);
-    		if(table1_it == null)
+    		if(!table1_name.equals(table2_name))
     		{
-    			throw new Exception("Unknown table "+join_node.table1_name);
+        		table1_it = tables_operation.get(table1_name);
+        		table2_it = tables_operation.get(table2_name);
+        		if(table1_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table1_name);
+        		}
+        		if(table2_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table2_name);
+        		}
+            	
+        		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
+        		tables_operation.put(table1_name,temp);
+            	 		
+        		//将所有出现过表2名字的地方都替换为表1的名字
+        		tables_operation.remove(table2_name);
+        		tables_equiv.put(table2_name,table1_name);
+        		for(Map.Entry<String, String> s:tables_equiv.entrySet())
+        		{
+        			String str_val = s.getValue();
+        			if(str_val.equals(table2_name))
+        			{
+        				s.setValue(table1_name);
+        			}
+        		}
     		}
-    		if(table2_it == null)
+    		else //说明两张表已经合并，此时合并操作变成筛选操作
     		{
-    			throw new Exception("Unknown table "+join_node.table2_name);
+        		table1_it = tables_operation.get(table1_name);
+        		if(table1_it == null)
+        		{
+        			throw new Exception("Unknown table "+join_node.table1_name);
+        		}
+        		FieldCompare field_cp = null;
+        		Schema schema = table1_it.getSchema();  		
+        		int field_index = schema.getFieldIndex(join_node.field1_name);
+        		if(field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ join_node.field1_name);
+        		}
+        		int right_field_index = schema.getFieldIndex(join_node.field2_name);
+        		if(right_field_index == -1)
+        		{
+        			throw new Exception("Unknown field "+ join_node.field2_name);
+        		}
+        		field_cp = new FieldCompare(field_index,join_node.re,right_field_index);
+        		//将筛选操作加入到tables_operation中
+        		OperatorFilter filter = new OperatorFilter(field_cp,table1_it);
+        		tables_operation.put(table1_name,filter);  
     		}
-        	
-    		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
-    		tables_operation.put(table1_name,temp);
-        	 		
-    		//将所有出现过表2名字的地方都替换为表1的名字
-    		tables_operation.remove(table2_name);
-    		tables_equiv.put(table2_name,table1_name);
-    		for(Map.Entry<String, String> s:tables_equiv.entrySet())
-    		{
-    			String str_val = s.getValue();
-    			if(str_val.equals(table2_name))
-    			{
-    				s.setValue(table1_name);
-    			}
-    		}
+
     	}
     	//第三步结束之后，此时的表应当已经被合成一张表了，若不是则说明出现错误
-    	if(tables_operation.size()>1)
+    	if(tables_operation.size()!=1)
     	{
     		throw new Exception("Something is wrong when QUERY");
     	}

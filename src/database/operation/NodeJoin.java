@@ -15,9 +15,9 @@ public class NodeJoin
 {
 	public String table1_name;//第一张表表名
 	public String table2_name;//第二张表表名
-	public String field1_name;//第一张表列名，形如table.attr（可能为空）
-	public String field2_name;//第二张表列名，形如table.attr（可能为空）
-	public Re re;//关系类型，如“=”（可能为空）
+	public String field1_name;//第一张表列名，形如table.attr
+	public String field2_name;//第二张表列名，形如table.attr
+	public Re re;//关系类型，如“=”
 	
     /**
      * 构造函数

@@ -6,7 +6,7 @@ import database.structure.Tuple;
 /**
  * 类型：抽象类
  * 
- * 功能：操作的抽象类（辅助实现插入、删除、筛选、投影等操作）
+ * 功能：操作的抽象类（辅助实现筛选、投影、笛卡尔积等操作）
  * 
  */
 public abstract class Operator implements ITupleIterator

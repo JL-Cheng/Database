@@ -1,6 +1,7 @@
 package database.server;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class DatabaseManager
 {
@@ -9,7 +10,7 @@ public class DatabaseManager
 	
 	/**
 	 * 构造函数
-	 */
+	 */ 
 	public DatabaseManager()
 	{
 		database = new Database(this);
@@ -123,6 +124,27 @@ public class DatabaseManager
 		{
 			throw new Exception("Delete failure!");
 		};
+	}
+	/**
+	 * 展示所有数据库
+	 * @throws Exception
+	 */
+	public String[] getDatabases() throws Exception
+	{
+		File file = new File("./db/");
+		if (!file.exists())
+		{
+			throw new Exception("showDatabases Error.");
+		}
+		File[] files = file.listFiles();
+		ArrayList<String> dbs = new ArrayList<String>();
+		for (File elem: files)
+		{
+			if (elem.isDirectory() && schemaExists(elem.getName())) {
+				dbs.add(elem.getName());
+			}
+		}
+		return dbs.toArray(new String[0]);
 	}
 	
 	/**

@@ -63,6 +63,7 @@ public class OperatorJoin extends Operator
 	private int list_index = 0;//元组列表读取的下标
 	private boolean is_cached = false;//是否已经成功缓存所有元组
 	private Tuple fst_tuple;//第一个表中目前读到的元组
+	private Schema new_schema;//合并之后新的元数据
 	
 	/**
 	 * 构造函数
@@ -72,6 +73,7 @@ public class OperatorJoin extends Operator
 		this.join_compare=join_compare;
 		this.tuples1=tuples1;
 		this.tuples2=tuples2;
+		new_schema = Schema.merge(tuples1.getSchema(), tuples2.getSchema());
 	}
 	
 	public void start()
@@ -99,7 +101,7 @@ public class OperatorJoin extends Operator
 
 	public Schema getSchema()
 	{
-		return Schema.merge(tuples1.getSchema(), tuples2.getSchema());
+		return new_schema;
 	}
 
 	/**
