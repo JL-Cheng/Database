@@ -116,7 +116,7 @@ public class Query
     	}
     	else
     	{
-    		throw new Exception("Parse error on TABLE JOIN.");
+    		throw new Exception("Parse error on TABLE JOIN.\n");
     	}
     }
 
@@ -164,7 +164,7 @@ public class Query
     	Iterator<NodeFrom> from_node_it = from_nodes.iterator();
     	if(names.length!=2)
     	{
-    		throw new Exception("Field name is wrong: " + name);
+    		throw new Exception("Field name is wrong: " + name + "\n");
     	}
     	//第一种形式table.field
     	if(!(names[1].equals("*")) && !(names[0].equals("null")))
@@ -181,7 +181,7 @@ public class Query
     			}
     			else if(table_name != null)
     			{
-    				throw new Exception("Field " + name + " appears in different tables.");
+    				throw new Exception("Field " + name + " appears in different tables.\n");
     			}
     			else
     			{
@@ -195,7 +195,7 @@ public class Query
     		}
     		else
     		{
-    			throw new Exception("Field " + name + " does not exist.");
+    			throw new Exception("Field " + name + " does not exist.\n");
     		}
 
     	}
@@ -219,7 +219,7 @@ public class Query
     		}
     		else
     		{
-    			throw new Exception("Table " + names[0] + " does not exist.");
+    			throw new Exception("Table " + names[0] + " does not exist.\n");
     		}
     	}
     	//第三种形式null.field
@@ -238,7 +238,7 @@ public class Query
     			}
     			else if(table_name != null)
     			{
-    				throw new Exception("Field " + name + " appears in different tables.");
+    				throw new Exception("Field " + name + " appears in different tables.\n");
     			}
     			else
     			{
@@ -252,7 +252,7 @@ public class Query
     		}
     		else
     		{
-    			throw new Exception("Field " + name + " does not exist.");
+    			throw new Exception("Field " + name + " does not exist.\n");
     		}
 
     	}
@@ -287,11 +287,11 @@ public class Query
         	field2_id = tuples2.getSchema().getFieldIndex(join_node.field2_name);  	
         	if(field1_id == -1)
         	{
-        		throw new Exception("Unknown field " + join_node.field1_name);
+        		throw new Exception("Unknown field " + join_node.field1_name + "\n");
         	}
         	if(field2_id == -1)
         	{
-        		throw new Exception("Unknown field " + join_node.field2_name);
+        		throw new Exception("Unknown field " + join_node.field2_name + "\n");
         	}
         	jc = new JoinCompare(field1_id,field2_id,join_node.re);
         	join = new OperatorJoin(jc,tuples1,tuples2);
@@ -318,7 +318,7 @@ public class Query
     		DBTable table = manager.database.getTableManager().getDatabaseFile(from_node.table_id);
 			if(table == null)
 			{
-				throw new Exception("Unknown table "+from_node.table_name);
+				throw new Exception("Unknown table "+from_node.table_name + "\n");
 			}
 			ITupleIterator table_it = table.iterator();
 			String table_name = manager.database.getTableManager().getTableName(from_node.table_id);
@@ -334,13 +334,13 @@ public class Query
     		FieldCompare field_cp = null;
     		if(table_it == null)
     		{
-    			throw new Exception("Unknown table "+where_node.table_name);
+    			throw new Exception("Unknown table "+where_node.table_name + "\n");
     		}
     		Schema schema = tables_operation.get(where_node.table_name).getSchema();  		
     		int field_index = schema.getFieldIndex(where_node.field_name);
     		if(field_index == -1)
     		{
-    			throw new Exception("Unknown field "+ where_node.field_name);
+    			throw new Exception("Unknown field "+ where_node.field_name + "\n");
     		}
     		
     		//将常数转换为field类型
@@ -376,7 +376,7 @@ public class Query
         		int right_field_index = schema.getFieldIndex(where_node.right_field_name);
         		if(right_field_index == -1)
         		{
-        			throw new Exception("Unknown field "+ where_node.field_name);
+        			throw new Exception("Unknown field "+ where_node.field_name + "\n");
         		}
         		field_cp = new FieldCompare(field_index,where_node.re,right_field_index);
     		}
@@ -416,11 +416,11 @@ public class Query
         		table2_it = tables_operation.get(table2_name);
         		if(table1_it == null)
         		{
-        			throw new Exception("Unknown table "+join_node.table1_name);
+        			throw new Exception("Unknown table "+join_node.table1_name + "\n");
         		}
         		if(table2_it == null)
         		{
-        			throw new Exception("Unknown table "+join_node.table2_name);
+        			throw new Exception("Unknown table "+join_node.table2_name + "\n");
         		}
             	
         		ITupleIterator temp = getJoinTable(join_node,table1_it,table2_it);
@@ -443,19 +443,19 @@ public class Query
         		table1_it = tables_operation.get(table1_name);
         		if(table1_it == null)
         		{
-        			throw new Exception("Unknown table "+join_node.table1_name);
+        			throw new Exception("Unknown table "+join_node.table1_name + "\n");
         		}
         		FieldCompare field_cp = null;
         		Schema schema = table1_it.getSchema();  		
         		int field_index = schema.getFieldIndex(join_node.field1_name);
         		if(field_index == -1)
         		{
-        			throw new Exception("Unknown field "+ join_node.field1_name);
+        			throw new Exception("Unknown field "+ join_node.field1_name + "\n");
         		}
         		int right_field_index = schema.getFieldIndex(join_node.field2_name);
         		if(right_field_index == -1)
         		{
-        			throw new Exception("Unknown field "+ join_node.field2_name);
+        			throw new Exception("Unknown field "+ join_node.field2_name + "\n");
         		}
         		field_cp = new FieldCompare(field_index,join_node.re,right_field_index);
         		//将筛选操作加入到tables_operation中
@@ -467,7 +467,7 @@ public class Query
     	//第三步结束之后，此时的表应当已经被合成一张表了，若不是则说明出现错误
     	if(tables_operation.size()!=1)
     	{
-    		throw new Exception("Something is wrong when QUERY");
+    		throw new Exception("Something is wrong when QUERY.\n");
     	}
     	
     	//第四步，遍历所有SELECT节点，决定最终合成的表应当输出哪几列（投影操作）
@@ -487,7 +487,7 @@ public class Query
     			int id = schema.getFieldIndex(select_node.field_name);
     			if(id == -1)
     			{
-    				throw new Exception("Unknown field "+ select_node.field_name + " in SELECT");
+    				throw new Exception("Unknown field "+ select_node.field_name + " in SELECT.\n");
     			}
     			else
     			{
@@ -508,7 +508,7 @@ public class Query
     	    			int id = schema.getFieldIndex(schema_item.field_name);
     	    			if(id == -1)
     	    			{
-    	    				throw new Exception("Unknown field "+ schema_item.field_name + " in SELECT");
+    	    				throw new Exception("Unknown field "+ schema_item.field_name + " in SELECT.\n");
     	    			}
     	    			else
     	    			{
@@ -530,7 +530,7 @@ public class Query
     		}
     		else
     		{
-    			throw new Exception("Something is wrong when QUERY");
+    			throw new Exception("Something is wrong when QUERY.\n");
     		}
     	}
     	

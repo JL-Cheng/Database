@@ -1,11 +1,10 @@
 package database.client;
 
-import com.sun.istack.internal.NotNull;
-
 import java.net.*;
 import java.io.*;
 
-public class Client {
+public class Client
+{
 
     private String servername = null;//服务器地址
     private int port = -1;//端口号
@@ -20,7 +19,8 @@ public class Client {
      * @param servername 服务器地址
      * @param port 服务器端口
      */
-    public Client(String servername, int port){
+    public Client(String servername, int port)
+    {
         this.servername = servername;
         this.port = port;
     }
@@ -53,10 +53,12 @@ public class Client {
     /**
      * 断开服务器连接
      */
-    private void disconnect (){
+    private void disconnect ()
+    {
         if(this.socket.isConnected())
         {
-            try {
+            try
+            {
                 this.out_socket.println("exit");
                 receiveResponse();
                 this.socket.close();
@@ -87,7 +89,11 @@ public class Client {
         try
         {
             String response = this.in_socket.readLine();
-            this.out_system.println(response);
+            while(!response.isEmpty())
+            {
+            	this.out_system.println(response);
+            	response = this.in_socket.readLine();
+            }
         }
         catch (IOException e)
         {
@@ -102,7 +108,8 @@ public class Client {
     private void importSql(String request)
     {
         String filename = request.split("\\s+")[1];
-        try{
+        try
+        {
             BufferedReader fin = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
 
             //开始计时
@@ -118,6 +125,7 @@ public class Client {
             long end_time = System.currentTimeMillis();
             long total_time = end_time - start_time;
             this.out_system.println("import执行时间为:"+total_time+"ms");
+            fin.close();
         }
         catch (IOException e)
         {
@@ -128,18 +136,24 @@ public class Client {
     /**
      * 和服务器收发数据
      */
-    private void run(){
-        try {
+    private void run()
+    {
+        try
+        {
+        	this.out_system.print(">>");
             String sql = this.in_system.readLine();
-            while(!sql.equals("exit")) {
+            while(!sql.equals("exit"))
+            {
                 if (sql.startsWith("import"))
                 {
                     importSql(sql);
                 }
-                else {
+                else
+                {
                     sendRequest(sql);
                     receiveResponse();
                 }
+                this.out_system.print(">>");
                 sql = this.in_system.readLine();
             }
             disconnect();
@@ -151,7 +165,7 @@ public class Client {
     }
 
 
-    public static void main(@NotNull  String [] args)
+    public static void main(String [] args)
     {
         String servername = args[0];
         int port = Integer.parseInt(args[1]);
