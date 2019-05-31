@@ -28,7 +28,7 @@ public class ProcessDML
 		int table_id = manager.database.getTableManager().getTableId(table.getName());
 		if (table_id == -1) 
 		{
-			throw new Exception("Invalid Table Name");
+			throw new Exception("Invalid Table Name.\n");
 		}
 		Schema schema = manager.database.getTableManager().getSchema(table_id);
 		Tuple tuple = new Tuple(schema);
@@ -45,7 +45,7 @@ public class ProcessDML
 				int index = schema.getFieldIndex(columns.get(i).getColumnName());
 				if (index == -1)
 				{
-					throw new Exception("Invalid column name.");
+					throw new Exception("Invalid column name.\n");
 				}
 				String value = exlist.get(i).toString();
 				tuple.setField(index, schema.parse(index, value));
@@ -64,7 +64,7 @@ public class ProcessDML
 		System.out.println(tuple);
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
-		return "Insert successfully.";
+		return "Insert successfully.\n";
 	}
 	
 	/**
@@ -78,7 +78,7 @@ public class ProcessDML
 		Table table = statement.getTable();
 		if (table == null || !manager.database.getTableManager().isTableExist(table.getName()))
 		{
-			throw new Exception("[operateDelete]: wrong table");
+			throw new Exception("[operateDelete]: wrong table.\n");
 		}
 		// 处理where
 		VisitorWhere whereVisitor = new VisitorWhere();
@@ -95,7 +95,7 @@ public class ProcessDML
 			dbTable.deleteTuple(it.next());
 		}
 		System.out.println("Finish Delete");
-		return "Delete successfully.(" + count + " tuples deleted.)";
+		return "Delete successfully.(" + count + " tuples deleted.)\n";
 	}
 	
 	/**
@@ -110,7 +110,7 @@ public class ProcessDML
 		System.out.println(table);
 		if (table == null || !manager.database.getTableManager().isTableExist(table.getName()))
 		{
-			throw new Exception("[operateDelete]: wrong table");
+			throw new Exception("[operateDelete]: wrong table.\n");
 		}
 		// 处理where部分
 		VisitorWhere whereVisitor = new VisitorWhere();
@@ -129,12 +129,12 @@ public class ProcessDML
 		{
 			if (column.getTable() != null && !column.getTable().getName().equals(table.getName()))
 			{
-				throw new Exception("[operateUpdate] wrong table :" + column.toString());
+				throw new Exception("[operateUpdate] wrong table :" + column.toString() + "\n");
 			}
 			int id = schema.getFieldIndex(table.getName() + '.' + column.getColumnName());
 			if (id == -1)
 			{
-				throw new Exception("[operateUpdate] wrong column :" + column.toString());
+				throw new Exception("[operateUpdate] wrong column :" + column.toString() + "\n");
 			}
 			else
 			{
@@ -156,6 +156,6 @@ public class ProcessDML
 			dbTable.updateTuple(tuple, newTuple);
 		}
 		System.out.println("Finish Update");
-		return "Update successfully.(" + count + " tuples updated.)";
+		return "Update successfully.(" + count + " tuples updated.)\n";
 	}
 }
