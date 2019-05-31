@@ -157,12 +157,21 @@ public class TestMain
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test1_createTable(manager);
-    	test2_recoverTables(manager);
-    	test3_switchDB_createTable(manager);
-    	test4_switchDB_recover(manager);
-    	test6_primaryKey(manager);
-    	test5_deleteTable(manager);  	
+//    	test1_createTable(manager);
+//    	test2_recoverTables(manager);
+//    	test3_switchDB_createTable(manager);
+//    	test4_switchDB_recover(manager);
+//    	test6_primaryKey(manager);
+//    	test5_deleteTable(manager); 
+    	try {
+    		String[] strings = manager.getTables("default");
+    		for (String s: strings)
+    		{
+    			System.out.println(s);			    			
+    		}
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
     	manager.database.close();
     }
     

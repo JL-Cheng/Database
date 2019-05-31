@@ -72,7 +72,8 @@ public class Parser
 				}
 				else
 				{
-					throw new Exception("Parse error.\n");
+					//展示所有表
+					return ProcessDatabase.operateShowTables(manager, matcher.group(3).trim());
 				}
 			default:
 				throw new Exception("Parse error.\n");
@@ -289,12 +290,14 @@ public class Parser
     	String create = "CREATE DATABASE public";
     	String use = "use DATABASE default";
     	String show = "SHOW DATABASES";
+    	String showtable = "SHOW DATABASE default";
     	String drop = "drop DATABASE public";
     	try 
     	{    		
     		System.out.println(parser.processStatement(create));
     		System.out.println(parser.processStatement(use));
     		System.out.println(parser.processStatement(show));
+    		System.out.println(parser.processStatement(showtable));
     		System.out.println(parser.processStatement(drop));
     	}
     	catch(Exception e)
@@ -342,13 +345,13 @@ public class Parser
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
     	//createTestData(manager);
-    	//testDatabaseOperation(manager, parser);
+    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
     	//testInsertOperation(manager, parser);
     	//testCreateTable(manager, parser);
     	//testDropTable(manager, parser);
-    	testQuery(manager, parser);
+//    	testQuery(manager, parser);
     	manager.database.close();
     }
 }

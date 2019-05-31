@@ -148,6 +148,38 @@ public class DatabaseManager
 	}
 	
 	/**
+	 * 展示所有表
+	 * @throws Exception
+	 */
+	public String[] getTables(String dbname) throws Exception
+	{
+		if (!schemaExists(dbname))
+		{
+			throw new Exception("Wrong dbname!\n");
+		}
+		String schema_file = getPrefix(dbname) + "schema.txt";
+		String line = "";
+		ArrayList<String> names = new ArrayList<String>();
+		try
+        {
+			BufferedReader reader = new BufferedReader(new FileReader(new File(schema_file)));
+			
+			while ((line = reader.readLine()) != null)
+			{
+                String name = line.substring(0, line.indexOf("(")).trim();
+                names.add(name);
+			}
+			reader.close();
+        }
+        catch (Exception e)
+        {
+        	System.err.println(e.getMessage());
+            System.exit(0);
+        }
+		return names.toArray(new String[0]);
+	}
+	
+	/**
 	 * 删除文件夹
 	 * @param sPath 文件夹路径
 	 * @return 是否成功删除
