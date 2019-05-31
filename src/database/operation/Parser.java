@@ -48,40 +48,48 @@ public class Parser
      */
 	public String processStatement(String str) throws Exception
 	{
+		//数据库操作语句
+		Matcher matcher = databasePattern.matcher(str);
+		if (matcher.find())
+		{
+			String optype = matcher.group(1).trim().toUpperCase();
+			switch (optype)
+			{
+			case "CREATE": 
+				//创建数据库
+				return ProcessDatabase.operateCreateDatabase(manager, matcher.group(3).trim());
+			case "DROP":
+				//删除数据库
+				return ProcessDatabase.operateDropDatabase(manager, matcher.group(3).trim());
+			case "USE":
+				//切换数据库
+				return ProcessDatabase.operateSwitchDatabase(manager, matcher.group(3).trim());
+			case "SHOW":
+				if (matcher.group(3).toUpperCase().equals("S"))
+				{
+					//展示所有数据库
+					return ProcessDatabase.operateShowDatabases(manager);
+				}
+				else
+				{
+					throw new Exception("Parse error.\n");
+				}
+			default:
+				throw new Exception("Parse error.\n");
+			}
+		} 
+		
+		Statement statement = null;
 		try
 		{
-			//数据库操作语句
-			Matcher matcher = databasePattern.matcher(str);
-			if (matcher.find())
-			{
-				String optype = matcher.group(1).trim().toUpperCase();
-				switch (optype)
-				{
-				case "CREATE": 
-					//创建数据库
-					return ProcessDatabase.operateCreateDatabase(manager, matcher.group(3).trim());
-				case "DROP":
-					//删除数据库
-					return ProcessDatabase.operateDropDatabase(manager, matcher.group(3).trim());
-				case "USE":
-					//切换数据库
-					return ProcessDatabase.operateSwitchDatabase(manager, matcher.group(3).trim());
-				case "SHOW":
-					if (matcher.group(3).toUpperCase().equals("S"))
-					{
-						//展示所有数据库
-						return ProcessDatabase.operateShowDatabases(manager);
-					}
-					else
-					{
-						throw new Exception("Parse error.");
-					}
-				default:
-					throw new Exception("Parse error.");
-				}
-			} 
-			
-			Statement statement = parser.parse(new StringReader(str));
+			statement = parser.parse(new StringReader(str));
+		}
+		catch(Exception e)
+		{
+			throw new Exception("Parse error.\n");
+		}
+		try
+		{
 			//插入语句
 			if(statement instanceof Insert)
 			{
@@ -117,7 +125,7 @@ public class Parser
 			//解析错误
 			else 
 			{
-				throw new Exception("Parse error.");					
+				throw new Exception("Parse error.\n");					
 			}
 		}
 		catch(Exception e)
