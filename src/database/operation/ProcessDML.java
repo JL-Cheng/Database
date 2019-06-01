@@ -71,8 +71,6 @@ public class ProcessDML
 				tuple.setField(i, schema.parse(i, value));
 			}
 		}
-		
-		System.out.println(tuple);
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
 		return "Insert successfully.\n";

@@ -3,6 +3,10 @@ package database.persist;
 import java.io.*;
 import java.util.Iterator;
 
+import database.field.FieldCompare;
+import database.field.IField;
+import database.field.FieldCompare.Re;
+import database.operation.OperatorFilter;
 import database.persist.DBPage.DBPageId;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -109,8 +113,8 @@ public class DBTable
     public void checkBeforeInsert(Tuple tuple) throws Exception
     {
 		checkSchema(tuple);
-		checkPrivateKey(tuple);
 		checkNotNull(tuple);
+		checkPrivateKey(tuple);
 	}
     /**
      * 检查元组的schema和表的是否一样
@@ -129,14 +133,19 @@ public class DBTable
      */
     public void checkPrivateKey(Tuple tuple) throws Exception
     {
-//		Schema schema = tuple.getSchema();
-//		int[] primary = schema.getRowIndex();
-//		IField[] fields = new IField[primary.length];
-//		ITupleIterator iterator = 
-//		for (int i: primary)
-//		{
-//			
-//		}
+		Schema schema = tuple.getSchema();
+		int[] primary = schema.getRowIndex();
+		ITupleIterator iterator = iterator();
+		for (int i: primary)
+		{
+			FieldCompare field_cp = new FieldCompare(i, Re.Eq, tuple.getField(i));	
+			iterator = new OperatorFilter(field_cp, iterator);
+		}
+		iterator.start();
+		if (iterator.hasNext())
+		{
+			throw new Exception("Duplicated primary key.\n");
+		}
 	}
     
     /**

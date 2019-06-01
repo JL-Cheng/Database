@@ -269,7 +269,7 @@ public class Parser
     	
 	}
 	
-	public static void testInsertOperation(DatabaseManager manager, Parser parser)
+	public static void testInsertOperation1(DatabaseManager manager, Parser parser)
 	{
     	String str = "INSERT INTO table1(table1.column0, table1.column1) VALUES(5, 6);";
     	try 
@@ -282,7 +282,21 @@ public class Parser
     	{
     		System.out.println(e.getMessage());
     	}
-    	
+	}
+	
+	public static void testInsertOperation2(DatabaseManager manager, Parser parser)
+	{
+    	String str = "INSERT INTO table1 VALUES(5, 6, 7);";
+    	try 
+    	{    		
+    		System.out.println(parser.processStatement(str));
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
 	}
 	
 	public static void testDatabaseOperation(DatabaseManager manager, Parser parser)
@@ -349,7 +363,7 @@ public class Parser
 //    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
-    	testInsertOperation(manager, parser);
+    	testInsertOperation2(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
     	manager.database.close();
