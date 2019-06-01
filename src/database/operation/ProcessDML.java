@@ -17,6 +17,7 @@ import net.sf.jsqlparser.statement.update.Update;
 
 public class ProcessDML
 {
+	
 	/**
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果

@@ -101,6 +101,51 @@ public class DBTable
 			}
 		}
     }
+    
+    /**
+     * 插入前的检查
+     * @param tuple 待插入的元组
+     * @return
+     */
+//    public boolean checkBeforeInsert(Tuple tuple) {
+//		return checkSchema(tuple) && checkPrivateKey(tuple) && checkNotNull(tuple);
+//	}
+    /**
+     * 检查元组的schema和表的是否一样
+     */
+    public boolean checkSchema(Tuple tuple) {
+		if (!tuple.getSchema().equals(this.schema)) 
+		{
+			return true;
+		}
+		return false;
+	}
+    
+    /**
+     * 检查是否符合主键约束
+     * @param tuple
+     * @return
+     */
+//    public boolean checkPrivateKey(Tuple tuple) {
+//		Schema schema = tuple.getSchema();
+//		int[] primary = schema.getRowIndex();
+//		IField[] fields = new IField[primary.length];
+//		ITupleIterator iterator = 
+//		for (int i: primary)
+//		{
+//			
+//		}
+//		
+//	}
+//    
+//    /**
+//     * 检查是否符合not null约束
+//     * @param tuple
+//     * @return
+//     */
+//    public boolean checkNotNull(Tuple tuple) {
+//		
+//	}
 
     /**
      * 将某一元组插入到数据库文件中
@@ -134,7 +179,6 @@ public class DBTable
     	page.setOperated(true);
         return page;
     }
-
     /**
      * 将某一元组从数据库文件中删除
      * @param tuple 将要删除的元组

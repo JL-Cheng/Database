@@ -235,6 +235,7 @@ public class DBTableManager
                 ArrayList<String> names = new ArrayList<String>();
                 ArrayList<FieldType> types = new ArrayList<FieldType>();
                 ArrayList<Integer> primary_key = new ArrayList<Integer>();
+                ArrayList<Integer> not_null = new ArrayList<Integer>();
                 HashMap<Integer, Integer> str_len = new HashMap<Integer, Integer>();
                 for (String str : fields)
                 {
@@ -254,10 +255,16 @@ public class DBTableManager
                         System.out.println("wrong type :" + n_fields[1]);
                         System.exit(0);
                     }
-                    if (n_fields.length == 3)
+                    if (n_fields.length >= 3)
                     {
                         if (n_fields[2].trim().equals("primary"))
+                        {
                             primary_key.add(names.size() - 1);
+                        }
+                        else if (3 < n_fields.length && n_fields[2].trim().equals("not") && n_fields[3].trim().equals("null"))
+                        {
+                        	not_null.add(names.size() - 1);
+                        }
                         else
                         {
                             System.out.println("wrong constraint :" + n_fields[2]);
@@ -272,7 +279,12 @@ public class DBTableManager
                 {
                 	primary_key_array[i] = primary_key.get(i).intValue();
                 }
-                Schema n_schema = new Schema(types_array, names_array, primary_key_array, str_len);
+                int[] not_null_array = new int[not_null.size()];
+                for (int i = 0; i < not_null.size(); i++)
+                {
+                	not_null_array[i] = not_null.get(i).intValue();
+                }
+                Schema n_schema = new Schema(types_array, names_array, primary_key_array, str_len, not_null_array);
                 File dat = new File(base_folder+"/"+ name + ".dat");
                 if (!dat.exists())
                 {

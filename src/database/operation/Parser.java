@@ -345,11 +345,11 @@ public class Parser
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
     	//createTestData(manager);
-    	testDatabaseOperation(manager, parser);
+//    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
     	//testInsertOperation(manager, parser);
-    	//testCreateTable(manager, parser);
+    	testCreateTable(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
     	manager.database.close();

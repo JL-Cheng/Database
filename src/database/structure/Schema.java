@@ -5,6 +5,7 @@ import java.util.*;
 
 import database.field.FieldType;
 import database.field.IField;
+import database.operation.NodeSelect;
 
 /**
  * 类型：类
@@ -21,14 +22,16 @@ public class Schema implements Serializable
     private String[] field_names;//所有列的名称
     private int[] index;// 主键的下标
     public Map<Integer,Integer> string_len;//字符串的最大长度
+    private int[] not_null;//有not null约束的列的下标(主键默认not null)
 	
     /**
      * 构造函数
      * @param types 数据类型数组
      * @param names 名称数组
      * @param index 主键数组
+     * @param string_len 字符串长度
      */
-    public Schema(FieldType[] types, String[] names, int[] index, Map<Integer,Integer> string_len)
+    public Schema(FieldType[] types, String[] names, int[] index, Map<Integer,Integer> string_len, int[] not_null)
     {
     	if (types.length == 0 || types.length != names.length)
     	{
@@ -37,6 +40,21 @@ public class Schema implements Serializable
     	}
     	this.index = index;
     	Arrays.sort(this.index);
+    	// 从not null中筛除index中的元素
+    	Arrays.sort(not_null);
+    	ArrayList<Integer> not_null_list = new ArrayList<Integer>();
+    	for (int i: not_null)
+    	{
+    		if (Arrays.binarySearch(this.index, i) < 0)
+    		{
+    			not_null_list.add(i);
+    		}
+    	}
+    	this.not_null = new int[not_null_list.size()];
+        for (int i = 0; i < not_null_list.size(); i++)
+        {
+        	this.not_null[i] = not_null_list.get(i).intValue();
+        }
     	field_types = new FieldType[types.length];
     	field_names = new String[types.length];
     	for (int i=0; i<types.length; i++)
@@ -84,6 +102,14 @@ public class Schema implements Serializable
     		primary_key[i] = field_names[index[i]];
     	}
     	return primary_key;
+	}
+    
+    /**
+     * 获取主键对应的列名
+     */
+    public int[] getRowIndex()
+    {
+    	return index;
 	}
     
     /**
@@ -280,7 +306,6 @@ public class Schema implements Serializable
     {
     	FieldType[] new_types = new FieldType[(schema1.field_types.length+schema2.field_types.length)];
     	String[] new_names = new String[(schema1.field_names.length+schema2.field_names.length)];
-    	int[] new_index = {};//JOIN操作中合并的临时表主键为空
     	int i = 0;
     	
     	for (int j=0; j<schema1.field_types.length; j++)
@@ -311,7 +336,7 @@ public class Schema implements Serializable
     			str_len = new HashMap<Integer, Integer>(schema2.string_len);
     		}
     	}
-    	Schema result = new Schema(new_types, new_names, new_index, str_len);
+    	Schema result = new Schema(new_types, new_names, new int[]{}, str_len, new int[]{});
     	return result;
     }
 
@@ -327,21 +352,48 @@ public class Schema implements Serializable
     	
     	result += this.field_names[0] + " "+ this.field_types[0].getName(getStringlen(0));
     	int i_count = 0;
+    	int n_count = 0;
     	int index_length = index.length;
-    	if (i_count < index_length && index[i_count] == 0) {
+    	int nnull_length = not_null.length;
+    	if (i_count < index_length && index[i_count] == 0) 
+    	{
     		i_count++;
     		result += " primary";
+    	} else if (n_count < nnull_length && not_null[n_count] == 0) 
+    	{
+    		n_count++;
+    		result += " not null";
     	}
     	for (int i=1; i<n; i++)
     	{
     		result += ", " + this.field_names[i];
     		result += " "+this.field_types[i].getName(getStringlen(i));
-    		if (i_count < index_length && index[i_count] == i) {
+    		if (i_count < index_length && index[i_count] == i) 
+    		{
     			i_count++;
-        		result += " primary key";
+        		result += " primary";
+        	}
+    		else if (n_count < nnull_length && not_null[n_count] == i) 
+    		{
+    			n_count++;
+        		result += " not null";
         	}
     	}
     	result += ')';
         return result;
+    }
+    
+    public boolean equals(Object obj)
+    {
+    	if (!(obj instanceof Schema))
+    	{
+    		return false;
+    	}
+    	Schema schema = (Schema) obj;
+    	if (this.toString().equals(schema.toString()))
+    	{
+    		return true;
+    	}
+    	return false;
     }
 }
