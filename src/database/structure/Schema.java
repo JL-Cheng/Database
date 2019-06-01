@@ -295,6 +295,14 @@ public class Schema implements Serializable
     	}
         return size;
     }
+    /**
+     * 获取记录该元数据的大小 + null标志位（字节）
+     * @return 元数据的大小 + null标志位
+     */
+    public int getWriteSize()
+    {
+    	return getSize() + field_types.length;
+    }
     
     /**
      * 合并两个元数据（用在JOIN操作中）

@@ -40,10 +40,16 @@ public class ProcessDML
 		
 		if (columns != null) 
 		{
+			// 只指明了部分列 其余为null
+			int total_size = schema.getColumnSize();
+			for (int i = 0; i < total_size; i++)
+			{
+				tuple.setField(i, null);
+			}
 			int size = exlist.size();
 			for (int i = 0; i < size; i++) 
 			{
-				int index = schema.getFieldIndex(columns.get(i).getColumnName());
+				int index = schema.getFieldIndex(columns.get(i).getFullyQualifiedName());
 				if (index == -1)
 				{
 					throw new Exception("Invalid column name.\n");
@@ -55,6 +61,10 @@ public class ProcessDML
 		else
 		{
 			int size = schema.getColumnSize();
+			if (size != exlist.size())
+			{
+				throw new Exception("The number of values does not match.\n");
+			}
 			for (int i = 0; i < size; i++)
 			{
 				String value = exlist.get(i).toString();

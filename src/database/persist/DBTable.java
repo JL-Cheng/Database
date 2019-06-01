@@ -91,13 +91,13 @@ public class DBTable
 			try
 			{
 				RandomAccessFile access_file = new RandomAccessFile(file, "rw");
-				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);				
+				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);	
 				access_file.write(page.getPageData(), 0, DBPageBuffer.getPageSize());
 				access_file.close();
 			}
 			catch (Exception e)
 			{
-				System.err.println(e.getMessage());
+				System.err.println(e);
 			}
 		}
     }

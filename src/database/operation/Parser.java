@@ -158,7 +158,7 @@ public class Parser
 			Tuple tuple = it.next();
 			for(int i=0;i<num_cols;i++)
 			{
-				temp[i] = tuple.getField(i).toString();
+				temp[i] = (tuple.getField(i) == null) ? "null" : tuple.getField(i).toString();
 				max_len = temp[i].length()>max_len?temp[i].length():max_len;
 			}
 			res_vec.add(temp);
@@ -271,7 +271,7 @@ public class Parser
 	
 	public static void testInsertOperation(DatabaseManager manager, Parser parser)
 	{
-    	String str = "INSERT INTO table1 VALUES(5, 6, 7);";
+    	String str = "INSERT INTO table1(table1.column0, table1.column1) VALUES(5, 6);";
     	try 
     	{    		
     		System.out.println(parser.processStatement(str));
@@ -344,12 +344,12 @@ public class Parser
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
-    	//createTestData(manager);
+//    	testCreateTable(manager, parser);
+//    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
-    	//testInsertOperation(manager, parser);
-    	testCreateTable(manager, parser);
+    	testInsertOperation(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
     	manager.database.close();
