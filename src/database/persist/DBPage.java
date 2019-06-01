@@ -85,7 +85,7 @@ public class DBPage
     	this.manager = m;
         this.id = id;
         this.schema = manager.database.getTableManager().getSchema(id.getTableId());
-        this.num_tuples = (8*DBPageBuffer.getPageSize())/(8*schema.getSize()+1);
+        this.num_tuples = (8*DBPageBuffer.getPageSize())/(8*schema.getWriteSize()+1);
         DataInputStream instream = new DataInputStream(new ByteArrayInputStream(data));
 
         header = new byte[(num_tuples+7)/8];
@@ -119,7 +119,7 @@ public class DBPage
     {
         if (!isTupleUsed(index))
         {
-            for (int i=0; i<schema.getSize(); i++)
+            for (int i=0; i<schema.getWriteSize(); i++)
             {
                 try
                 {
@@ -139,8 +139,25 @@ public class DBPage
         tuple.setTupleId(tuple_id);
         try
         {
+        	boolean[] null_flag = new boolean[schema.numFields()];
+        	for (int i=0; i<schema.numFields(); i++)
+            {
+        		if (instream.readByte() == 0)
+        		{
+        			null_flag[i] = false;
+        		}
+        		else 
+        		{
+        			null_flag[i] = true;
+        			tuple.setField(i, null);
+				}
+            }
             for (int i=0; i<schema.numFields(); i++)
             {
+            	if (null_flag[i])
+            	{
+            		continue;
+            	}
                 IField f = schema.parse(i, instream);
                 tuple.setField(i, f);
             }
@@ -180,7 +197,8 @@ public class DBPage
         {
         	if (!isTupleUsed(i))
         	{
-                for (int j=0; j<schema.getSize(); j++)
+        		// 在没有记录的位置写入空值
+                for (int j=0; j<schema.getWriteSize(); j++)
                 {
                     try
                     {
@@ -194,10 +212,42 @@ public class DBPage
                 }
                 continue;
             }
+        	// 记录null标志
+        	for (int j=0; j<schema.numFields(); j++)
+        	{
+        		IField f = tuples[i].getField(j);
+        		if (f == null) 
+        		{
+        			try
+                    {
+                    	data_outstream.writeByte(1);
+                    }
+                    catch (Exception e)
+                    {
+                    	System.err.println(e.getMessage());
+                    }
+        		} 
+        		else 
+        		{
+        			try
+                    {
+                    	data_outstream.writeByte(0);
+                    }
+                    catch (Exception e)
+                    {
+                    	System.err.println(e.getMessage());
+                    }
+				}
+        	}
         	
         	for (int j=0; j<schema.numFields(); j++)
         	{
+        		
                 IField f = tuples[i].getField(j);
+                if (f == null)
+                {
+                	continue;
+                }
                 try
                 {
                 	f.serialize(data_outstream);
@@ -209,7 +259,7 @@ public class DBPage
             }
         }
 
-        int m_len = DBPageBuffer.getPageSize() - (header.length + schema.getSize() * tuples.length);
+        int m_len = DBPageBuffer.getPageSize() - data_outstream.size();
         byte[] zeroes = new byte[m_len];
         try
         {
@@ -228,7 +278,6 @@ public class DBPage
         {
         	System.err.println(e.getMessage());
         }
-
         return byte_outstream.toByteArray();
     }
 
