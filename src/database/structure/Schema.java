@@ -238,6 +238,14 @@ public class Schema implements Serializable
     }
     
     /**
+     * 获取非空数组
+     * @return
+     */
+    public int[] getNotNull() {
+		return not_null;
+	}
+    
+    /**
      * 从str中解析出field_id对应列的一个Field
      * @param field_id
      * @param str

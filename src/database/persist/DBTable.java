@@ -105,28 +105,30 @@ public class DBTable
     /**
      * 插入前的检查
      * @param tuple 待插入的元组
-     * @return
      */
-//    public boolean checkBeforeInsert(Tuple tuple) {
-//		return checkSchema(tuple) && checkPrivateKey(tuple) && checkNotNull(tuple);
-//	}
+    public void checkBeforeInsert(Tuple tuple) throws Exception
+    {
+		checkSchema(tuple);
+		checkPrivateKey(tuple);
+		checkNotNull(tuple);
+	}
     /**
      * 检查元组的schema和表的是否一样
      */
-    public boolean checkSchema(Tuple tuple) {
+    public void checkSchema(Tuple tuple) throws Exception
+    {
 		if (!tuple.getSchema().equals(this.schema)) 
 		{
-			return true;
+			throw new Exception("The tuple schema dismatch the table schema.\n");
 		}
-		return false;
 	}
     
     /**
      * 检查是否符合主键约束
      * @param tuple
-     * @return
      */
-//    public boolean checkPrivateKey(Tuple tuple) {
+    public void checkPrivateKey(Tuple tuple) throws Exception
+    {
 //		Schema schema = tuple.getSchema();
 //		int[] primary = schema.getRowIndex();
 //		IField[] fields = new IField[primary.length];
@@ -135,25 +137,40 @@ public class DBTable
 //		{
 //			
 //		}
-//		
-//	}
-//    
-//    /**
-//     * 检查是否符合not null约束
-//     * @param tuple
-//     * @return
-//     */
-//    public boolean checkNotNull(Tuple tuple) {
-//		
-//	}
+	}
+    
+    /**
+     * 检查是否符合not null约束
+     * @param tuple
+     */
+    public void checkNotNull(Tuple tuple) throws Exception 
+    {
+		int[] not_null = schema.getNotNull();
+		int[] primary_key = schema.getRowIndex();
+		for (int i: not_null)
+		{
+			if (tuple.getField(i) == null)
+			{
+				throw new Exception(schema.getFieldName(i)+" can't be null.\n");
+			}
+		}
+		for (int i: primary_key)
+		{
+			if (tuple.getField(i) == null)
+			{
+				throw new Exception(schema.getFieldName(i)+" can't be null.\n");
+			}
+		}
+	}
 
     /**
      * 将某一元组插入到数据库文件中
      * @param tuple 将要插入的元组
      * @return 被修改的页
      */
-    public DBPage insertTuple(Tuple tuple)
+    public DBPage insertTuple(Tuple tuple) throws Exception
     {
+    	checkBeforeInsert(tuple);
     	DBPage page = null;
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	int table_id = getId();
@@ -200,9 +217,10 @@ public class DBTable
      * @param newTuple 新元组
      * @return 被修改的页
      */
-    public DBPage updateTuple(Tuple tuple, Tuple newTuple)
+    public DBPage updateTuple(Tuple tuple, Tuple newTuple) throws Exception
     {
-    	System.out.println("deleteTuple: "+ tuple);
+    	System.out.println("updateTuple: "+ tuple);
+    	checkBeforeInsert(tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.updateTuple(tuple, newTuple);

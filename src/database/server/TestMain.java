@@ -84,8 +84,11 @@ public class TestMain
     	
     	Tuple tuple_2 = createTuple(data2,n_schema);
     	System.out.println("Tuple : " + tuple_2);
-    	
-    	manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);
+    	try {
+    		manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);			
+		} catch (Exception e) {
+			System.out.println(e);
+		}
     }
     
     /**
