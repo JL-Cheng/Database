@@ -57,7 +57,7 @@ public class FieldCompare implements Serializable
         	case Ne:
         		return "<>";
         	default:
-        		throw new IllegalStateException("wrong relationship");        	
+        		throw new IllegalStateException("wrong relationship.\n");        	
         	}
         }
     }

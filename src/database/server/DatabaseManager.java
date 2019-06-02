@@ -85,7 +85,7 @@ public class DatabaseManager
 	{
 		if (!schemaExists(name))
 		{
-			throw new Exception("Invalid Database: " + name);
+			throw new Exception("Invalid Database: " + name + "\n");
 		}
 		database.clearAll();
 		setDBname(name);
@@ -100,7 +100,7 @@ public class DatabaseManager
 	{
 		if (schemaExists(name))
 		{
-			throw new Exception("Database already exists: " + name);
+			throw new Exception("Database already exists: " + name + "\n");
 		}
 		createSchema(name);
 	}
@@ -114,15 +114,15 @@ public class DatabaseManager
 	{
 		if (name.equals(database.dbname))
 		{
-			throw new Exception("Can't delete current DB.");
+			throw new Exception("Can't delete current DB.\n");
 		}
 		if (!schemaExists(name))
 		{
-			throw new Exception("Invalid Database: " + name);
+			throw new Exception("Invalid Database: " + name + "\n");
 		}
 		if (!deleteFolder(getPrefix(name)))
 		{
-			throw new Exception("Delete failure!");
+			throw new Exception("Delete failure!\n");
 		};
 	}
 	/**
@@ -134,7 +134,7 @@ public class DatabaseManager
 		File file = new File("./db/");
 		if (!file.exists())
 		{
-			throw new Exception("showDatabases Error.");
+			throw new Exception("showDatabases Error.\n");
 		}
 		File[] files = file.listFiles();
 		ArrayList<String> dbs = new ArrayList<String>();

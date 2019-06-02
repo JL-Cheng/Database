@@ -159,7 +159,7 @@ public class DBTableManager
         File f = new File(path);
         if (f.exists())
         {
-        	throw new Exception("The Table Already exists.");
+        	throw new Exception("The Table Already exists.\n");
         }
         try
         {
@@ -194,7 +194,7 @@ public class DBTableManager
         File f = new File(path);
         if (!f.exists())
         {
-        	throw new Exception("The Table does not exists.");
+        	throw new Exception("The Table does not exists.\n");
         }
         f.delete();
         Integer id = -1;
@@ -208,7 +208,7 @@ public class DBTableManager
     	}
     	if (id == -1)
     	{
-    		throw new Exception("Can't find table record.");
+    		throw new Exception("Can't find table record.\n");
     	}
     	dbnames.remove(id);
     	dbfiles.remove(id);

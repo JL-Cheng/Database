@@ -47,7 +47,7 @@ public class VisitorWhere implements ExpressionVisitor
 			// 处理左边
 			if (!node.table_name.equals("") && !node.table_name.equals(table.getName()))
 			{
-				throw new Exception("[operateDelete] wrong table name :" + node.field_name);
+				throw new Exception("[operateDelete] wrong table name :" + node.field_name + "\n");
 			}
 			if (node.table_name.equals(""))
 			{
@@ -56,7 +56,7 @@ public class VisitorWhere implements ExpressionVisitor
 			int field_id = dbTable.getSchema().getFieldIndex(node.field_name);
 			if (field_id == -1)
 			{
-				throw new Exception("[operateDelete] wrong field name :" + node.field_name);
+				throw new Exception("[operateDelete] wrong field name :" + node.field_name + "\n");
 			}
 			// 处理右边
 			if (node.is_cons_type)
@@ -68,7 +68,7 @@ public class VisitorWhere implements ExpressionVisitor
 			{
 				if (!node.right_table_name.equals("") && !node.right_table_name.equals(table.getName()))
 				{
-					throw new Exception("[operateDelete] wrong right table name :" + node.right_field_name);
+					throw new Exception("[operateDelete] wrong right table name :" + node.right_field_name + "\n");
 				}
 				if (node.right_table_name.equals(""))
 				{
@@ -77,7 +77,7 @@ public class VisitorWhere implements ExpressionVisitor
 				int right_field_id = dbTable.getSchema().getFieldIndex(node.right_field_name);
 				if (right_field_id == -1)
 				{
-					throw new Exception("[operateDelete] wrong right field name :" + node.right_field_name);
+					throw new Exception("[operateDelete] wrong right field name :" + node.right_field_name + "\n");
 				}
 				FieldCompare field_cp = new FieldCompare(field_id, node.re, right_field_id);	
 				it = new OperatorFilter(field_cp, it);

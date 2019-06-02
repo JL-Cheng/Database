@@ -37,7 +37,7 @@ public class ProcessDDL
 		System.out.println("Table name:" + tablename);
 		if (manager.database.getTableManager().isTableExist(tablename)) 
 		{
-			throw new Exception("Duplicated Table Name.");
+			throw new Exception("Duplicated Table Name.\n");
 		}
 		int n = columns.size();
 		FieldType[] types = new FieldType[n];
@@ -51,7 +51,7 @@ public class ProcessDDL
         	types[i] = FieldType.getType(typename);
         	if (types[i] == null)
         	{
-        		throw new Exception("Invalid Data Type.");
+        		throw new Exception("Invalid Data Type.\n");
         	}
         	if (types[i].equals(FieldType.STRING_TYPE))
         	{
@@ -80,7 +80,7 @@ public class ProcessDDL
 		System.out.println("Schema:" + schema.toString());
 		manager.database.getTableManager().createNewTable(tablename, schema);
 		System.out.println("Finish Create Table");
-		return "Create Table (Schema:" + schema + ")";
+		return "Create Table (Schema:" + schema + ")\n";
 	}
 	
 	/**
@@ -96,10 +96,10 @@ public class ProcessDDL
 		System.out.println("Table name:" + tablename);
 		if (!manager.database.getTableManager().isTableExist(tablename)) 
 		{
-			throw new Exception("Invalid Table Name.");
+			throw new Exception("Invalid Table Name.\n");
 		}
 		manager.database.getTableManager().removeTable(tablename);
 		System.out.println("Finish Drop Table");
-		return "Drop Table " + tablename;
+		return "Drop Table " + tablename + "\n";
 	}
 }

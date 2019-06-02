@@ -12,7 +12,7 @@ public class ProcessDatabase
 	{
 		System.out.println("CreateDatabase: " + dbname);
 		manager.addDatabase(dbname);
-		return "CreateDatabase: " + dbname;
+		return "CreateDatabase: " + dbname + "\n";
 	}
 	
 	/**
@@ -23,7 +23,7 @@ public class ProcessDatabase
 	{
 		System.out.println("DropDatabase: " + dbname);
 		manager.removeDatabase(dbname);
-		return "DropDatabase: " + dbname;
+		return "DropDatabase: " + dbname + "\n";
 	}
 	
 	/**
@@ -34,7 +34,7 @@ public class ProcessDatabase
 	{
 		System.out.println("SwitchDatabase: " + dbname);
 		manager.switchDatabase(dbname);
-		return "SwitchDatabase: " + dbname;
+		return "SwitchDatabase: " + dbname + "\n";
 	}
 	
 	/**
