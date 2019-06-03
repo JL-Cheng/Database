@@ -99,7 +99,7 @@ public class DBPageBuffer
      * @param table_id 操作的表
      * @param tuple 插入的元组
      */
-    public void insertTuple(int table_id, Tuple tuple)
+    public void insertTuple(int table_id, Tuple tuple) throws Exception
     {
     	DBTable file = manager.database.getTableManager().getDatabaseFile(table_id);
     	if (file != null)
@@ -128,7 +128,7 @@ public class DBPageBuffer
      * @param tuple 待修改的元组
      * @param newTuple 新值
      */
-    public void updateTuple(Tuple tuple, Tuple newTuple)
+    public void updateTuple(Tuple tuple, Tuple newTuple) throws Exception
     {
     	DBTable file = manager.database.getTableManager().getDatabaseFile(tuple.getTupleId().getPageId().getTableId());
     	if (file == null)

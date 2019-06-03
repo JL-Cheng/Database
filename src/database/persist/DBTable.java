@@ -3,6 +3,9 @@ package database.persist;
 import java.io.*;
 import java.util.Iterator;
 
+import database.field.FieldCompare;
+import database.field.FieldCompare.Re;
+import database.operation.OperatorFilter;
 import database.persist.DBPage.DBPageId;
 import database.server.DatabaseManager;
 import database.structure.ITupleIterator;
@@ -91,24 +94,91 @@ public class DBTable
 			try
 			{
 				RandomAccessFile access_file = new RandomAccessFile(file, "rw");
-				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);				
+				access_file.seek(1L*DBPageBuffer.getPageSize()*page_no);	
 				access_file.write(page.getPageData(), 0, DBPageBuffer.getPageSize());
 				access_file.close();
 			}
 			catch (Exception e)
 			{
-				System.err.println(e.getMessage());
+				System.err.println(e);
 			}
 		}
     }
+    
+    /**
+     * 插入前的检查
+     * @param tuple 待插入的元组
+     */
+    public void checkBeforeInsert(Tuple tuple) throws Exception
+    {
+		checkSchema(tuple);
+		checkNotNull(tuple);
+		checkPrimaryKey(tuple);
+	}
+    /**
+     * 检查元组的schema和表的是否一样
+     */
+    public void checkSchema(Tuple tuple) throws Exception
+    {
+		if (!tuple.getSchema().equals(this.schema)) 
+		{
+			throw new Exception("The tuple schema dismatch the table schema.\n");
+		}
+	}
+    
+    /**
+     * 检查是否符合主键约束
+     * @param tuple
+     */
+    public void checkPrimaryKey(Tuple tuple) throws Exception
+    {
+		Schema schema = tuple.getSchema();
+		int[] primary = schema.getRowIndex();
+		ITupleIterator iterator = iterator();
+		for (int i: primary)
+		{
+			FieldCompare field_cp = new FieldCompare(i, Re.Eq, tuple.getField(i));	
+			iterator = new OperatorFilter(field_cp, iterator);
+		}
+		iterator.start();
+		if (iterator.hasNext())
+		{
+			throw new Exception("Duplicated primary key.\n");
+		}
+	}
+    
+    /**
+     * 检查是否符合not null约束
+     * @param tuple
+     */
+    public void checkNotNull(Tuple tuple) throws Exception 
+    {
+		int[] not_null = schema.getNotNull();
+		int[] primary_key = schema.getRowIndex();
+		for (int i: not_null)
+		{
+			if (tuple.getField(i) == null)
+			{
+				throw new Exception(schema.getFieldName(i)+" can't be null.\n");
+			}
+		}
+		for (int i: primary_key)
+		{
+			if (tuple.getField(i) == null)
+			{
+				throw new Exception(schema.getFieldName(i)+" can't be null.\n");
+			}
+		}
+	}
 
     /**
      * 将某一元组插入到数据库文件中
      * @param tuple 将要插入的元组
      * @return 被修改的页
      */
-    public DBPage insertTuple(Tuple tuple)
+    public DBPage insertTuple(Tuple tuple) throws Exception
     {
+    	checkBeforeInsert(tuple);
     	DBPage page = null;
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	int table_id = getId();
@@ -134,7 +204,6 @@ public class DBTable
     	page.setOperated(true);
         return page;
     }
-
     /**
      * 将某一元组从数据库文件中删除
      * @param tuple 将要删除的元组
@@ -156,9 +225,10 @@ public class DBTable
      * @param newTuple 新元组
      * @return 被修改的页
      */
-    public DBPage updateTuple(Tuple tuple, Tuple newTuple)
+    public DBPage updateTuple(Tuple tuple, Tuple newTuple) throws Exception
     {
-    	System.out.println("deleteTuple: "+ tuple);
+    	System.out.println("updateTuple: "+ tuple);
+    	checkBeforeInsert(tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
     	page.updateTuple(tuple, newTuple);

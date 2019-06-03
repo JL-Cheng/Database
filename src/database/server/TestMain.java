@@ -29,7 +29,7 @@ public class TestMain
         {
         	names[i] = table_name + "."+column_name + i;
         }           
-        return new Schema(types, names, new int[]{0, 2}, null);
+        return new Schema(types, names, new int[]{0, 2}, null, new int[]{1, 2});
     }
     
     /**
@@ -84,8 +84,14 @@ public class TestMain
     	
     	Tuple tuple_2 = createTuple(data2,n_schema);
     	System.out.println("Tuple : " + tuple_2);
-    	
-    	manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);
+    	try
+    	{
+    		manager.database.getPageBuffer().insertTuple(manager.database.getTableManager().getTableId("table1"), tuple_2);			
+		}
+    	catch (Exception e)
+    	{
+    		System.out.println(e);
+		}
     }
     
     /**
@@ -157,12 +163,13 @@ public class TestMain
     public static void main (String args[])
     {
     	DatabaseManager manager = new DatabaseManager();
-    	test1_createTable(manager);
+//    	test1_createTable(manager);
+    	
     	test2_recoverTables(manager);
-    	test3_switchDB_createTable(manager);
-    	test4_switchDB_recover(manager);
-    	test6_primaryKey(manager);
-    	test5_deleteTable(manager);  	
+//    	test3_switchDB_createTable(manager);
+//    	test4_switchDB_recover(manager);
+//    	test6_primaryKey(manager);
+//    	test5_deleteTable(manager); 
     	manager.database.close();
     }
     

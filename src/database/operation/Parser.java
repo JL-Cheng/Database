@@ -72,7 +72,8 @@ public class Parser
 				}
 				else
 				{
-					throw new Exception("Parse error.\n");
+					//展示所有表
+					return ProcessDatabase.operateShowTables(manager, matcher.group(3).trim());
 				}
 			default:
 				throw new Exception("Parse error.\n");
@@ -157,7 +158,7 @@ public class Parser
 			Tuple tuple = it.next();
 			for(int i=0;i<num_cols;i++)
 			{
-				temp[i] = tuple.getField(i).toString();
+				temp[i] = (tuple.getField(i) == null) ? "null" : tuple.getField(i).toString();
 				max_len = temp[i].length()>max_len?temp[i].length():max_len;
 			}
 			res_vec.add(temp);
@@ -268,7 +269,22 @@ public class Parser
     	
 	}
 	
-	public static void testInsertOperation(DatabaseManager manager, Parser parser)
+	public static void testInsertOperation1(DatabaseManager manager, Parser parser)
+	{
+    	String str = "INSERT INTO table1(table1.column0, table1.column1) VALUES(5, 6);";
+    	try 
+    	{    		
+    		System.out.println(parser.processStatement(str));
+    		int table_id = manager.database.getTableManager().getTableId("table1");
+    		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
+	
+	public static void testInsertOperation2(DatabaseManager manager, Parser parser)
 	{
     	String str = "INSERT INTO table1 VALUES(5, 6, 7);";
     	try 
@@ -281,20 +297,21 @@ public class Parser
     	{
     		System.out.println(e.getMessage());
     	}
-    	
-	}
+    }
 	
 	public static void testDatabaseOperation(DatabaseManager manager, Parser parser)
 	{
     	String create = "CREATE DATABASE public";
     	String use = "use DATABASE default";
     	String show = "SHOW DATABASES";
+    	String showtable = "SHOW DATABASE default";
     	String drop = "drop DATABASE public";
     	try 
     	{    		
     		System.out.println(parser.processStatement(create));
     		System.out.println(parser.processStatement(use));
     		System.out.println(parser.processStatement(show));
+    		System.out.println(parser.processStatement(showtable));
     		System.out.println(parser.processStatement(drop));
     	}
     	catch(Exception e)
@@ -341,14 +358,14 @@ public class Parser
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
-    	//createTestData(manager);
-    	//testDatabaseOperation(manager, parser);
+//    	testCreateTable(manager, parser);
+//    	createTestData(manager);
+//    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
-    	//testInsertOperation(manager, parser);
-    	//testCreateTable(manager, parser);
+    	testInsertOperation2(manager, parser);
     	//testDropTable(manager, parser);
-    	testQuery(manager, parser);
+//    	testQuery(manager, parser);
     	manager.database.close();
     }
 }
