@@ -2,6 +2,8 @@ package database.operation;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Vector;
+
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.create.table.ColumnDefinition;
 import net.sf.jsqlparser.statement.create.table.CreateTable;
@@ -43,6 +45,7 @@ public class ProcessDDL
 		FieldType[] types = new FieldType[n];
         String[] names = new String[n];
         HashMap<Integer, Integer> str_len = new HashMap<Integer, Integer>();
+        Vector<Integer> not_null = new Vector<Integer>();
         int i = 0;
         for (ColumnDefinition column: columns)
         {
@@ -56,6 +59,11 @@ public class ProcessDDL
         	if (types[i].equals(FieldType.STRING_TYPE))
         	{
         		str_len.put(i, Integer.parseInt(column.getColDataType().getArgumentsStringList().get(0)));
+        	}
+        	List<String> other_strings = column.getColumnSpecStrings();
+        	if (other_strings != null && other_strings.size()==2 && other_strings.get(0).toLowerCase().equals("not") && other_strings.get(1).toLowerCase().equals("null"))
+        	{
+        		not_null.add(i);
         	}
         	i++;
         }        
@@ -76,7 +84,12 @@ public class ProcessDDL
         		}
         	}
         }
-		Schema schema = new Schema(types, names, i_indexes, str_len);
+        int[] not_null_array = new int[not_null.size()];
+        for (int j = 0; j < not_null.size(); j++)
+        {
+        	not_null_array[j] = not_null.get(j).intValue();
+        }
+		Schema schema = new Schema(types, names, i_indexes, str_len, not_null_array);
 		System.out.println("Schema:" + schema.toString());
 		manager.database.getTableManager().createNewTable(tablename, schema);
 		System.out.println("Finish Create Table");

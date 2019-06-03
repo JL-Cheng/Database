@@ -50,5 +50,18 @@ public class ProcessDatabase
 		}
 		return res;
 	}
+	/**
+	 * 展示数据库中所有表的函数
+	 */
+	public static String operateShowTables(DatabaseManager manager, String dbname) throws Exception
+	{
+		String res = "Tables of " + dbname + ":\n";
+		String[] tables = manager.getTables(dbname);
+		for (String i_string : tables)
+		{
+			res = res + "- " + i_string + '\n';
+		}
+		return res;
+	}
 	
 }

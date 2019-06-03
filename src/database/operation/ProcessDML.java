@@ -17,6 +17,7 @@ import net.sf.jsqlparser.statement.update.Update;
 
 public class ProcessDML
 {
+	
 	/**
 	 * 插入元组的执行函数
 	 * @param Insert Insert类对象，代表解析结果
@@ -39,10 +40,16 @@ public class ProcessDML
 		
 		if (columns != null) 
 		{
+			// 只指明了部分列 其余为null
+			int total_size = schema.getColumnSize();
+			for (int i = 0; i < total_size; i++)
+			{
+				tuple.setField(i, null);
+			}
 			int size = exlist.size();
 			for (int i = 0; i < size; i++) 
 			{
-				int index = schema.getFieldIndex(columns.get(i).getColumnName());
+				int index = schema.getFieldIndex(columns.get(i).getFullyQualifiedName());
 				if (index == -1)
 				{
 					throw new Exception("Invalid column name.\n");
@@ -54,14 +61,16 @@ public class ProcessDML
 		else
 		{
 			int size = schema.getColumnSize();
+			if (size != exlist.size())
+			{
+				throw new Exception("The number of values does not match.\n");
+			}
 			for (int i = 0; i < size; i++)
 			{
 				String value = exlist.get(i).toString();
 				tuple.setField(i, schema.parse(i, value));
 			}
 		}
-		
-		System.out.println(tuple);
 		manager.database.getPageBuffer().insertTuple(table_id, tuple);
 		System.out.println("Finish Insert");
 		return "Insert successfully.\n";

@@ -38,8 +38,8 @@ public class OperatorProject extends Operator
 			field_names[i] = temp.getFieldName(fields_id.get(i));
 		}
 		int size = fields_type.size();
-		int[] index = {};
-		this.schema = new Schema(fields_type.toArray(new FieldType[size]),field_names,index, temp.string_len);
+		int[] empty_int_array = {};
+		this.schema = new Schema(fields_type.toArray(new FieldType[size]),field_names,empty_int_array, temp.string_len, empty_int_array);
     }
     
 
