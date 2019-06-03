@@ -5,7 +5,6 @@ import java.util.*;
 
 import database.field.FieldType;
 import database.field.IField;
-import database.operation.NodeSelect;
 
 /**
  * 类型：类
@@ -241,7 +240,8 @@ public class Schema implements Serializable
      * 获取非空数组
      * @return
      */
-    public int[] getNotNull() {
+    public int[] getNotNull()
+    {
 		return not_null;
 	}
     
@@ -375,7 +375,8 @@ public class Schema implements Serializable
     	{
     		i_count++;
     		result += " primary";
-    	} else if (n_count < nnull_length && not_null[n_count] == 0) 
+    	}
+    	else if (n_count < nnull_length && not_null[n_count] == 0) 
     	{
     		n_count++;
     		result += " not null";

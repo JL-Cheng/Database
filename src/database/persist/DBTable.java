@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Iterator;
 
 import database.field.FieldCompare;
-import database.field.IField;
 import database.field.FieldCompare.Re;
 import database.operation.OperatorFilter;
 import database.persist.DBPage.DBPageId;
@@ -114,7 +113,7 @@ public class DBTable
     {
 		checkSchema(tuple);
 		checkNotNull(tuple);
-		checkPrivateKey(tuple);
+		checkPrimaryKey(tuple);
 	}
     /**
      * 检查元组的schema和表的是否一样
@@ -131,7 +130,7 @@ public class DBTable
      * 检查是否符合主键约束
      * @param tuple
      */
-    public void checkPrivateKey(Tuple tuple) throws Exception
+    public void checkPrimaryKey(Tuple tuple) throws Exception
     {
 		Schema schema = tuple.getSchema();
 		int[] primary = schema.getRowIndex();
