@@ -154,6 +154,7 @@ public class Tuple implements Serializable
      */
     public void setField(int i, IField value)
     {
+    	System.out.println("set "+ i + ":" + value);
         try
         {
         	fields[i] = value;
@@ -194,7 +195,14 @@ public class Tuple implements Serializable
     	result += fields[0].toString();
     	for (int i=1; i<fields.length; i++)
     	{
-    		result += "\t" + fields[i].toString();
+    		if (fields[i] != null)
+    		{    			
+    			result += "\t" + fields[i].toString();
+    		}
+    		else 
+    		{
+    			result += "\t" + "null";
+    		}
     	}
         return result;
     }    
