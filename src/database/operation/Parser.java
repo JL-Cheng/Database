@@ -297,7 +297,7 @@ public class Parser
     	{
     		System.out.println(e.getMessage());
     	}
-	}
+    }
 	
 	public static void testDatabaseOperation(DatabaseManager manager, Parser parser)
 	{
