@@ -103,6 +103,7 @@ public class Client
 
     /**
      * import命令
+     * import文件最大为4k
      * @param request 输入命令，eg:"import XXX.txt"
      */
     private void importSql(String request)
@@ -111,15 +112,19 @@ public class Client
         try
         {
             BufferedReader fin = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
-
             //开始计时
             long start_time = System.currentTimeMillis();
-            String sql = fin.readLine();
-            while (sql != null)
+
+            char[] sql_buf = new char[4096];
+            int num = fin.read(sql_buf);
+            String sql_all = String.valueOf(sql_buf,0,num);
+            String[] sql_list = sql_all.split("\\s*;\\s*");
+
+            for (String sql: sql_list)
             {
+                sql = sql.replaceAll("\n","");//去掉换行符
                 sendRequest(sql);
                 receiveResponse();
-                sql = fin.readLine();
             }
             //结束计时
             long end_time = System.currentTimeMillis();
