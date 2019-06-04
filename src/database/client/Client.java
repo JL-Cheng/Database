@@ -139,6 +139,30 @@ public class Client
     }
 
     /**
+     * 从控制台读入SQL语句，以分号结束
+     * @return 读入的SQL语句
+     */
+    private String readSql()
+    {
+        String result = "";
+        try
+        {
+        	result = this.in_system.readLine();
+        	while(!result.contains(";"))
+        	{
+        		result += this.in_system.readLine();
+        	}
+        	String[] sql_list = result.split("\\s*;\\s*");
+        	result = sql_list[0];
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    /**
      * 和服务器收发数据
      */
     private void run()
@@ -146,7 +170,7 @@ public class Client
         try
         {
         	this.out_system.print(">>");
-            String sql = this.in_system.readLine();
+            String sql = this.readSql();
             while(!sql.equals("exit"))
             {
                 if (sql.startsWith("import"))
@@ -159,11 +183,11 @@ public class Client
                     receiveResponse();
                 }
                 this.out_system.print(">>");
-                sql = this.in_system.readLine();
+                sql = this.readSql();
             }
             disconnect();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }
