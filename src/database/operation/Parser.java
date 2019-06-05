@@ -339,7 +339,7 @@ public class Parser
 	
 	public static void testUpdateOperation(DatabaseManager manager, Parser parser)
 	{
-		String str = "Update table1 set column0 = 0, column1 = 0 WHERE column0 >= 2";
+		String str = "Update table1 set column0 = 0, column2 = 0 WHERE column0 <= 2";
     	try 
     	{    		
     		int table_id = manager.database.getTableManager().getTableId("table1");
@@ -358,11 +358,11 @@ public class Parser
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
-    	testCreateTable(manager, parser);
+//    	testCreateTable(manager, parser);
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
-    	//testUpdateOperation(manager, parser);
+    	testUpdateOperation(manager, parser);
 //    	testInsertOperation2(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
