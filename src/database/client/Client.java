@@ -103,6 +103,7 @@ public class Client
 
     /**
      * import命令
+     * import文件最大为4k
      * @param request 输入命令，eg:"import XXX.txt"
      */
     private void importSql(String request)
@@ -111,15 +112,19 @@ public class Client
         try
         {
             BufferedReader fin = new BufferedReader(new InputStreamReader(new FileInputStream(filename)));
-
             //开始计时
             long start_time = System.currentTimeMillis();
-            String sql = fin.readLine();
-            while (sql != null)
+
+            char[] sql_buf = new char[4096];
+            int num = fin.read(sql_buf);
+            String sql_all = String.valueOf(sql_buf,0,num);
+            String[] sql_list = sql_all.split("\\s*;\\s*");
+
+            for (String sql: sql_list)
             {
+                sql = sql.replaceAll("\n","");//去掉换行符
                 sendRequest(sql);
                 receiveResponse();
-                sql = fin.readLine();
             }
             //结束计时
             long end_time = System.currentTimeMillis();
@@ -134,6 +139,30 @@ public class Client
     }
 
     /**
+     * 从控制台读入SQL语句，以分号结束
+     * @return 读入的SQL语句
+     */
+    private String readSql()
+    {
+        String result = "";
+        try
+        {
+        	result = this.in_system.readLine();
+        	while(!result.contains(";"))
+        	{
+        		result += this.in_system.readLine();
+        	}
+        	String[] sql_list = result.split("\\s*;\\s*");
+        	result = sql_list[0];
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    /**
      * 和服务器收发数据
      */
     private void run()
@@ -141,7 +170,7 @@ public class Client
         try
         {
         	this.out_system.print(">>");
-            String sql = this.in_system.readLine();
+            String sql = this.readSql();
             while(!sql.equals("exit"))
             {
                 if (sql.startsWith("import"))
@@ -154,11 +183,11 @@ public class Client
                     receiveResponse();
                 }
                 this.out_system.print(">>");
-                sql = this.in_system.readLine();
+                sql = this.readSql();
             }
             disconnect();
         }
-        catch (IOException e)
+        catch (Exception e)
         {
             e.printStackTrace();
         }

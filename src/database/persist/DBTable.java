@@ -4,7 +4,6 @@ import java.io.*;
 import java.util.Iterator;
 
 import database.field.FieldCompare;
-import database.field.IField;
 import database.field.FieldCompare.Re;
 import database.operation.OperatorFilter;
 import database.persist.DBPage.DBPageId;
