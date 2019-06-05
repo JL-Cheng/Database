@@ -79,6 +79,12 @@ public class Parser
 				throw new Exception("Parse error.\n");
 			}
 		} 
+		// 展示表
+		String[] fields = str.trim().split(" ");
+		if (fields.length == 3 && fields[0].toLowerCase().equals("show") && fields[1].toLowerCase().equals("table"))
+		{
+			return ProcessSchema.operateShowTable(manager, fields[2].trim());
+		}
 		
 		Statement statement = null;
 		try
@@ -352,6 +358,18 @@ public class Parser
     		System.out.println(e.getMessage());
     	}
 	}
+	public static void testShowTable(DatabaseManager manager, Parser parser)
+	{
+		String str = "show table table1";
+    	try 
+    	{    		
+    		System.out.println(parser.processStatement(str));
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
 	
 //********************主函数********************	
     public static void main (String args[])
@@ -362,7 +380,8 @@ public class Parser
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
-    	testUpdateOperation(manager, parser);
+//    	testUpdateOperation(manager, parser);
+    	testShowTable(manager, parser);
 //    	testInsertOperation2(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
