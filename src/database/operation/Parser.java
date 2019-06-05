@@ -241,7 +241,7 @@ public class Parser
     			"LastName String(10),\n" + 
     			"FirstName String(20) NOT NULL,\n" + 
     			"Address String(50),\n" + 
-    			"Age Int,\n" + 
+    			"Age int,\n" + 
     			"PRIMARY KEY (LastName, FirstName)" +
     			") ";
     	try 
@@ -358,12 +358,12 @@ public class Parser
     {
     	DatabaseManager manager = new DatabaseManager();
     	Parser parser = new Parser(manager);
-//    	testCreateTable(manager, parser);
+    	testCreateTable(manager, parser);
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
     	//testDeleteOperation(manager, parser);
     	//testUpdateOperation(manager, parser);
-    	testInsertOperation2(manager, parser);
+//    	testInsertOperation2(manager, parser);
     	//testDropTable(manager, parser);
 //    	testQuery(manager, parser);
     	manager.database.close();
