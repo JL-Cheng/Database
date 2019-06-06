@@ -279,7 +279,7 @@ public class Parser
 	
 	public static void testInsertOperation1(DatabaseManager manager, Parser parser)
 	{
-    	String str = "INSERT INTO table1(table1.column0, table1.column1) VALUES(5, 6);";
+    	String str = "INSERT INTO table1(column0,column1, table1.column2) VALUES(5,3, 6);";
     	try 
     	{    		
     		System.out.println(parser.processStatement(str));
@@ -384,21 +384,21 @@ public class Parser
 //    	testDeleteOperation(manager, parser);
 //    	testUpdateOperation(manager, parser);
 //    	testShowTable(manager, parser);
-//    	testInsertOperation2(manager, parser);
-    	createTestData(manager);
-    	int table_id = manager.database.getTableManager().getTableId("table1");
-		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
-    	testDropTable(manager, parser);
-    	Schema schema1 = database.server.TestMain.createSchema(2,"ccc","table1");
-    	Schema schema2 = database.server.TestMain.createSchema(2,"ccc","table2");
-    	try {			
-    		manager.database.getTableManager().createNewTable("table1",schema1);
-    		manager.database.getTableManager().createNewTable("table2",schema2);
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-    	table_id = manager.database.getTableManager().getTableId("table1");
-		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+//    	createTestData(manager);
+    	testInsertOperation1(manager, parser);
+//    	int table_id = manager.database.getTableManager().getTableId("table1");
+//		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+//    	testDropTable(manager, parser);
+//    	Schema schema1 = database.server.TestMain.createSchema(2,"ccc","table1");
+//    	Schema schema2 = database.server.TestMain.createSchema(2,"ccc","table2");
+//    	try {			
+//    		manager.database.getTableManager().createNewTable("table1",schema1);
+//    		manager.database.getTableManager().createNewTable("table2",schema2);
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+//    	table_id = manager.database.getTableManager().getTableId("table1");
+//		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
 //    	testQuery(manager, parser);
     	manager.database.close();
     }
