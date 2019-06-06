@@ -50,6 +50,12 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+    <target name="Client">
+        <java classname="database.client.Client" failonerror="true" fork="yes">
+            <arg line="127.0.0.1 8888"/>
+            <classpath refid="Database.classpath"/>
+        </java>
+    </target>
     <target name="Parser">
         <java classname="database.operation.Parser" failonerror="true" fork="yes">
             <classpath refid="Database.classpath"/>
@@ -57,6 +63,11 @@
     </target>
     <target name="Query">
         <java classname="database.operation.Query" failonerror="true" fork="yes">
+            <classpath refid="Database.classpath"/>
+        </java>
+    </target>
+    <target name="Server">
+        <java classname="database.server.Server" failonerror="true" fork="yes">
             <classpath refid="Database.classpath"/>
         </java>
     </target>
