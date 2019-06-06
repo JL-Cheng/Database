@@ -49,7 +49,7 @@ public class ProcessDML
 			int size = exlist.size();
 			for (int i = 0; i < size; i++) 
 			{
-				int index = schema.getFieldIndex(columns.get(i).getFullyQualifiedName());
+				int index = schema.getFieldIndex(table.getName() + '.' + columns.get(i).getColumnName());
 				if (index == -1)
 				{
 					throw new Exception("Invalid column name.\n");
