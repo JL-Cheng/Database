@@ -76,6 +76,7 @@ public class DBTableManager
     	}
     	dbnames.put(table_id, dbname);
     	dbfiles.put(table_id, dbfile);
+    	this.writeSchema();
     }
     
     /**
@@ -212,6 +213,7 @@ public class DBTableManager
     	}
     	dbnames.remove(id);
     	dbfiles.remove(id);
+    	this.writeSchema();
     }
     
     /**
