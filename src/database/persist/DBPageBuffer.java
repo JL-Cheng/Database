@@ -200,4 +200,19 @@ public class DBPageBuffer
             }
     	}
     }
+    
+    /**
+     * 删除指定表的所有缓冲页
+     * @param 表的id
+     */
+    public void deletePages(int table_Id)
+    {
+    	for (int i=0; i < DEFAULT_PAGES; i++)
+    	{
+    		if ( buffer[i] != null && buffer[i].getId().getTableId() == table_Id)
+    		{
+				buffer[i] = null;
+    		}
+    	}
+    }
 }

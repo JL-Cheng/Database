@@ -211,6 +211,7 @@ public class DBTableManager
     	{
     		throw new Exception("Can't find table record.\n");
     	}
+    	manager.database.getPageBuffer().deletePages(id);
     	dbnames.remove(id);
     	dbfiles.remove(id);
     	this.writeSchema();
