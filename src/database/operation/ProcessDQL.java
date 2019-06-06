@@ -72,7 +72,7 @@ public class ProcessDQL implements SelectVisitor, FromItemVisitor, ExpressionVis
 			Tuple tuple = tuple_iterator.next();
 			for(int i=0;i<num_cols;i++)
 			{
-				temp[i] = tuple.getField(i).toString();
+				temp[i] = (tuple.getField(i) == null) ? "null" : tuple.getField(i).toString();
 				max_len = temp[i].length()>max_len?temp[i].length():max_len;
 			}
 			res_vec.add(temp);
