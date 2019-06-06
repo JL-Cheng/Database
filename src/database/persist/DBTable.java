@@ -115,6 +115,18 @@ public class DBTable
 		checkNotNull(tuple);
 		checkPrimaryKey(tuple);
 	}
+    
+    /**
+     * 更改前的检查
+     * @param tuple 待插入的元组
+     */
+    public void checkBeforeUpdate(Tuple tuple, Tuple new_tuple) throws Exception
+    {
+		checkSchema(new_tuple);
+		checkNotNull(new_tuple);
+		checkPrimaryKey(tuple, new_tuple);
+	}
+    
     /**
      * 检查元组的schema和表的是否一样
      */
@@ -144,6 +156,36 @@ public class DBTable
 		if (iterator.hasNext())
 		{
 			throw new Exception("Duplicated primary key.\n");
+		}
+	}
+    
+    /**
+     * 检查是否符合主键约束
+     * @param tuple 原来的元组
+     * @param new_tuple 新元组
+     */
+    public void checkPrimaryKey(Tuple tuple, Tuple new_tuple) throws Exception
+    {
+    	System.out.println("old:" + tuple + " new: " + new_tuple);
+		Schema schema = new_tuple.getSchema();
+		int[] primary = schema.getRowIndex();
+		ITupleIterator iterator = iterator();
+		for (int i: primary)
+		{
+			FieldCompare field_cp = new FieldCompare(i, Re.Eq, new_tuple.getField(i));	
+			iterator = new OperatorFilter(field_cp, iterator);
+		}
+		iterator.start();
+		if (iterator.hasNext())
+		{
+			if (!iterator.next().equals(tuple))
+			{
+				throw new Exception("Duplicated primary key.\n");				
+			}
+			if (iterator.hasNext())
+			{
+				throw new Exception("Duplicated primary key.\n");
+			}
 		}
 	}
     
@@ -225,13 +267,13 @@ public class DBTable
      * @param newTuple 新元组
      * @return 被修改的页
      */
-    public DBPage updateTuple(Tuple tuple, Tuple newTuple) throws Exception
+    public DBPage updateTuple(Tuple tuple, Tuple new_tuple) throws Exception
     {
     	System.out.println("updateTuple: "+ tuple);
-    	checkBeforeInsert(tuple);
+    	checkBeforeUpdate(tuple, new_tuple);
     	DBPageBuffer pool = manager.database.getPageBuffer();
     	DBPage page = (DBPage)pool.getPage(tuple.getTupleId().getPageId());   	
-    	page.updateTuple(tuple, newTuple);
+    	page.updateTuple(tuple, new_tuple);
     	page.setOperated(true);
         return page;
     }

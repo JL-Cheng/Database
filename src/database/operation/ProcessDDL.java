@@ -50,7 +50,7 @@ public class ProcessDDL
         for (ColumnDefinition column: columns)
         {
         	names[i] = tablename + "." + column.getColumnName();
-        	String typename = column.getColDataType().getDataType();
+        	String typename = captureName(column.getColDataType().getDataType());
         	types[i] = FieldType.getType(typename);
         	if (types[i] == null)
         	{
@@ -115,4 +115,9 @@ public class ProcessDDL
 		System.out.println("Finish Drop Table");
 		return "Drop Table " + tablename + "\n";
 	}
+	public static String captureName(String name) 
+	{
+       name = name.substring(0, 1).toUpperCase() + name.substring(1);
+       return name;
+    }
 }
