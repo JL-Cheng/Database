@@ -98,7 +98,7 @@ public class Server
             sendResponse(res);
             sql = receiveRequest();
         }
-        sendResponse("goodbye!");
+        sendResponse("goodbye!\n");
     }
 
     /**

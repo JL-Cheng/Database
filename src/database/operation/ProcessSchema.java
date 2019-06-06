@@ -2,7 +2,8 @@ package database.operation;
 
 import database.server.DatabaseManager;
 
-public class ProcessSchema {
+public class ProcessSchema
+{
 	public static String operateShowTable(DatabaseManager manager, String table_name) throws Exception 
 	{
 		int id = manager.database.getTableManager().getTableId(table_name);
