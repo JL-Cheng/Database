@@ -179,8 +179,15 @@ public class Client
                 }
                 else
                 {
+                    //开始计时
+                    long start_time = System.currentTimeMillis();
                     sendRequest(sql);
                     receiveResponse();
+                    //结束计时
+                    long end_time = System.currentTimeMillis();
+                    long total_time = end_time - start_time;
+                    this.out_system.println("import执行时间为:"+total_time+"ms");
+
                 }
                 this.out_system.print(">>");
                 sql = this.readSql();
