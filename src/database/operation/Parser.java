@@ -79,6 +79,12 @@ public class Parser
 				throw new Exception("Parse error.\n");
 			}
 		} 
+		// 展示表
+		String[] fields = str.trim().split(" ");
+		if (fields.length == 3 && fields[0].toLowerCase().equals("show") && fields[1].toLowerCase().equals("table"))
+		{
+			return ProcessSchema.operateShowTable(manager, fields[2].trim());
+		}
 		
 		Statement statement = null;
 		try
@@ -241,7 +247,7 @@ public class Parser
     			"LastName String(10),\n" + 
     			"FirstName String(20) NOT NULL,\n" + 
     			"Address String(50),\n" + 
-    			"Age Int,\n" + 
+    			"Age int,\n" + 
     			"PRIMARY KEY (LastName, FirstName)" +
     			") ";
     	try 
@@ -257,10 +263,12 @@ public class Parser
 	
 	public static void testDropTable(DatabaseManager manager, Parser parser)
 	{
-    	String str = "DROP TABLE Person";
+    	String str = "DROP TABLE table1";
+    	String str2 = "DROP TABLE table2";
     	try 
     	{    		
     		System.out.println(parser.processStatement(str));
+    		System.out.println(parser.processStatement(str2));
     	}
     	catch(Exception e)
     	{
@@ -271,7 +279,7 @@ public class Parser
 	
 	public static void testInsertOperation1(DatabaseManager manager, Parser parser)
 	{
-    	String str = "INSERT INTO table1(table1.column0, table1.column1) VALUES(5, 6);";
+    	String str = "INSERT INTO table1(column0,column1, table1.column2) VALUES(5,3, 6);";
     	try 
     	{    		
     		System.out.println(parser.processStatement(str));
@@ -339,13 +347,25 @@ public class Parser
 	
 	public static void testUpdateOperation(DatabaseManager manager, Parser parser)
 	{
-		String str = "Update table1 set column0 = 0, column1 = 0 WHERE column0 >= 2";
+		String str = "Update table1 set column0 = 0, column2 = 0 WHERE column0 <= 2";
     	try 
     	{    		
     		int table_id = manager.database.getTableManager().getTableId("table1");
     		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
     		System.out.println(parser.processStatement(str));
     		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+    	}
+    	catch(Exception e)
+    	{
+    		System.out.println(e.getMessage());
+    	}
+	}
+	public static void testShowTable(DatabaseManager manager, Parser parser)
+	{
+		String str = "show table table1";
+    	try 
+    	{    		
+    		System.out.println(parser.processStatement(str));
     	}
     	catch(Exception e)
     	{
@@ -361,10 +381,24 @@ public class Parser
 //    	testCreateTable(manager, parser);
 //    	createTestData(manager);
 //    	testDatabaseOperation(manager, parser);
-    	//testDeleteOperation(manager, parser);
-    	//testUpdateOperation(manager, parser);
-    	testInsertOperation2(manager, parser);
-    	//testDropTable(manager, parser);
+//    	testDeleteOperation(manager, parser);
+//    	testUpdateOperation(manager, parser);
+//    	testShowTable(manager, parser);
+//    	createTestData(manager);
+    	testInsertOperation1(manager, parser);
+//    	int table_id = manager.database.getTableManager().getTableId("table1");
+//		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
+//    	testDropTable(manager, parser);
+//    	Schema schema1 = database.server.TestMain.createSchema(2,"ccc","table1");
+//    	Schema schema2 = database.server.TestMain.createSchema(2,"ccc","table2");
+//    	try {			
+//    		manager.database.getTableManager().createNewTable("table1",schema1);
+//    		manager.database.getTableManager().createNewTable("table2",schema2);
+//		} catch (Exception e) {
+//			// TODO: handle exception
+//		}
+//    	table_id = manager.database.getTableManager().getTableId("table1");
+//		System.out.print(showResults(manager.database.getTableManager().getDatabaseFile(table_id).iterator()));
 //    	testQuery(manager, parser);
     	manager.database.close();
     }
