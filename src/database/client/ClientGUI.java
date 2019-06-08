@@ -329,9 +329,17 @@ public class ClientGUI extends JFrame implements ActionListener
         try
         {
             BufferedReader fin = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            char[] sql_buf = new char[65536];
-            int num = fin.read(sql_buf);
-            String sql_all = String.valueOf(sql_buf,0,num);
+            String sql_all = "";
+            while(true)
+            {
+            	char[] sql_buf = new char[4096];
+                int num = fin.read(sql_buf);
+                if(num == -1)
+                {
+                	break;
+                }
+                sql_all += String.valueOf(sql_buf,0,num);          
+            }
             input_area.setText(sql_all);
             fin.close();
         }
