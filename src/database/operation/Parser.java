@@ -170,7 +170,7 @@ public class Parser
 			res_vec.add(temp);
 		}
 		max_len += 2;
-		for(int i=0;i<(max_len*num_cols + num_cols + 1);i++,res += "—");
+		for(int i=0;i<(max_len*num_cols + num_cols + 1);i++,res += "-");
 		res += "\n";
 		for(int i=0;i<res_vec.size();i++)
 		{
@@ -185,7 +185,7 @@ public class Parser
 				res += "|";
 			}
 			res += "\n";
-			for(int j=0;j<(max_len*num_cols + num_cols + 1);j++,res += "—");
+			for(int j=0;j<(max_len*num_cols + num_cols + 1);j++,res += "-");
 			res += "\n";
 		}
 		return res;

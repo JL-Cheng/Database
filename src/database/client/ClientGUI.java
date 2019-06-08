@@ -2,7 +2,6 @@ package database.client;
 
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.net.*;
 import java.io.*;
 
 import java.awt.*;
@@ -19,8 +18,10 @@ import javax.swing.*;
  * 功能：客户端GUI
  */
 
-public class ClientGUI extends JFrame implements ActionListener{
-
+public class ClientGUI extends JFrame implements ActionListener
+{
+	private static final long serialVersionUID = 1L;//控制序列化版本
+	
     JButton send_button; //发送按钮
     JButton clear_button; //清除sql
     JButton import_button; //import外部文件
@@ -47,7 +48,8 @@ public class ClientGUI extends JFrame implements ActionListener{
      * 构造函数
      * 初始化组件、添加事件监听
      */
-    public  ClientGUI(){
+    public  ClientGUI()
+    {
         isConnected = false;
         isShow = true;
         //菜单
@@ -148,7 +150,8 @@ public class ClientGUI extends JFrame implements ActionListener{
      * 事件处理函数
      * @param e 事件，包括点击发送、清除、导入按钮；连接、端口数据库菜单
      */
-    public void actionPerformed(ActionEvent e){
+    public void actionPerformed(ActionEvent e)
+    {
         Object source = e.getSource();
         if(source == send_button)
         {
@@ -275,7 +278,8 @@ public class ClientGUI extends JFrame implements ActionListener{
      * 将输入区域的所有sql命令依次发送到服务器,并接收响应
      *
      */
-    private void sendRequest(){
+    private void sendRequest()
+    {
         //清空旧响应
         output_area.setText("");
 
@@ -311,7 +315,8 @@ public class ClientGUI extends JFrame implements ActionListener{
      * ！！！！此时并没有发送sql语句
      * ！！！！需要再次点击发送按钮，发送sql
      */
-    private void importSql(){
+    private void importSql()
+    {
         System.out.println("导入外部sql文件");
         JFileChooser fc = new JFileChooser();
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -321,12 +326,14 @@ public class ClientGUI extends JFrame implements ActionListener{
         if(file == null)
             return;
 
-        try {
+        try
+        {
             BufferedReader fin = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            char[] sql_buf = new char[4096];
+            char[] sql_buf = new char[65536];
             int num = fin.read(sql_buf);
             String sql_all = String.valueOf(sql_buf,0,num);
             input_area.setText(sql_all);
+            fin.close();
         }
         catch (IOException err)
         {
@@ -337,7 +344,8 @@ public class ClientGUI extends JFrame implements ActionListener{
     /**
      * 创建新窗口，获取连接服务器信息
      */
-    private void newConnectGUI(){
+    private void newConnectGUI()
+    {
         //禁用原窗口
         this.setEnabled(false);
         this.setModalExclusionType(Dialog.ModalExclusionType.NO_EXCLUDE);
@@ -349,15 +357,19 @@ public class ClientGUI extends JFrame implements ActionListener{
         JLabel port_label = new JLabel("服务器端口");
         JTextField port_input = new JTextField(20);
         JButton connect = new JButton("连接");
-        connect.addActionListener(new ActionListener() {
+        connect.addActionListener(new ActionListener()
+        {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent e)
+            {
                 String address = address_input.getText();
                 String port = port_input.getText();
-                if(address.isEmpty()||port.isEmpty()){
+                if(address.isEmpty()||port.isEmpty())
+                {
                     JOptionPane.showMessageDialog(null,"服务器地址不能为空️️","错误",JOptionPane.ERROR_MESSAGE);
                 }
-                else{
+                else
+                {
                     server_address = address;
                     server_port= Integer.parseInt(port);
                     connect();
@@ -385,9 +397,11 @@ public class ClientGUI extends JFrame implements ActionListener{
         connectGUI.pack();
         connectGUI.setVisible(true);
         connectGUI.setLocationRelativeTo(null);
-        connectGUI.addWindowListener(new WindowAdapter() {
+        connectGUI.addWindowListener(new WindowAdapter()
+        {
             @Override
-            public void windowClosing(WindowEvent e) {
+            public void windowClosing(WindowEvent e)
+            {
                 ClientGUI.this.setEnabled(true);
                 disconnect.setSelected(true);
             }
@@ -396,7 +410,8 @@ public class ClientGUI extends JFrame implements ActionListener{
 
     public static void main(String[] args)
     {
-        try {
+        try
+        {
             String lookAndFeel = UIManager.getSystemLookAndFeelClassName();//当前系统的主题
             UIManager.setLookAndFeel(lookAndFeel);
         }
