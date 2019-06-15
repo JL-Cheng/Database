@@ -56,6 +56,11 @@
             <classpath refid="Database.classpath"/>
         </java>
     </target>
+    <target name="ClientGUI">
+        <java classname="database.client.ClientGUI" failonerror="true" fork="yes">
+            <classpath refid="Database.classpath"/>
+        </java>
+    </target>
     <target name="Parser">
         <java classname="database.operation.Parser" failonerror="true" fork="yes">
             <classpath refid="Database.classpath"/>
